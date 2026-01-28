@@ -11,10 +11,14 @@ use Livewire\Attributes\On;
 class PrintStation extends Component
 {
     #[On('echo:printing-channel,FileUploaded')]
+    public function handleFileUploaded()
+    {
+        
+    }
     public function render()
     {
         return view('livewire.print-station', [
-            // 'files' => Printfile::latest()->get(),
+            'files' => Printfile::latest()->get(),
             'qrCode' => QrCode::size(250)->generate(url('/upload'))
          ]
         );
