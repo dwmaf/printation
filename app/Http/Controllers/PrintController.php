@@ -4,56 +4,32 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Printfile;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
-use Illuminate\Support\Facades\Storage;
 
 class PrintController extends Controller
 {
-    // Halaman Dashboard Laptop (Menampilkan QR)
-//     public function index()
-// {
-//     // Hanya tampilkan yang statusnya BELUM 'printed'
-//     $Printfiles = \App\Models\Printfile::where('status', '!=', 'printed')
-//                                      ->orderBy('created_at', 'desc')
-//                                      ->get();
-
-//     $url = config('app.url') . '/upload';
-//     $qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($url);
-
-//     return view('desktop', compact('Printfiles', 'qrCodeUrl'));
-// }
-
-    // Halaman Upload di HP
-    public function uploadPage() {
+    public function uploadPage()
+    {
         return view('user-upload');
     }
 
-    // Proses Simpan File dari HP
-    public function store(Request $request) {
+    public function store(Request $request)
+    {
         $request->validate([
-            'file' => 'required|mimes:pdf,jpg,png,docx|max:10240', // Anti-curang: filter tipe & ukuran
+            'file'   => 'required|array|min:1',
+            'file.*' => 'file|mimes:pdf,jpg,png,docx|max:10240',
         ]);
 
-        // Cek jika IP ini sudah upload terlalu banyak (Anti-spam)
-        $uploadCount = Printfile::where('ip_address', $request->ip())
-                                ->where('created_at', '>', now()->subMinutes(5))
-                                ->count();
-        if($uploadCount > 3) return back()->with('error', 'Terlalu banyak upload. Tunggu sebentar.');
+        foreach ($request->file('file') as $uploadedFile) {
+            // Simpan file ke storage/app/public/uploads
+            $path = $uploadedFile->store('uploads', 'public');
 
-        $path = $request->file('file')->store('uploads', 'public');
+            // Simpan ke database (cuma 2 kolom)
+            Printfile::create([
+                'filename'      => $path, // simpan full path relatif: uploads/xxxx.pdf
+                'original_name' => $uploadedFile->getClientOriginalName(),
+            ]);
+        }
 
-        Printfile::create([
-            'queue_number' => 'A-' . rand(100, 999),
-            'file_path' => $path,
-            'filename'       => $filename,
-            'original_name'  => $originalName,
-            'ip_address' => $request->ip(),
-            // 'original_name' => $request->file('file')->getClientOriginalName(),
-            // 'filename' => $request->file('file')->getClientOriginalName(),
-            
-        ]);
-
-        return back()->with('SUCCES', 'File berhasil dikirim! Silahkan bayar di kasir.');
+        return back()->with('success', 'Semua file berhasil dikirim!');
     }
-
 }
