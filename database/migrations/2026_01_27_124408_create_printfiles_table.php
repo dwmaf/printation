@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('printfiles', function (Blueprint $table) {
             $table->id();
-            $table->string('filename'); // nama file random yg kesimpan di storage
-            $table->string('original_name'); // nama file yang muncul di ui
+            $table->string('filename');
+            $table->string('original_name');
             $table->timestamps();
-        });
+});
+
     }
 
     /**
