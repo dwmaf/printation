@@ -10,7 +10,7 @@
                 <input
                     type="file"
                     id="input-file"
-                    name=""
+                    name="files[]"
                     multiple
                     hidden />
 
