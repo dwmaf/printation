@@ -45,6 +45,8 @@ class PrintController extends Controller
         Printfile::create([
             'queue_number' => 'A-' . rand(100, 999),
             'file_path' => $path,
+            'filename'       => $filename,
+            'original_name'  => $originalName,
             'ip_address' => $request->ip(),
             // 'original_name' => $request->file('file')->getClientOriginalName(),
             // 'filename' => $request->file('file')->getClientOriginalName(),
