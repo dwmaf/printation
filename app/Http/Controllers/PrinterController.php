@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Printfile; // Pastikan Model ini benar (sesuai database temanmu)
+use App\Models\Printfile;
 use Illuminate\Support\Facades\Log;
 
 class PrinterController extends Controller
@@ -15,44 +15,56 @@ class PrinterController extends Controller
             'id' => 'required',
             'copies' => 'required|integer|min:1',
             'color_mode' => 'required|in:bw,color',
+            'paper_size' => 'nullable|string', // A4, Letter, Legal
+            'page_range' => 'nullable|string', // Contoh: "1-5"
         ]);
 
-        // 2. Ambil File dari Database
-        // Pastikan model 'Printfile' benar. Jika temanmu pakai nama lain (misal 'File' atau 'Document'), sesuaikan.
+        // 2. Ambil File
         $file = Printfile::findOrFail($request->id);
-        
-        // 3. Tentukan Lokasi File & Aplikasi
         $pdfPath = storage_path('app/public/' . $file->filename);
-        $exePath = base_path('tools/SumatraPDF.exe'); // Mengarah ke folder tools yang kamu buat
+        $exePath = base_path('tools/SumatraPDF.exe');
 
-        // Cek apakah aplikasi ada (untuk debugging)
         if (!file_exists($exePath)) {
-            return response()->json(['status' => 'error', 'message' => 'Aplikasi SumatraPDF tidak ditemukan di server.'], 500);
+            return response()->json(['status' => 'error', 'message' => 'Driver Printer (SumatraPDF) tidak ditemukan.'], 500);
         }
 
-        // 4. Racik Settingan
+        // 3. Konfigurasi Settingan SumatraPDF
         $settings = [];
+
+        // A. Copies
         $settings[] = $request->copies . "x";
-        
+
+        // B. Color Mode
         if ($request->color_mode == 'bw') {
             $settings[] = "monochrome";
         } else {
             $settings[] = "color";
         }
 
+        // C. Paper Size (Ukuran Kertas)
+        // Format Sumatra: "paper=A4"
+        if (!empty($request->paper_size)) {
+            $settings[] = "paper=" . $request->paper_size;
+        }
+
+        // D. Page Range (Halaman)
+        // Format Sumatra: "1-5,7"
+        if (!empty($request->page_range)) {
+            $settings[] = $request->page_range;
+        }
+
+        // Gabungkan setting: "2x,monochrome,paper=A4,1-5"
         $settingsString = implode(',', $settings);
 
-        // 5. Perintah CMD
-        // -print-to-default : Menggunakan printer default Windows
+        // 4. Eksekusi Perintah
         $command = "\"{$exePath}\" -print-to-default -print-settings \"{$settingsString}\" -silent \"{$pdfPath}\"";
 
-        // 6. Eksekusi
         try {
             shell_exec($command);
             
             return response()->json([
                 'status' => 'success',
-                'message' => 'Perintah cetak terkirim ke printer.'
+                'message' => 'Perintah cetak terkirim.'
             ]);
         } catch (\Exception $e) {
             return response()->json([
