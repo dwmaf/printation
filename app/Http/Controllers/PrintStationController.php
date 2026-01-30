@@ -23,4 +23,10 @@ class PrintStationController extends Controller
             'file' => $printfile,
         ]);
     }
+
+    public function destroy(Request $request, Printfile $printfile)
+    {
+        $printfile->delete();
+        return redirect()->back()->with('success', 'File berhasil dihapus.');
+    }
 }
