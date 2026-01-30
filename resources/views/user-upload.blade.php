@@ -5,11 +5,13 @@
 
 @section("child")
     <div>
-        <form class="flex items-center justify-center min-h-screen">
+        <form enctype="multipart/form-data" class="flex items-center justify-center min-h-screen" >
             <label for="input-file" id="dropzone" class=" block w-125 h-75 p-7 bg-white text-center">
                 <input
                     type="file"
                     id="input-file"
+                    name=""
+                    multiple
                     hidden />
 
                 <div id="upload-form" class="w-full h-full border-2 border-dashed border-[#bbb5ff] bg-[#f7f8ff] rounded-[20px] flex flex-col justify-center items-center">
