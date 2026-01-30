@@ -16,4 +16,11 @@ class PrintStationController extends Controller
             'qrCode' => QrCode::size(250)->generate(url('/upload'))
         ]);
     }
+
+    public function show(Request $request, Printfile $printfile)
+    {
+        return view('print-afile',[
+            'file' => $printfile,
+        ]);
+    }
 }
