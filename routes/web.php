@@ -1,6 +1,6 @@
 <?php
 
-use App\Livewire\PrintStation;
+use App\Http\Controllers\PrintStationController;
 use App\Livewire\UserUpload;
 use Illuminate\Support\Facades\Route;
 
@@ -8,5 +8,5 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
-Route::get('/station', PrintStation::class); 
-Route::get('/upload', UserUpload::class);
+Route::get('/station', [PrintStationController::class, 'index']);
+
