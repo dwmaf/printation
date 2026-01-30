@@ -11,8 +11,6 @@
         </h1>
     </div>
 
-
-
     @if($files->isEmpty())
         <div class="bg-gray-700 p-10 rounded-3xl shadow-2xl flex flex-col items-center text-center max-w-lg w-full">
             <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
@@ -49,17 +47,14 @@
             <div class="grid grid-cols-1 gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
             @foreach($files as $file)
             
-            {{-- 1. Definisikan URL dan Tipe File di awal --}}
             @php
                 $fileUrl = asset('storage/' . $file->filename);
                 $isPdf   = $file->type == 'PDF';
-                // Anggap selain PDF adalah Gambar (karena DOC sudah dilupakan)
             @endphp
 
             <div class="bg-gray-800 hover:bg-gray-700 border border-gray-700 p-5 rounded-xl flex justify-between items-center shadow-lg transition-colors group">
                 
                 <div class="flex items-center space-x-4 overflow-hidden">
-                    {{-- 2. Logika Warna Icon: Merah untuk PDF, Ungu untuk Gambar --}}
                     <div class="w-14 h-14 rounded-xl flex items-center justify-center text-lg font-bold shadow-inner shrink-0
                         {{ $isPdf ? 'bg-red-600 text-white' : 'bg-purple-600 text-white' }}">
                         {{ $file->type }}
@@ -76,7 +71,7 @@
                 </div>
 
                 <div class="flex justify-end items-center space-x-3 shrink-0">
-                    <button onclick="openPrintModal('{{ $fileUrl }}')"
+                    <button onclick="openPrintModal('{{ $file->id }}', '{{ $fileUrl }}')"
                         class="bg-white text-gray-900 hover:bg-blue-500 hover:text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all flex items-center group">
                         <span class="mr-2">PRINT</span>
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -107,24 +102,19 @@
     @endif
 </div>
 
-{{-- MODAL BARU: LEBIH BESAR & ADA PREVIEW --}}
 <div id="printModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity opacity-0" style="transition: opacity 0.3s ease-out;">
     
     <div class="bg-white rounded-2xl overflow-hidden w-full max-w-6xl h-[85vh] flex shadow-2xl scale-95 transition-transform" id="modalContent" style="transition: transform 0.3s ease-out;">
         
-        {{-- BAGIAN KIRI: PREVIEW DOKUMEN --}}
         <div class="w-2/3 bg-gray-200 relative flex items-center justify-center border-r border-gray-300">
-            {{-- Loading Spinner (Muncul saat file dimuat) --}}
             <div id="loadingSpinner" class="absolute flex flex-col items-center">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-3"></div>
                 <p class="text-gray-500 font-bold">Memuat Preview...</p>
             </div>
 
-            {{-- Iframe Preview --}}
             <iframe id="previewFrame" class="w-full h-full relative z-10" src=""></iframe>
         </div>
 
-        {{-- BAGIAN KANAN: KONFIGURASI --}}
         <div class="w-1/3 bg-gray-50 p-8 flex flex-col justify-between">
             
             <div>
@@ -176,26 +166,32 @@
     const modalContent = document.getElementById('modalContent');
     const previewFrame = document.getElementById('previewFrame');
     const spinner = document.getElementById('loadingSpinner');
+    
+    // Variabel Global untuk simpan ID File
+    let selectedFileId = null;
 
-    function openPrintModal(url) {
-        // 1. Reset State
+    function openPrintModal(id, url) {
+        // Simpan ID
+        selectedFileId = id;
+
+        // Reset State UI
         previewFrame.src = ''; 
-        spinner.style.display = 'flex'; // Munculkan loading
+        spinner.style.display = 'flex';
+        document.getElementById('printCopies').value = 1;
+        document.getElementById('printGrayscale').checked = false;
         
-        // 2. Set URL ke Iframe 
+        // Set URL ke Iframe 
         previewFrame.src = url;
 
-        // 3. Tampilkan Modal dengan Animasi
+        // Tampilkan Modal
         modal.classList.remove('hidden');
         modal.classList.add('flex');
-        
         
         setTimeout(() => {
             modal.classList.remove('opacity-0');
             modalContent.classList.remove('scale-95');
             modalContent.classList.add('scale-100');
         }, 10);
-
         
         previewFrame.onload = function() {
             spinner.style.display = 'none';
@@ -203,7 +199,6 @@
     }
 
     function closePrintModal() {
-        // Animasi Tutup
         modal.classList.add('opacity-0');
         modalContent.classList.remove('scale-100');
         modalContent.classList.add('scale-95');
@@ -211,17 +206,51 @@
         setTimeout(() => {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
-            previewFrame.src = ''; // Bersihkan memori iframe
-        }, 300); // Sesuaikan dengan durasi transition CSS
+            previewFrame.src = '';
+        }, 300);
     }
 
     function confirmPrint() {
-        
-        try {
-            previewFrame.contentWindow.focus();
-            previewFrame.contentWindow.print();
-        } catch (e) {
-            alert('Gagal membuka dialog print. Silakan download file dan print manual.');
-        }
+        // Ambil konfigurasi dari UI
+        const copies = document.getElementById('printCopies').value;
+        const isGrayscale = document.getElementById('printGrayscale').checked;
+        const colorMode = isGrayscale ? 'bw' : 'color';
+
+        // Efek Loading Tombol
+        const btn = event.currentTarget;
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<svg class="animate-spin h-5 w-5 mr-3 text-white inline" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses...';
+        btn.disabled = true;
+
+        // Kirim Request ke PrinterController
+        fetch('{{ route("process.print") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                id: selectedFileId,
+                copies: copies,
+                color_mode: colorMode
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if(data.status === 'success') {
+                alert("✅ BERHASIL! Dokumen dikirim ke printer.");
+                closePrintModal();
+            } else {
+                alert("❌ ERROR: " + data.message);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert("Gagal menghubungi server.");
+        })
+        .finally(() => {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
     }
 </script>

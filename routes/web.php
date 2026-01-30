@@ -5,6 +5,7 @@ use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\PrintStationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PrintController;
+use App\Http\Controllers\PrinterController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -17,3 +18,4 @@ Route::get('/station/file-info/{printfile}', [PrintStationController::class, 'ge
 Route::get('/admin/dashboard', [DashboardAdminController::class, 'index'])->name('admin.dashboard');
 Route::get('/upload', [PrintController::class, 'uploadPage']);
 Route::post('/upload', [PrintController::class, 'store']);
+Route::post('/process-print', [PrinterController::class, 'print'])->name('process.print');
