@@ -10,18 +10,18 @@ use Illuminate\Support\Facades\Storage;
 class PrintController extends Controller
 {
     // Halaman Dashboard Laptop (Menampilkan QR)
-    public function index()
-{
-    // Hanya tampilkan yang statusnya BELUM 'printed'
-    $printings = \App\Models\Printing::where('status', '!=', 'printed')
-                                     ->orderBy('created_at', 'desc')
-                                     ->get();
+//     public function index()
+// {
+//     // Hanya tampilkan yang statusnya BELUM 'printed'
+//     $printings = \App\Models\Printing::where('status', '!=', 'printed')
+//                                      ->orderBy('created_at', 'desc')
+//                                      ->get();
 
-    $url = config('app.url') . '/upload';
-    $qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($url);
+//     $url = config('app.url') . '/upload';
+//     $qrCodeUrl = "https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=" . urlencode($url);
 
-    return view('desktop', compact('printings', 'qrCodeUrl'));
-}
+//     return view('desktop', compact('printings', 'qrCodeUrl'));
+// }
 
     // Halaman Upload di HP
     public function uploadPage() {
