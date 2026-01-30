@@ -48,7 +48,7 @@ class PrintController extends Controller
             'ip_address' => $request->ip(),
         ]);
 
-        return back()->with('success', 'File berhasil dikirim! Silahkan bayar di kasir.');
+        return back()->with('SUCCES', 'File berhasil dikirim! Silahkan bayar di kasir.');
     }
 
 }
