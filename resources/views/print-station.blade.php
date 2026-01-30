@@ -50,6 +50,22 @@
             @php
                 $fileUrl = asset('storage/' . $file->filename);
                 $isPdf   = $file->type == 'PDF';
+                $filePath = storage_path('app/public/' . $file->filename);
+    
+                // Default 1 halaman
+                $pageCount = 1;
+
+                // Jika file PDF ada, hitung halamannya
+                if ($isPdf && file_exists($filePath)) {
+                    $content = @file_get_contents($filePath);
+                    if ($content) {
+                        // Hitung berapa kali kata "/Type /Page" muncul di dalam file PDF
+                        $count = preg_match_all("/\/Type\s*\/Page[^s]/", $content, $matches);
+                        if ($count > 0) {
+                            $pageCount = $count;
+                        }
+                    }
+                }
             @endphp
 
             <div class="bg-gray-800 hover:bg-gray-700 border border-gray-700 p-5 rounded-xl flex justify-between items-center shadow-lg transition-colors group">
@@ -71,7 +87,7 @@
                 </div>
 
                 <div class="flex justify-end items-center space-x-3 shrink-0">
-                    <button onclick="openPrintModal('{{ $file->id }}', '{{ $fileUrl }}')"
+                    <button onclick="openPrintModal('{{ $file->id }}', '{{ $fileUrl }}', '{{ $pageCount }}')"
                         class="bg-white text-gray-900 hover:bg-blue-500 hover:text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all flex items-center group">
                         <span class="mr-2">PRINT</span>
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -195,6 +211,25 @@
 
             </div>
 
+            {{-- Rincian Harga --}}
+            <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl mt-6">
+                <div class="flex justify-between items-center text-sm text-gray-600 mb-1">
+                    <span>Harga per lembar</span>
+                    <span id="displayPricePerSheet" class="font-bold">Rp 500</span>
+                </div>
+                
+                <div class="flex justify-between items-center text-sm text-gray-600 mb-2">
+                    <span>Kalkulasi</span>
+                    <span id="displayCalculation">1 Hal x 1 Copy</span>
+                </div>
+
+                <div class="border-t border-blue-200 pt-3 flex justify-between items-center">
+                    <span class="font-bold text-blue-900 text-lg">TOTAL BAYAR</span>
+                    <span id="displayTotalPrice" class="font-black text-2xl text-blue-600">Rp 500</span>
+                </div>
+            </div>
+
+
             {{-- Tombol Aksi --}}
             <div class="space-y-3 mt-6 shrink-0">
                 <button onclick="confirmPrint()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-lg shadow-lg hover:shadow-blue-500/30 transition-all flex items-center justify-center group">
@@ -217,9 +252,14 @@
     const spinner = document.getElementById('loadingSpinner');
     let selectedFileId = null;
 
+    let activePageCount = 1; 
+    const PRICE_BW = 500;    // Harga Hitam Putih
+    const PRICE_COLOR = 1000; // Harga Berwarna
+
     // --- LOGIC BUKA/TUTUP MODAL ---
-    function openPrintModal(id, url) {
+    function openPrintModal(id, url, pages = 1) {
         selectedFileId = id;
+        activePageCount = pages;
 
         // Reset UI
         previewFrame.src = ''; 
@@ -228,13 +268,21 @@
         
         // Reset Page Option ke 'All'
         document.querySelector('input[name="pageOption"][value="all"]').checked = true;
+
+        document.querySelector('input[name="colorMode"][value="color"]').checked = true;
+
         togglePageInput();
 
+        
         // 1. Untuk sembunyikan toolbar PDF viewer di iframe
         previewFrame.src = url + "#toolbar=0&navpanes=0&scrollbar=0";
 
+        calculateTotal();
+
         modal.classList.remove('hidden');
         modal.classList.add('flex');
+
+        
         
         setTimeout(() => {
             modal.classList.remove('opacity-0');
@@ -264,7 +312,62 @@
         let val = parseInt(input.value) + amount;
         if(val < 1) val = 1;
         input.value = val;
+
+        calculateTotal();
     }
+
+    document.querySelectorAll('input[name="colorMode"]').forEach(radio => {
+        radio.addEventListener('change', calculateTotal);
+    });
+
+    function calculateTotal() {
+        // 1. Ambil Data Dasar
+        const copies = parseInt(document.getElementById('printCopies').value) || 1;
+        const colorMode = document.querySelector('input[name="colorMode"]:checked').value;
+        const pageOption = document.querySelector('input[name="pageOption"]:checked').value;
+        
+        // 2. Tentukan Jumlah Halaman yang Akan Dicetak
+        let pagesToPrint = activePageCount; // Default: Total semua halaman file
+
+        // Jika pilih Custom, hitung manual inputnya
+        if (pageOption === 'custom') {
+            const input = document.getElementById('printPageRange').value;
+            pagesToPrint = countCustomPages(input); 
+        }
+
+        // 3. Hitung Harga
+        const pricePerSheet = (colorMode === 'bw') ? PRICE_BW : PRICE_COLOR;
+        const total = pagesToPrint * copies * pricePerSheet;
+
+        // 4. Update Tampilan
+        const formatRp = (num) => "Rp " + num.toLocaleString('id-ID');
+
+        document.getElementById('displayPricePerSheet').innerText = formatRp(pricePerSheet);
+        document.getElementById('displayCalculation').innerText = `${pagesToPrint} Hal x ${copies} Copy`;
+        document.getElementById('displayTotalPrice').innerText = formatRp(total);
+    }
+
+    function countCustomPages(rangeString) {
+        if (!rangeString) return 0; 
+        
+        const parts = rangeString.replace(/\s/g, '').split(',');
+        let count = 0;
+
+        parts.forEach(part => {
+            if (part.includes('-')) {
+                const [start, end] = part.split('-').map(Number);
+                if (start && end && end >= start) {
+                    count += (end - start + 1);
+                }
+            } else {
+                if (part !== '') count++;
+            }
+        });
+
+        return count === 0 ? 1 : count;
+    }
+
+    document.getElementById('printPageRange').addEventListener('input', calculateTotal);
 
     function togglePageInput() {
         const isCustom = document.querySelector('input[name="pageOption"]:checked').value === 'custom';
