@@ -9,4 +9,5 @@ Route::get('/', function () {
     return view('welcome');
 });
 Route::get('/station', [PrintStationController::class, 'index']);
+Route::get('/station/{printfile}', [PrintStationController::class, 'show'])->name('station.show');
 
