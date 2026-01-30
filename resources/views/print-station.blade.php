@@ -182,21 +182,21 @@
         previewFrame.src = ''; 
         spinner.style.display = 'flex'; // Munculkan loading
         
-        // 2. Set URL ke Iframe (Ini yang bikin preview muncul)
+        // 2. Set URL ke Iframe 
         previewFrame.src = url;
 
         // 3. Tampilkan Modal dengan Animasi
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         
-        // Timeout kecil biar animasi transisi jalan halus
+        
         setTimeout(() => {
             modal.classList.remove('opacity-0');
             modalContent.classList.remove('scale-95');
             modalContent.classList.add('scale-100');
         }, 10);
 
-        // 4. Hilangkan Spinner kalau iframe sudah selesai loading
+        
         previewFrame.onload = function() {
             spinner.style.display = 'none';
         };
@@ -216,9 +216,6 @@
     }
 
     function confirmPrint() {
-        // Karena kita pakai window.print() browser,
-        // Kita tidak bisa melempar nilai 'copies' & 'grayscale' ke dialog sistem secara paksa.
-        // Jadi kita langsung print iframe yang sedang dilihat user.
         
         try {
             previewFrame.contentWindow.focus();
