@@ -26,18 +26,6 @@ class DatabaseSeeder extends Seeder
                 'filename' => 'files/LAPORAN KERJA PRAKTEK - D1041191045-387n983s7.pdf',
                 'original_name' => 'LAPORAN KERJA PRAKTEK - D1041191045.pdf',
             ],
-            [
-                'filename' => 'files/KP-IF-05-kshnxx3487.docx',
-                'original_name' => 'KP-IF-05.docx',
-            ],
-            [
-                'filename' => 'files/KP-IF-06-723ye87239zm.docx',
-                'original_name' => 'KP-IF-06.docx',
-            ],
-            [
-                'filename' => 'files/KP-IF-07-dg7xn37xn9.docx',
-                'original_name' => 'KP-IF-07.docx',
-            ]
         ];
 
         foreach ($data as $item) {
