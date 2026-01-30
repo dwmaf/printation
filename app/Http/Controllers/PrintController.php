@@ -25,7 +25,7 @@ class PrintController extends Controller
 
     // Halaman Upload di HP
     public function uploadPage() {
-        return view('upload');
+        return view('user-upload');
     }
 
     // Proses Simpan File dari HP
