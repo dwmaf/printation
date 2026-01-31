@@ -151,7 +151,6 @@
                     <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Ukuran Kertas</label>
                     <select id="printPaperSize" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 font-bold">
                         <option value="A4" selected>A4</option>
-                        <option value="Letter">Letter</option>
                         <option value="Legal">Legal / F4</option>
                     </select>
                 </div>
@@ -202,8 +201,8 @@
                         </label>
                         <label class="cursor-pointer">
                             <input type="radio" name="colorMode" value="bw" class="peer sr-only">
-                            <div class="p-2 rounded-lg border-2 border-gray-200 peer-checked:border-gray-800 peer-checked:bg-gray-800 peer-checked:text-white text-center transition-all hover:bg-gray-50">
-                                <span class="font-bold text-sm block">Hitam Putih</span>
+                            <div class="p-2 rounded-lg border-2 border-gray-200 peer-checked:border-blue-600 peer-checked:bg-blue-50 text-center transition-all hover:bg-gray-50">
+                                <span class="font-bold text-sm block text-gray-700">Hitam Putih</span>
                             </div>
                         </label>
                     </div>
@@ -370,14 +369,21 @@
     document.getElementById('printPageRange').addEventListener('input', calculateTotal);
 
     function togglePageInput() {
+        // 1. Cek apakah user pilih Custom
         const isCustom = document.querySelector('input[name="pageOption"]:checked').value === 'custom';
         const div = document.getElementById('customPageInputDiv');
+        const customInput = document.getElementById('printPageRange');
+
+        // 2. Tampilkan/Sembunyikan Input Box
         if(isCustom) {
             div.classList.remove('hidden');
+            customInput.focus(); 
         } else {
             div.classList.add('hidden');
-            document.getElementById('printPageRange').value = ''; 
+            customInput.value = '';
         }
+
+        calculateTotal();
     }
 
     // --- LOGIC KIRIM KE SERVER ---

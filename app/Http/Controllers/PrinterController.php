@@ -15,7 +15,7 @@ class PrinterController extends Controller
             'id' => 'required',
             'copies' => 'required|integer|min:1',
             'color_mode' => 'required|in:bw,color',
-            'paper_size' => 'nullable|string', // A4, Letter, Legal
+            'paper_size' => 'nullable|string', // A4, Legal
             'page_range' => 'nullable|string', // Contoh: "1-5"
         ]);
 
