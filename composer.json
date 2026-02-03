@@ -47,6 +47,10 @@
             "Composer\\Config::disableProcessTimeout",
             "set FORCE_COLOR=1 && npx concurrently -c \"cyan,yellow,magenta,orange\" \"php artisan serve\" \"php artisan reverb:start --port=8081\"  \"npm run dev\" \"php artisan ngrok:start\" --names=server,reverb,vite,ngrok --kill-others"
         ],
+        "prod": [
+            "Composer\\Config::disableProcessTimeout",
+            "set FORCE_COLOR=1 && npx concurrently -c \"cyan,yellow,magenta\" \"php artisan serve\" \"php artisan reverb:start --port=8081\" \"php artisan ngrok:start\" --names=server,reverb,ngrok --kill-others"
+        ],
         "laindev": [
             "Composer\\Config::disableProcessTimeout",
             "npx concurrently -c \"#93c5fd,#c4b5fd\" \"php artisan serve\" \"npm run dev\" --names=server,vite --kill-others"
