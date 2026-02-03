@@ -6,8 +6,6 @@ use App\Http\Controllers\PrintStationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PrinterController;
-use App\Http\Controllers\TransactionController;
-
 
 Route::get('/', function () {
     return view('welcome');
@@ -21,4 +19,5 @@ Route::get('/admin/dashboard', [DashboardAdminController::class, 'index'])->name
 Route::get('/upload', [PrintController::class, 'uploadPage']);
 Route::post('/upload', [PrintController::class, 'store']);
 Route::post('/process-print', [PrinterController::class, 'print'])->name('process.print');
-Route::post('/transaction/store', [TransactionController::class, 'store'])->name('transaction.store');
+Route::get('/preview/{printfile}', [PrintStationController::class, 'preview'])->name('station.preview');
+Route::get('/pdf/{printfile}', [PrintStationController::class, 'pdf'])->name('station.pdf');
