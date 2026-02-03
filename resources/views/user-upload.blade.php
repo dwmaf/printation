@@ -5,29 +5,36 @@
 
 @section("child")
     <div>
-        <form enctype="multipart/form-data" class="flex items-center justify-center min-h-screen" >
-            <label for="input-file" id="dropzone" class=" block w-125 h-75 p-7 bg-white text-center">
+        <form action="/upload" method="POST" enctype="multipart/form-data" class="flex items-center justify-center min-h-screen" id="uploadForm">
+            @csrf
+            <label for="input-file" id="dropzone" class="block w-full max-w-lg h-100 p-7 bg-white text-center cursor-pointer">
+                <div class="flex gap-3 justify-center items-center mb-6">
+                    <img src="{{ asset('images/placeholder_logo.png') }}" class="w-16" />
+                    <h1 class="text-4xl font-bold">PRINT</h1>
+                </div>
                 <input
                     type="file"
                     id="input-file"
-                    name="files[]"
+                    name="file[]"
                     multiple
-                    hidden />
+                    accept=".pdf,.jpg,.jpeg,.png,.docx"
+                    hidden 
+                    onchange="document.getElementById('uploadForm').submit()" />
 
-                <div id="upload-form" class="w-full h-full border-2 border-dashed border-[#bbb5ff] bg-[#f7f8ff] rounded-[20px] flex flex-col justify-center items-center">
-                    @if (session()->has('uploaded'))
+                <div id="upload-form" class="w-full h-full border-2 border-dashed border-[#6155F5] bg-[#F7F8FF] rounded-[20px] flex flex-col justify-center items-center p-6">
+                    @if (session()->has('success'))
                         <p class="text-green-600 font-semibold text-lg">
-                            ✅ File uploaded
+                            ✅ {{ session('success') }}
                         </p>
                         <p class="text-sm text-gray-600 mt-2">
                             Please check your computer
                         </p>
                     @else
-                        <img src="{{ asset('images/508-icon.png') }}" class="w-25 max-w-[40%] mt-6" />
-                        <p>
+                        <img src="{{ asset('images/upload.png') }}" class="w-32 mb-4" />
+                        <p class="text-lg font-medium">
                             Klik disini untuk <br> mengunggah file.
                         </p>
-                        <span class="block text-[12px] mt-3 text-[#777]">Unggah file yang didukung.</span>
+                        <span class="block text-[12px] mt-3 text-[#777]">Format PDF, PNG, JPG, dan JPEG <br> max. 10MB hingga 10 file</span>
                     @endif
                 </div>
             </label>
