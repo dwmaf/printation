@@ -264,11 +264,11 @@
         selectedFileId = id;
         activePageCount = pages;
 
-        // Reset UI agar bersih saat dibuka ulang
+        // Reset UI 
         previewFrame.src = ''; 
         spinner.style.display = 'flex';
         
-        // Reset Input Values (Pastikan elemen ada sebelum diakses)
+        // Reset Input Values 
         if(document.getElementById('printCopies')) {
             document.getElementById('printCopies').value = 1;
             document.querySelector('input[name="pageOption"][value="all"]').checked = true;
@@ -304,9 +304,6 @@
             modal.classList.remove('flex');
             previewFrame.src = '';
             
-            // RELOAD PAGE (PENTING)
-            // Karena kita memanipulasi HTML panel kanan jadi QR, 
-            // cara termudah meresetnya adalah reload.
             if(document.getElementById('qrView')) {
                 location.reload(); 
             }
@@ -331,7 +328,7 @@
     });
 
     function calculateTotal() {
-        // Cek apakah elemen ada (karena bisa hilang saat mode QR)
+        // Cek apakah elemen ada 
         if(!document.getElementById('printCopies')) return;
 
         const copies = parseInt(document.getElementById('printCopies').value) || 1;
@@ -374,8 +371,6 @@
         return count === 0 ? 1 : count;
     }
 
-    // Event Listener Input Range
-    // Pakai pengecekan null biar aman
     const rangeInput = document.getElementById('printPageRange');
     if(rangeInput) {
         rangeInput.addEventListener('input', calculateTotal);
@@ -399,10 +394,8 @@
     }
 
     // --- STEP 1: LOGIC TOMBOL "CETAK SEKARANG" ---
-    // Mengubah tampilan menjadi QR Code
     function confirmPrint() {
         // 1. Ambil Data Config
-        // Cek elemen dulu untuk menghindari error null saat reload
         const elCopies = document.getElementById('printCopies');
         if(!elCopies) return; 
 
@@ -441,7 +434,7 @@
         // 4. TIMPA PANEL KANAN DENGAN TAMPILAN PEMBAYARAN FULL
         const rightPanel = document.querySelector('#modalContent .w-1\\/3');
         
-        // Gunakan API QR Server (Nanti diganti gambar statis dari mentor)
+        // Gunakan API QR Server 
         const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=TransferRp${totalAmount}`;
 
         rightPanel.innerHTML = `
