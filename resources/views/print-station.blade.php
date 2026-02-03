@@ -2,120 +2,117 @@
 
 @section('child')
 
-<div class="min-h-screen bg-gray-900 text-white font-sans flex flex-col items-center p-6 relative overflow-hidden">
-    <div class="absolute top-0 left-0 w-full h-2"></div>
-
-    <div class="mb-10 text-center z-10">
-        <h1 class="text-4xl font-black text-white tracking-widest uppercase drop-shadow-lg">
+<div class="h-screen p-8">
+    <!-- <div class="absolute top-0 left-0 w-full h-2"></div> -->
+    <div class="h-full flex flex-col justify-center items-center bg-[#FAFAFA] gap-8 rounded-2xl">
+        <h1 class="text-4xl font-black">
             Print Station
         </h1>
-    </div>
 
-    @if($files->isEmpty())
-        <div class="bg-gray-700 p-10 rounded-3xl shadow-2xl flex flex-col items-center text-center max-w-lg w-full">
-            <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
-            
-            <div class="p-4 rounded-2xl shadow-lg w-64 h-64 flex items-center justify-center mb-8 relative group">
-                <div class="relative w-full h-full bg-white">
+        @if($files->isEmpty())
+            <div class="bg-white py-8 rounded-2xl shadow-2xl flex flex-col items-center text-center max-w-lg">
+                <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
+                
+                <div class="relative w-80% bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full [&>svg]:scale-110">
                     {!! $qrCode !!}
                 </div>
-            </div>
 
-            <div class="flex items-center space-x-3 bg-gray-900/50 px-6 py-3 rounded-full border border-gray-700">
-                <div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
-                <span class="text-sm font-medium text-gray-300">Menunggu Upload File...</span>
-            </div>
-        </div>
-
-    @else
-        <div class="w-full max-w-4xl">
-            <div class="flex justify-between items-center mb-6">
-                <div class="flex items-center space-x-3">
-                    <div class="bg-blue-600 p-2 rounded-lg">
-                        <svg width="35" height="35" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M19.5 9H13.5V3H4.5V21H19.5V9ZM18.8789 7.5L15 3.62109V7.5H18.8789ZM3.75 1.5H15L21 7.5V21.75C21 21.9489 20.921 22.1397 20.7803 22.2803C20.6397 22.421 20.4489 22.5 20.25 22.5H3.75C3.55109 22.5 3.36032 22.421 3.21967 22.2803C3.07902 22.1397 3 21.9489 3 21.75V2.25C3 2.05109 3.07902 1.86032 3.21967 1.71967C3.36032 1.57902 3.55109 1.5 3.75 1.5ZM7.5 12H16.5V13.5H7.5V12ZM7.5 7.5H11.25V9H7.5V7.5ZM7.5 16.5H16.5V18H7.5V16.5Z" fill="black"/>
-                        </svg>
-                    </div>
-
-                    <div>
-                        <h2 class="text-2xl font-bold text-white">Dokumen Diterima</h2>
-                        <p class="text-xs text-gray-400">Silakan pilih file untuk dicetak</p>
-                    </div>
+                <div class="flex items-center space-x-3 bg-[#ECECEC] px-6 py-3 rounded-full">
+                    <div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
+                    <span class="text-sm font-medium">Menunggu Upload File...</span>
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-            @foreach($files as $file)
-            
-            @php
-                $fileUrl = asset('storage/' . $file->filename);
-                $isPdf   = $file->type == 'PDF';
-                $filePath = storage_path('app/public/' . $file->filename);
-    
-                // Default 1 halaman
-                $pageCount = 1;
+        @else
+            <div class="w-full max-w-4xl">
+                <div class="flex justify-between items-center mb-6">
+                    <div class="flex items-center space-x-3">
+                        <div class="bg-blue-600 p-2 rounded-lg">
+                            <svg width="35" height="35" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M19.5 9H13.5V3H4.5V21H19.5V9ZM18.8789 7.5L15 3.62109V7.5H18.8789ZM3.75 1.5H15L21 7.5V21.75C21 21.9489 20.921 22.1397 20.7803 22.2803C20.6397 22.421 20.4489 22.5 20.25 22.5H3.75C3.55109 22.5 3.36032 22.421 3.21967 22.2803C3.07902 22.1397 3 21.9489 3 21.75V2.25C3 2.05109 3.07902 1.86032 3.21967 1.71967C3.36032 1.57902 3.55109 1.5 3.75 1.5ZM7.5 12H16.5V13.5H7.5V12ZM7.5 7.5H11.25V9H7.5V7.5ZM7.5 16.5H16.5V18H7.5V16.5Z" fill="black"/>
+                            </svg>
+                        </div>
 
-                // Jika file PDF ada, hitung halamannya
-                if ($isPdf && file_exists($filePath)) {
-                    $content = @file_get_contents($filePath);
-                    if ($content) {
-                        // Hitung berapa kali kata "/Type /Page" muncul di dalam file PDF
-                        $count = preg_match_all("/\/Type\s*\/Page[^s]/", $content, $matches);
-                        if ($count > 0) {
-                            $pageCount = $count;
+                        <div>
+                            <h2 class="text-2xl font-bold text-white">Dokumen Diterima</h2>
+                            <p class="text-xs text-gray-400">Silakan pilih file untuk dicetak</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
+                @foreach($files as $file)
+                
+                @php
+                    $fileUrl = asset('storage/' . $file->filename);
+                    $isPdf   = $file->type == 'PDF';
+                    $filePath = storage_path('app/public/' . $file->filename);
+        
+                    // Default 1 halaman
+                    $pageCount = 1;
+
+                    // Jika file PDF ada, hitung halamannya
+                    if ($isPdf && file_exists($filePath)) {
+                        $content = @file_get_contents($filePath);
+                        if ($content) {
+                            // Hitung berapa kali kata "/Type /Page" muncul di dalam file PDF
+                            $count = preg_match_all("/\/Type\s*\/Page[^s]/", $content, $matches);
+                            if ($count > 0) {
+                                $pageCount = $count;
+                            }
                         }
                     }
-                }
-            @endphp
+                @endphp
 
-            <div class="bg-gray-800 hover:bg-gray-700 border border-gray-700 p-5 rounded-xl flex justify-between items-center shadow-lg transition-colors group">
-                
-                <div class="flex items-center space-x-4 overflow-hidden">
-                    <div class="w-14 h-14 rounded-xl flex items-center justify-center text-lg font-bold shadow-inner shrink-0
-                        {{ $isPdf ? 'bg-red-600 text-white' : 'bg-purple-600 text-white' }}">
-                        {{ $file->type }}
+                <div class="bg-gray-800 hover:bg-gray-700 border border-gray-700 p-5 rounded-xl flex justify-between items-center shadow-lg transition-colors group">
+                    
+                    <div class="flex items-center space-x-4 overflow-hidden">
+                        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-lg font-bold shadow-inner shrink-0
+                            {{ $isPdf ? 'bg-red-600 text-white' : 'bg-purple-600 text-white' }}">
+                            {{ $file->type }}
+                        </div>
+
+                        <div class="min-w-0">
+                            <h3 class="text-lg font-bold text-white truncate pr-4">
+                                {{ $file->original_name ?? $file->filename }}
+                            </h3>
+                            <p class="text-xs text-gray-400">
+                                {{ $file->created_at->diffForHumans() }}
+                            </p>
+                        </div>
                     </div>
 
-                    <div class="min-w-0">
-                        <h3 class="text-lg font-bold text-white truncate pr-4">
-                            {{ $file->original_name ?? $file->filename }}
-                        </h3>
-                        <p class="text-xs text-gray-400">
-                            {{ $file->created_at->diffForHumans() }}
-                        </p>
-                    </div>
-                </div>
-
-                <div class="flex justify-end items-center space-x-3 shrink-0">
-                    <button onclick="openPrintModal('{{ $file->id }}', '{{ $fileUrl }}', '{{ $pageCount }}')"
-                        class="bg-white text-gray-900 hover:bg-blue-500 hover:text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all flex items-center group">
-                        <span class="mr-2">PRINT</span>
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                        </svg>
-                    </button>
-
-                    <form action="{{ route('station.destroy', $file->id) }}" method="POST" 
-                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus file ini?');">
-                        @csrf
-                        @method('DELETE')
-                        
-                        <button type="submit" class="bg-gray-700 hover:bg-red-600 text-white p-3 rounded-lg shadow-lg font-bold transition-colors flex items-center justify-center tooltip" title="Hapus File">
-                            
+                    <div class="flex justify-end items-center space-x-3 shrink-0">
+                        <button onclick="openPrintModal('{{ $file->id }}', '{{ $fileUrl }}', '{{ $pageCount }}')"
+                            class="bg-white text-gray-900 hover:bg-blue-500 hover:text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all flex items-center group">
+                            <span class="mr-2">PRINT</span>
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
                             </svg>
                         </button>
-                    </form>
 
+                        <form action="{{ route('station.destroy', $file->id) }}" method="POST" 
+                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus file ini?');">
+                            @csrf
+                            @method('DELETE')
+                            
+                            <button type="submit" class="bg-gray-700 hover:bg-red-600 text-white p-3 rounded-lg shadow-lg font-bold transition-colors flex items-center justify-center tooltip" title="Hapus File">
+                                
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                </svg>
+                            </button>
+                        </form>
+
+                    </div>
                 </div>
+                @endforeach
             </div>
-            @endforeach
-        </div>
 
-        </div>
+            </div>
 
-    @endif
+        @endif
+    </div>
 </div>
 
 <div id="printModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity opacity-0" style="transition: opacity 0.3s ease-out;">
