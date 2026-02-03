@@ -11,11 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('printfiles', function (Blueprint $table) {
+        Schema::create('outlets', function (Blueprint $table) {
             $table->id();
-            $table->string('filename'); // nama file random yg kesimpan di storage
-            $table->foreignId('station_id')->nullable()->constrained('users'); // ID User laptop station
-            $table->string('original_name'); // nama file yang muncul di ui
+            $table->string('name'); // Nama Toko (Mitra)
+            $table->string('address')->nullable();
+            $table->integer('max_stations')->default(1);
+            $table->string('qris_path')->nullable(); // Path gambar QRIS outlet
             $table->timestamps();
         });
     }
@@ -25,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('printfiles');
+        Schema::dropIfExists('outlets');
     }
 };

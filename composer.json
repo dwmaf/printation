@@ -11,7 +11,8 @@
         "laravel/reverb": "^1.0",
         "laravel/tinker": "^2.10.1",
         "simplesoftwareio/simple-qrcode": "^4.2",
-        "smalot/pdfparser": "^2.12"
+        "smalot/pdfparser": "^2.12",
+        "spatie/laravel-permission": "^6.24"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -53,7 +54,7 @@
         ],
         "laindev": [
             "Composer\\Config::disableProcessTimeout",
-            "npx concurrently -c \"#93c5fd,#c4b5fd\" \"php artisan serve\" \"npm run dev\" --names=server,vite --kill-others"
+            "npx concurrently -c \"cyan,yellow\" \"php artisan serve\" \"npm run dev\" --names=server,vite --kill-others"
         ],
         "test": [
             "@php artisan config:clear --ansi",

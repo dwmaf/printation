@@ -7,12 +7,19 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PrinterController;
 use App\Http\Controllers\TransactionController;
-
+use App\Http\Controllers\AuthController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login']);
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
+    Route::get('/admin/outlets', [DashboardAdminController::class, 'indexOutlet'])->name('admin.outlets');
+    Route::post('/admin/outlets', [DashboardAdminController::class, 'storeOutlet'])->name('admin.outlets.store');
+});
 Route::get('/station', [PrintStationController::class, 'index']);
 Route::get('/station/{printfile}', [PrintStationController::class, 'show'])->name('station.show');
 Route::delete('/station/{printfile}', [PrintStationController::class, 'destroy'])->name('station.destroy');
