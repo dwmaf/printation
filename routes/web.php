@@ -22,3 +22,6 @@ Route::get('/upload', [PrintController::class, 'uploadPage']);
 Route::post('/upload', [PrintController::class, 'store']);
 Route::post('/process-print', [PrinterController::class, 'print'])->name('process.print');
 Route::post('/transaction/store', [TransactionController::class, 'store'])->name('transaction.store');
+Route::get('/station/check-latest', function () {
+    return \App\Models\Printfile::latest()->first()?->id ?? 0;
+});

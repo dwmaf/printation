@@ -13,23 +13,24 @@ class PrintController extends Controller
     }
 
     public function store(Request $request)
-    {
-        $request->validate([
-            'file'   => 'required|array|min:1',
-            'file.*' => 'file|mimes:pdf,jpg,png,docx|max:10240',
+{
+    $request->validate([
+        'file'   => 'required|array|min:1',
+        'file.*' => 'file|mimes:pdf,jpg,jpeg,png,docx|max:10240',
+    ]);
+
+    foreach ($request->file('file') as $uploadedFile) {
+        $path = $uploadedFile->store('uploads', 'public');
+
+        Printfile::create([
+            'filename'      => $path,
+            'original_name' => $uploadedFile->getClientOriginalName(),
         ]);
-
-        foreach ($request->file('file') as $uploadedFile) {
-            // Simpan file ke storage/app/public/uploads
-            $path = $uploadedFile->store('uploads', 'public');
-
-            // Simpan ke database (cuma 2 kolom)
-            Printfile::create([
-                'filename'      => $path, // simpan full path relatif: uploads/xxxx.pdf
-                'original_name' => $uploadedFile->getClientOriginalName(),
-            ]);
-        }
-
-        return back()->with('success', 'Semua file berhasil dikirim!');
     }
+
+    return back()->with('success', 'Thanks for uploading your files!');
+}
+
+
+
 }
