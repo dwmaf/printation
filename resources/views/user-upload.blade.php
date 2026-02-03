@@ -2,12 +2,7 @@
 
 @section("child")
     <div>
-        {{-- FIX: Tambah action, method POST, csrf --}}
-        <form action="{{ url('/upload') }}" method="POST"
-              enctype="multipart/form-data"
-              class="flex items-center justify-center min-h-screen">
-            @csrf
-
+        <form enctype="multipart/form-data" class="flex items-center justify-center min-h-screen" >
             <label for="input-file" id="dropzone" class="block w-full max-w-lg h-100 p-7 bg-white text-center">
                 <div class="flex gap-3 justify-center items-center mb-6">
                     <img src="{{ asset('images/placeholder_logo.png') }}" class="w-16" />
@@ -20,7 +15,9 @@
                     id="input-file"
                     name="file[]"
                     multiple
-                    hidden />
+                    accept=".pdf,.jpg,.jpeg,.png,.docx"
+                    hidden 
+                    onchange="document.getElementById('uploadForm').submit()" />
 
                 <div id="upload-form" class="w-full h-full border-2 border-dashed border-[#6155F5] bg-[#F7F8FF] rounded-[20px] flex flex-col justify-center items-center p-6">
                     @if (session()->has('success'))

@@ -19,7 +19,7 @@
 
                 <div class="flex items-center space-x-3 bg-[#ECECEC] px-6 py-3 rounded-full">
                     <div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
-                    <span class="text-sm font-medium">Menunggu Upload File...</span>
+                    <span class="text-sm font-medium">Menunggu upload file...</span>
                 </div>
             </div>
 
@@ -29,12 +29,12 @@
                     <div class="flex items-center space-x-3">
                         <div class="bg-blue-600 p-2 rounded-lg">
                             <svg width="35" height="35" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M19.5 9H13.5V3H4.5V21H19.5V9ZM18.8789 7.5L15 3.62109V7.5H18.8789ZM3.75 1.5H15L21 7.5V21.75C21 21.9489 20.921 22.1397 20.7803 22.2803C20.6397 22.421 20.4489 22.5 20.25 22.5H3.75C3.55109 22.5 3.36032 22.421 3.21967 22.2803C3.07902 22.1397 3 21.9489 3 21.75V2.25C3 2.05109 3.07902 1.86032 3.21967 1.71967C3.36032 1.57902 3.55109 1.5 3.75 1.5ZM7.5 12H16.5V13.5H7.5V12ZM7.5 7.5H11.25V9H7.5V7.5ZM7.5 16.5H16.5V18H7.5V16.5Z" fill="black"/>
+                                <path d="M19.5 9H13.5V3H4.5V21H19.5V9ZM18.8789 7.5L15 3.62109V7.5H18.8789ZM3.75 1.5H15L21 7.5V21.75C21 21.9489 20.921 22.1397 20.7803 22.2803C20.6397 22.421 20.4489 22.5 20.25 22.5H3.75C3.55109 22.5 3.36032 22.421 3.21967 22.2803C3.07902 22.1397 3 21.9489 3 21.75V2.25C3 2.05109 3.07902 1.86032 3.21967 1.71967C3.36032 1.57902 3.55109 1.5 3.75 1.5ZM7.5 12H16.5V13.5H7.5V12ZM7.5 7.5H11.25V9H7.5V7.5ZM7.5 16.5H16.5V18H7.5V16.5Z" fill="white"/>
                             </svg>
                         </div>
 
                         <div>
-                            <h2 class="text-2xl font-bold text-white">Dokumen Diterima</h2>
+                            <h2 class="text-2xl font-bold">Dokumen diterima!</h2>
                             <p class="text-xs text-gray-400">Silakan pilih file untuk dicetak</p>
                         </div>
                     </div>
@@ -64,7 +64,7 @@
                     }
                 @endphp
 
-                <div class="bg-gray-800 hover:bg-gray-700 border border-gray-700 p-5 rounded-xl flex justify-between items-center shadow-lg transition-colors group">
+                <div class="bg-[#f3f3f3] hover:bg-[#d4d4d4] p-5 rounded-xl flex justify-between items-center transition-colors group">
                     
                     <div class="flex items-center space-x-4 overflow-hidden">
                         <div class="w-14 h-14 rounded-xl flex items-center justify-center text-lg font-bold shadow-inner shrink-0
@@ -73,7 +73,7 @@
                         </div>
 
                         <div class="min-w-0">
-                            <h3 class="text-lg font-bold text-white truncate pr-4">
+                            <h3 class="text-lg font-bold  truncate pr-4">
                                 {{ $file->original_name ?? $file->filename }}
                             </h3>
                             <p class="text-xs text-gray-400">
@@ -84,7 +84,7 @@
 
                     <div class="flex justify-end items-center space-x-3 shrink-0">
                         <button onclick="openPrintModal('{{ $file->id }}', '{{ $fileUrl }}', '{{ $pageCount }}')"
-                            class="bg-white text-gray-900 hover:bg-blue-500 hover:text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all flex items-center group">
+                            class="bg-white text-gray-900 hover:bg-blue-500 hover:text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all flex items-center group cursor-pointer">
                             <span class="mr-2">PRINT</span>
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
@@ -96,7 +96,7 @@
                             @csrf
                             @method('DELETE')
                             
-                            <button type="submit" class="bg-gray-700 hover:bg-red-600 text-white p-3 rounded-lg shadow-lg font-bold transition-colors flex items-center justify-center tooltip" title="Hapus File">
+                            <button type="submit" class="bg-gray-200 hover:bg-red-600 text-black p-3 rounded-lg shadow-lg font-bold transition-colors flex items-center justify-center tooltip cursor-pointer" title="Hapus File">
                                 
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -135,7 +135,7 @@
         <div class="w-1/3 bg-gray-50 flex flex-col h-full overflow-hidden relative">
             <div class="flex justify-between items-start p-6 pb-2 shrink-0 bg-gray-50 z-10">
                 <h2 class="text-2xl font-black text-gray-800 uppercase tracking-wide">Konfigurasi</h2>
-                <button onclick="closePrintModal()" class="text-gray-400 hover:text-red-500 transition-colors">
+                <button onclick="closePrintModal()" class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
