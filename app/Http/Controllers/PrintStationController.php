@@ -31,6 +31,18 @@ class PrintStationController extends Controller
         return redirect()->back()->with('success', 'File berhasil dihapus.');
     }
 
+    public function destroyMultiple(Request $request)
+    {
+        $request->validate([
+            'file_ids' => 'required|array',
+            'file_ids.*' => 'exists:printfiles,id'
+        ]);
+
+        $count = Printfile::whereIn('id', $request->file_ids)->delete();
+        
+        return redirect()->back()->with('success', $count . ' file berhasil dihapus.');
+    }
+
     public function getFileInfo(Printfile $printfile)
     {
         // path file di db

@@ -568,14 +568,17 @@
             </div>
         @else
             <div class="w-full overflow-y-auto custom-scrollbar">
-                <div class="mb-8">
-                    <p>0 file dipilih</p>
+                <div class="mb-8 flex items-center gap-8 h-10">
+                    <p id="fileCounter" class="text-lg font-semibold text-gray-700">0 file dipilih</p>
+                    <button id="deleteAllBtn" onclick="deleteSelectedFiles()" class="hidden bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer">
+                        Hapus semua
+                    </button>
                 </div>
                 <table class="w-full border-collapse">
                     <thead class="bg-gray-100 sticky top-0">
                         <tr class="text-left text-sm font-semibold text-gray-700">
                             <th class="p-3 text-center">
-                                <input type="checkbox" id="checkAll" class="w-4 h-4 accent-blue-600 rounded">
+                                <input type="checkbox" id="checkAll" class="w-4 h-4 accent-blue-600 rounded cursor-pointer">
                             </th>
                             <th class="p-3 text-lg text-center">Tipe</th>
                             <th class="p-3 text-lg">Nama File</th>
@@ -607,7 +610,7 @@
 
                     <tr class="hover:bg-gray-50 transition text-center">
                         <td class="p-3">
-                            <input type="checkbox" class="row-check w-4 h-4 accent-blue-600 rounded">
+                            <input type="checkbox" class="row-check w-4 h-4 accent-blue-600 rounded cursor-pointer" data-file-id="{{ $file->id }}">
                         </td>
 
                         <td class="p-3 font-bold 
@@ -652,8 +655,8 @@
         @endif
         <div id="deleteModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
             <div class="bg-white rounded-2xl p-6 w-[350px] text-center shadow-xl">
-                <h2 class="text-xl font-bold mb-3">Hapus File?</h2>
-                <p class="text-gray-500 mb-6">File akan dihapus permanen.</p>
+                <h2 id="deleteModalTitle" class="text-xl font-bold mb-3">Hapus File?</h2>
+                <p id="deleteModalMessage" class="text-gray-500 mb-6">File akan dihapus permanen.</p>
 
                 <div class="flex gap-3">
                     <button onclick="closeDeleteModal()"
@@ -1115,19 +1118,45 @@
     // Buat checkbox bisa centang semua
     const checkAll = document.getElementById('checkAll');
     const rowChecks = document.querySelectorAll('.row-check');
+    const fileCounter = document.getElementById('fileCounter');
+    const deleteAllBtn = document.getElementById('deleteAllBtn');
+
+    // Update counter dan button visibility
+    function updateSelection() {
+        const checkedCount = [...rowChecks].filter(cb => cb.checked).length;
+        
+        if (checkedCount > 1) {
+            fileCounter.textContent = `${checkedCount} file dipilih`;
+            deleteAllBtn.classList.remove('hidden');
+        } else if (checkedCount === 1) {
+            fileCounter.textContent = '1 file dipilih';
+            deleteAllBtn.classList.add('hidden');
+        } else {
+            fileCounter.textContent = '0 file dipilih';
+            deleteAllBtn.classList.add('hidden');
+        }
+    }
 
     checkAll.addEventListener('change', function () {
         rowChecks.forEach(cb => {
             cb.checked = checkAll.checked;
         });
+        updateSelection();
     });
 
     /* ------------------ */
     // Konfirmasi hapus file
     let selectedForm = null;
+    let isMultipleDelete = false;
+    let selectedFileIds = [];
     
     function openDeleteModal(btn) {
         selectedForm = btn.closest('form');
+        isMultipleDelete = false;
+        
+        document.getElementById('deleteModalTitle').textContent = 'Hapus File?';
+        document.getElementById('deleteModalMessage').textContent = 'File akan dihapus permanen.';
+        
         const modal = document.getElementById('deleteModal');
         modal.classList.remove('hidden');
         modal.classList.add('flex');
@@ -1137,10 +1166,42 @@
         const modal = document.getElementById('deleteModal');
         modal.classList.add('hidden');
         modal.classList.remove('flex');
+        selectedForm = null;
+        isMultipleDelete = false;
+        selectedFileIds = [];
     }
 
     function confirmDelete() {
-        if (selectedForm) {
+        if (isMultipleDelete) {
+            // Handle multiple delete
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("station.destroy-multiple") }}';
+            
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = '{{ csrf_token() }}';
+            form.appendChild(csrfInput);
+            
+            const methodInput = document.createElement('input');
+            methodInput.type = 'hidden';
+            methodInput.name = '_method';
+            methodInput.value = 'DELETE';
+            form.appendChild(methodInput);
+            
+            selectedFileIds.forEach(id => {
+                const idInput = document.createElement('input');
+                idInput.type = 'hidden';
+                idInput.name = 'file_ids[]';
+                idInput.value = id;
+                form.appendChild(idInput);
+            });
+            
+            document.body.appendChild(form);
+            form.submit();
+        } else if (selectedForm) {
+            // Handle single delete
             selectedForm.submit();
         }
     }
@@ -1150,6 +1211,29 @@
         cb.addEventListener('change', function () {
             const allChecked = [...rowChecks].every(c => c.checked);
             checkAll.checked = allChecked;
+            updateSelection();
         });
     });
+
+    // Fungsi untuk menghapus semua file yang dipilih
+    function deleteSelectedFiles() {
+        const checkedBoxes = [...rowChecks].filter(cb => cb.checked);
+        
+        if (checkedBoxes.length === 0) {
+            return;
+        }
+
+        // Set flag dan data untuk multiple delete
+        isMultipleDelete = true;
+        selectedFileIds = checkedBoxes.map(cb => cb.dataset.fileId);
+        
+        // Update modal content
+        document.getElementById('deleteModalTitle').textContent = 'Hapus File?';
+        document.getElementById('deleteModalMessage').textContent = `${checkedBoxes.length} file akan dihapus permanen.`;
+        
+        // Open modal
+        const modal = document.getElementById('deleteModal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    }
 </script>

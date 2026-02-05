@@ -23,6 +23,7 @@ Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
 Route::get('/station', [PrintStationController::class, 'index']);
 Route::get('/station/{printfile}', [PrintStationController::class, 'show'])->name('station.show');
 Route::delete('/station/{printfile}', [PrintStationController::class, 'destroy'])->name('station.destroy');
+Route::delete('/station-multiple', [PrintStationController::class, 'destroyMultiple'])->name('station.destroy-multiple');
 Route::get('/station/file-info/{printfile}', [PrintStationController::class, 'getFileInfo'])->name('station.info');
 Route::get('/admin/dashboard', [DashboardAdminController::class, 'index'])->name('admin.dashboard');
 Route::get('/upload', [PrintController::class, 'uploadPage']);
