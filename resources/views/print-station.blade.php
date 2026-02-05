@@ -1,6 +1,6 @@
 @extends('layouts.app') @section('child')
 
-
+<script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
 <!-- <div class="h-screen p-8">
     <div class="h-full flex flex-col justify-center items-center bg-[#FAFAFA] gap-8 rounded-2xl">
@@ -591,21 +591,9 @@
                     @foreach($files as $file)
 
                     @php
-                        $fileUrl = asset('storage/' . $file->filename);
-                        $isPdf   = $file->type == 'PDF';
-                        $filePath = storage_path('app/public/' . $file->filename);
-
-                        $pageCount = 1;
-
-                        if ($isPdf && file_exists($filePath)) {
-                            $content = @file_get_contents($filePath);
-                            if ($content) {
-                                $count = preg_match_all("/\/Type\s*\/Page[^s]/", $content, $matches);
-                                if ($count > 0) {
-                                    $pageCount = $count;
-                                }
-                            }
-                        }
+                        $fileUrl  = asset('storage/' . $file->filename);
+                        
+                        $type = strtoupper($file->type);
                     @endphp
 
                     <tr class="hover:bg-gray-50 transition text-center">
@@ -628,7 +616,7 @@
 
                         <td class="p-3">
                             <div class="flex justify-center gap-1">
-                                <button onclick="openPrintModal('{{ $file->id }}', '{{ $fileUrl }}', '{{ $pageCount }}')"
+                                <button onclick="openPrintModal('{{ $file->id }}', '{{ $fileUrl }}', '{{ $type }}')"
                                     class="text-gray-900 hover:bg-blue-500 hover:text-white px-3 py-3 rounded-lg font-bold transition-all flex items-center group cursor-pointer tooltip" title="Print">
                                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
@@ -786,7 +774,7 @@
 
             <div class="p-6 pt-4 shrink-0 bg-gray-50 border-t border-gray-200 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
                 <div class="space-y-3">
-                    <button onclick="confirmPrint()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-lg shadow-lg hover:shadow-blue-500/30 transition-all flex items-center justify-center group cursor-pointer">
+                    <button id="btnPrintNow" onclick="confirmPrint()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-lg shadow-lg hover:shadow-blue-500/30 transition-all flex items-center justify-center group cursor-pointer">
                         <svg class="w-6 h-6 mr-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                         CETAK SEKARANG
                     </button>
@@ -816,15 +804,26 @@
     let pendingConfig = {};
 
     // --- LOGIC BUKA/TUTUP MODAL ---
-    function openPrintModal(id, url, pages = 1) {
+    async function openPrintModal(id, url, type = 'PDF') {
         selectedFileId = id;
-        activePageCount = pages;
-
-        // Reset UI 
-        previewFrame.src = ''; 
-        spinner.style.display = 'flex';
+        const btnPrint = document.getElementById('btnPrintNow');
         
-        // Reset Input Values 
+        // 1. STATE AWAL: RESET UI & MATIKAN TOMBOL
+        document.getElementById('displayCalculation').innerHTML = '<span class="animate-pulse text-blue-500 font-bold">Sedang menghitung...</span>';
+        document.getElementById('displayTotalPrice').innerText = 'Rp ...';
+        
+        // Reset variabel halaman sementara
+        activePageCount = 1; 
+
+        // Matikan tombol cetak
+        if(btnPrint) {
+            btnPrint.disabled = true;
+            btnPrint.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
+            btnPrint.classList.remove('bg-blue-600', 'hover:bg-blue-500', 'shadow-lg');
+            btnPrint.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Menghitung Halaman...`;
+        }
+
+        // Reset Input Form ke Default
         if(document.getElementById('printCopies')) {
             document.getElementById('printCopies').value = 1;
             document.querySelector('input[name="pageOption"][value="all"]').checked = true;
@@ -832,20 +831,62 @@
             togglePageInput();
         }
 
-        // Hide toolbar PDF
-        previewFrame.src = url + "#toolbar=0&navpanes=0&scrollbar=0&view=Fit";
+        // Reset UI Preview
+        previewFrame.src = ''; 
+        spinner.style.display = 'flex';
 
-        calculateTotal();
-
+        // Tampilkan Modal
         modal.classList.remove('hidden');
         modal.classList.add('flex');
-        
         setTimeout(() => {
             modal.classList.remove('opacity-0');
             modalContent.classList.remove('scale-95');
             modalContent.classList.add('scale-100');
         }, 10);
-        
+
+        // 2. PROSES HITUNG HALAMAN (ASYNC)
+        const rangeContainer = document.getElementById('containerPageRange');
+        const imageTypes = ['JPG', 'JPEG', 'PNG', 'WEBP'];
+        const safeType = (type || '').toUpperCase();
+        const isImage = imageTypes.includes(safeType);
+
+        try {
+            if (isImage) {
+                // GAMBAR: 1 halaman
+                if(rangeContainer) rangeContainer.classList.add('hidden');
+                activePageCount = 1;
+            } else {
+                // PDF: Download hitung halaman
+                if(rangeContainer) rangeContainer.classList.remove('hidden');
+                
+                const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
+                const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+                activePageCount = pdfDoc.getPageCount();
+            }
+        } catch (error) {
+            console.error("Gagal baca halaman:", error);
+            activePageCount = 1; 
+            alert("Gagal mendeteksi halaman otomatis. Default ke 1.");
+        }
+
+        // 3. STATE AKHIR: AKTIFKAN TOMBOL & HITUNG HARGA
+        calculateTotal(); 
+
+        // Hidupkan kembali tombol cetak
+        if(btnPrint) {
+            btnPrint.disabled = false;
+            btnPrint.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
+            btnPrint.classList.add('bg-blue-600', 'hover:bg-blue-500', 'shadow-lg');
+            
+            // Kembalikan teks & ikon asli
+            btnPrint.innerHTML = `
+                <svg class="w-6 h-6 mr-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                CETAK SEKARANG
+            `;
+        }
+
+        // 4. Load Preview PDF
+        previewFrame.src = url + "#toolbar=0&navpanes=0&scrollbar=0&view=Fit";
         previewFrame.onload = function() {
             spinner.style.display = 'none';
         };
