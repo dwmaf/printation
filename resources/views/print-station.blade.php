@@ -16,7 +16,7 @@
                     {!! $qrCode !!}
                 </div>
 
-                <div class="flex items-center space-x-3 bg-[#ECECEC] px-6 py-3 rounded-full">
+                <div class="flex w-80% items-center space-x-3 bg-[#ECECEC] px-6 py-3 rounded-full">
                     <div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
                     <span class="text-sm font-medium">Menunggu upload file...</span>
                 </div>
@@ -554,7 +554,7 @@
         @if($files->isEmpty())
             <div class="w-full h-full flex flex-col items-center justify-center">
                 <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
-                <div class="relative bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full [&>svg]:scale-110">
+                <div class="relative w-80% bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full">
                     {!! $qrCode !!}
                 </div>
                 <div class="flex items-center space-x-3 bg-[#ECECEC] px-6 py-3 rounded-full">
