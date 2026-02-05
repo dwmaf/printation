@@ -1,24 +1,73 @@
 @extends('layouts.app')
-@section('child')
-<div class="min-h-screen bg-gray-900 flex items-center justify-center p-6">
-    <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl w-full max-w-md border border-gray-700">
-        <h2 class="text-3xl font-bold text-white text-center mb-2">Print App</h2>
-        <p class="text-gray-400 text-center mb-8">Masuk ke sistem</p>
 
-        <form action="{{ route('login') }}" method="POST" class="space-y-6">
-            @csrf
-            <div>
-                <label class="block text-gray-400 text-sm font-bold mb-2">Email</label>
-                <input type="email" name="email" class="w-full bg-gray-700 text-white rounded-lg p-3 border border-gray-600 focus:border-blue-500 focus:outline-none" required>
+@section('child')
+<div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col md:flex-row border border-gray-200">
+        
+        <div class="w-full md:w-1/2 p-8 md:p-12">
+            <div class="flex items-center justify-center gap-2 mb-6">
+                <img src="{{ asset('images/placeholder_logo.png') }}" alt="Logo Print App" class="w-10 h-10 object-contain">
+                
+                <span class="text-xl font-bold text-gray-800 tracking-wider">PRINT</span>
             </div>
-            <div>
-                <label class="block text-gray-400 text-sm font-bold mb-2">Password</label>
-                <input type="password" name="password" class="w-full bg-gray-700 text-white rounded-lg p-3 border border-gray-600 focus:border-blue-500 focus:outline-none" required>
-            </div>
-            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-lg transition-all shadow-lg shadow-blue-500/30">
-                MASUK
-            </button>
-        </form>
+
+            <h1 class="text-2xl font-black text-center text-gray-800 mb-8 uppercase tracking-wide">SELAMAT DATANG!</h1>
+
+            <form action="{{ route('login') }}" method="POST" class="space-y-5">
+                @csrf
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 ml-1">Email</label>
+                    <input type="email" name="email" placeholder="Masukkan email" 
+                        class="w-full bg-gray-50 text-gray-800 rounded-xl p-3 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" required>
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-2 ml-1">Password</label>
+                    <div class="relative">
+                        <input type="password" name="password" id="password" placeholder="Masukkan password" 
+                            class="w-full bg-gray-50 text-gray-800 rounded-xl p-3 pr-12 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" required>
+                        
+                        <button type="button" onclick="togglePassword()" 
+                            class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
+                            <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-500/30 mt-4 cursor-pointer">
+                    Masuk
+                </button>
+            </form>
+        </div>
+
+        <div class="hidden md:flex w-full md:w-1/2 bg-[#015DB4] items-center justify-center p-10 relative">
+            <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-blue-700/50 to-transparent"></div>
+            
+            <img src="{{ asset('images/login-image.png') }}" alt="Login Illustration" class="relative z-10 w-full max-w-sm h-auto object-contain drop-shadow-2xl">
+        </div>
+
     </div>
 </div>
+
+<script>
+    function togglePassword() {
+        const passwordInput = document.getElementById('password');
+        const eyeIcon = document.getElementById('eyeIcon');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            `;
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.innerHTML = `
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88" />
+            `;
+        }
+    }
+</script>
 @endsection
