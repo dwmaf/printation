@@ -548,11 +548,15 @@
 
 
 <div class="h-screen py-8 flex flex-col">
-    <h1 class="text-4xl font-black text-center mb-8">Print Station</h1>
+    <div class="h-30 flex justify-center items-center gap-4 mb-12">
+        <img src="{{ asset('images/placeholder_logo.png') }}">
+        <h1 class="text-4xl font-black text-center">Print Station</h1>
+    </div>
 
     <div class="flex-1 w-full px-8">
         @if($files->isEmpty())
-            <div class="w-full h-full flex flex-col items-center justify-center">
+            <div class="w-full h-96 flex flex-col items-center justify-center">
+                <h2 class="text-2xl font-bold mb-4">Deus Ex-Machina</h2>
                 <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
                 <div class="relative w-80% bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full">
                     {!! $qrCode !!}
@@ -563,7 +567,10 @@
                 </div>
             </div>
         @else
-            <div class="w-full max-h-[60vh] overflow-y-auto custom-scrollbar">
+            <div class="w-full overflow-y-auto custom-scrollbar">
+                <div class="mb-8">
+                    <p>0 file dipilih</p>
+                </div>
                 <table class="w-full border-collapse">
                     <thead class="bg-gray-100 sticky top-0">
                         <tr class="text-left text-sm font-semibold text-gray-700">
@@ -604,7 +611,7 @@
                         </td>
 
                         <td class="p-3 font-bold 
-                            {{ $isPdf ? 'text-red-600' : 'text-purple-600' }}">
+                            {{ $isPdf ? 'text-red-600' : 'text-blue-600' }}">
                             {{ $file->type }}
                         </td>
 
@@ -1067,9 +1074,8 @@
                             Silakan lapor ke <strong>Admin / Kasir</strong> dan tunjukkan Kode Order di atas.
                         </p>
 
-                        <button onclick="location.reload()" class="w-full py-4 bg-gray-900 text-white rounded-xl font-bold shadow-lg hover:bg-gray-800 transition-all transform hover:scale-[1.02]">
-                            Selesai & Tutup
-                        </button>
+                        <button onclick="location.reload()" class="w-full py-4 bg-gray-900 text-white rounded-xl font-bold shadow-lg hover:bg-gray-800 transition-all transform hover:scale-[1.02] cursor-pointer">
+                            Selesai
                     </div>
                 `;
             } else {

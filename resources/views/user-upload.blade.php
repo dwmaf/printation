@@ -7,8 +7,8 @@
     <div>
         <form action="/upload" method="POST" enctype="multipart/form-data" class="flex items-center justify-center min-h-screen" id="uploadForm">
             @csrf
-            <label for="input-file" id="dropzone" class="block w-full max-w-lg h-100 p-7 bg-white text-center cursor-pointer">
-                <div class="flex gap-3 justify-center items-center mb-6">
+            <label for="input-file" id="dropzone" class="block w-full max-w-lg h-full p-7 bg-white text-center cursor-pointer">
+                <div class="flex gap-3 justify-center items-center mb-12">
                     <img src="{{ asset('images/placeholder_logo.png') }}" class="w-16" />
                     <h1 class="text-4xl font-bold">PRINT</h1>
                 </div>
