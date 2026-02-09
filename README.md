@@ -32,6 +32,7 @@ copy .env.example .env
 *Gunakan `cp` jika menggunakan terminal Git Bash/Linux.*
 
 ### 4. Konfigurasi Jaringan & IP Lokal (Wajib jika ingin Testing via HP dan  Menguji fitur Real Time, yes brothers, kita ga pakai ngrok lagi, ngrok suckss, local IP is the best)
+
 Agar fitur scan QR Code berfungsi di HP, laptop dan HP Anda **wajib** berada dalam satu jaringan Wi-Fi yang sama.
 
 1. Cari IP Lokal (IPv4) laptop Anda:
@@ -39,7 +40,6 @@ Agar fitur scan QR Code berfungsi di HP, laptop dan HP Anda **wajib** berada dal
    - Ketik `ipconfig`.
    - Cari baris `IPv4 Address` pada bagian adapter Wi-Fi (Contoh: `10.91.233.144`).
 2. Buka file `.env` dan sesuaikan variabel berikut menggunakan IP tersebut:
-
 ```dotenv
 # Ganti dengan IP laptop Anda
 APP_URL="http://10.91.233.144:8000"
@@ -53,6 +53,11 @@ REVERB_SCHEME=http
 VITE_REVERB_HOST="10.91.233.144" # Gunakan IP laptop Anda
 VITE_REVERB_PORT="${REVERB_PORT}"
 VITE_REVERB_SCHEME="${REVERB_SCHEME}"
+```
+
+Jika anda hanya ingin mengubah" ui tanpa menguji fitur real time ubah nilai BROADCAST_CONNECTION menjadi log
+```
+BROADCAST_CONNECTION=log
 ```
 
 3. **Izin Firewall (Wajib)**:
