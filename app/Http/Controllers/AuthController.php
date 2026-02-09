@@ -29,7 +29,7 @@ class AuthController extends Controller
 
         // Redirect sesuai role
         if ($user->hasRole('super-admin')) {
-            return redirect()->route('admin.outlets');
+            return redirect()->route('admin.dashboard');
         }
 
         if ($user->hasRole('outlet-owner')) {

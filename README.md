@@ -119,3 +119,36 @@ npm run build
    - Jalankan `composer run laindev`.
    - Buka di browser laptop: `http://localhost:8000`.
    - *Catatan: Jika koding UI tapi ingin melihat tampilannya di HP lewat IP lokal, pastikan port 5173 sudah diizinkan di Firewall agar CSS muncul.*
+
+### 11. Daftar Halaman yang Ada & Lokasi file bladenya
+
+#### A. Fitur Pelanggan (Customer - Mobile/HP)
+| Fitur | Lokasi File | Rute | Deskripsi |
+|-------|--------|------|-----------|
+| **Upload Page** | user-upload.blade.php | `/upload/{station_id}` | Halaman upload file via scan QR di laptop. |
+
+#### B. Fitur Print Station (Mesin Cetak)
+| Fitur | Lokasi File | Rute | Deskripsi |
+|-------|--------|------|-----------|
+| **Dashboard Station**| print-station.blade.php | `/station` | Daftar antrian file yang siap diprint (Auto-refresh via Reverb) perlu login, liat kredensial login station di DatabaseSeeder.php. |
+
+#### C. Fitur Outlet Owner (Semuanya perlu login sebagai outlet-owner, cek DatabaseSeeder.php utk liat kredensial login)
+| Fitur | Lokasi File | Rute | Deskripsi |
+|-------|--------|------|-----------|
+| **Dashboard** | outlet-owner/dashboard.blade.php | `/outlet/dashboard` | Ringkasan pendapatan dan statistik outlet. |
+| **Antrian Bayar** | outlet-owner/payments.blade.php | `/outlet/payments` | List bukti pembayaran masuk. |
+| **Manajemen File** | outlet-owner/files.blade.php | `/outlet/files` | Monitoring & pembersihan file di semua station milik outlet. |
+| **Kelola QRIS** | outlet-owner/qris.blade.php | `/outlet/qris` | Upload/Update gambar QRIS pembayaran mandiri. |
+| **Kelola Station** | outlet-owner/stations.blade.php | `/outlet/stations` | Menambah/menghapus akun station di bawah outlet. |
+
+#### D. Fitur Super Admin (Global)
+| Fitur | Lokasi File | Rute | Deskripsi |
+|-------|--------|------|-----------|
+| **Dashboard Super Admin** | admin/dashboard-admin.blade.php | `/admin/dashboard` | Statistik untuk insight admin. |
+| **Kelola Outlet** | admin/outlets/index.blade.php | `/admin/outlets` | Menambah outlet baru & owner-nya ke sistem. |
+| **Log Transaksi** | admin/transactions/index.blade.php | `/admin/transactions` | Melihat riwayat seluruh transaksi di semua outlet. |
+
+#### E. Autentikasi
+| Fitur | Lokasi File | Rute | Deskripsi |
+|-------|--------|------|-----------|
+| **Login** | auth/login.blade.php | `/login` | Masuk sesuai role (Admin/Outlet-Owner/Station). |

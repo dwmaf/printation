@@ -47,14 +47,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 |--------------------------------------------------------------------------
 */
 Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
+    Route::get('/admin/dashboard', [DashboardAdminController::class, 'indexDashboard'])->name('admin.dashboard');
     Route::get('/admin/outlets', [DashboardAdminController::class, 'indexOutlet'])->name('admin.outlets');
     Route::post('/admin/outlets', [DashboardAdminController::class, 'storeOutlet'])->name('admin.outlets.store');
 
     // ✅ TAMBAH INI
     Route::get('/admin/transactions', [\App\Http\Controllers\AdminTransactionController::class, 'index'])->name('admin.transactions');
     // kedua route ini akan dicomment
-    Route::post('/admin/transactions/{transaction}/approve', [\App\Http\Controllers\AdminTransactionController::class, 'approve'])->name('admin.transactions.approve');
-    Route::post('/admin/transactions/{transaction}/reject', [\App\Http\Controllers\AdminTransactionController::class, 'reject'])->name('admin.transactions.reject');
+    // Route::post('/admin/transactions/{transaction}/approve', [\App\Http\Controllers\AdminTransactionController::class, 'approve'])->name('admin.transactions.approve');
+    // Route::post('/admin/transactions/{transaction}/reject', [\App\Http\Controllers\AdminTransactionController::class, 'reject'])->name('admin.transactions.reject');
 });
 
 
