@@ -104,9 +104,16 @@ Route::post('/transaction/store', [TransactionController::class, 'store'])->name
 */
 Route::group(['middleware' => ['auth', 'role:outlet-owner']], function () {
     Route::get('/outlet/dashboard', [OutletController::class, 'index'])->name('outlet.dashboard');
+    Route::get('/outlet/payments', [OutletController::class, 'payments'])->name('outlet.payments');
     Route::get('/outlet/stations', [OutletController::class, 'indexStation'])->name('outlet.stations.index');
+    Route::get('/outlet/files', [OutletController::class, 'indexFiles'])->name('outlet.files.index');
+    Route::delete('/outlet/files/clear-all', [OutletController::class, 'clearAllFiles'])->name('outlet.files.clear-all');
+    Route::delete('/outlet/files/bulk/{stationId}', [OutletController::class, 'bulkDeleteByStation'])->name('outlet.files.bulk-station');
+    Route::delete('/outlet/files/{id}', [OutletController::class, 'destroyFile'])->name('outlet.files.destroy');
+    Route::get('/outlet/qris', [OutletController::class, 'editQRIS'])->name('outlet.editQRIS');
     Route::post('/outlet/verify/{id}', [OutletController::class, 'verify'])->name('outlet.verify');
     Route::post('/outlet/reject/{id}', [OutletController::class, 'reject'])->name('outlet.reject');
     Route::post('/outlet/station', [OutletController::class, 'storeStation'])->name('outlet.storeStation');
     Route::delete('/outlet/station/{id}', [OutletController::class, 'destroyStation'])->name('outlet.destroyStation');
+    Route::post('/outlet/update-qris', [OutletController::class, 'updateQRIS'])->name('outlet.updateQRIS');
 });

@@ -31,38 +31,37 @@ copy .env.example .env
 ```
 *Gunakan `cp` jika menggunakan terminal Git Bash/Linux.*
 
-### 4. Konfigurasi Ngrok & URL (Wajib untuk Tim)
-Agar fitur scan QR Code berfungsi di HP masing-masing, setiap anggota tim **wajib** memiliki akun Ngrok sendiri.
+### 4. Konfigurasi Jaringan & IP Lokal (Wajib jika ingin Testing via HP dan  Menguji fitur Real Time)
+Agar fitur scan QR Code berfungsi di HP, laptop dan HP Anda **wajib** berada dalam satu jaringan Wi-Fi yang sama.
 
-1. Daftar di [ngrok.com](https://dashboard.ngrok.com/signup) (Gratis).
-2. Di dashboard Ngrok, klaim **Static Domain** gratis Anda (biasanya di menu *Universal Gateway > Domains*).
-3. Jalankan perintah ini di terminal untuk login (token ada di dashboard akun ngrok anda, di menu *Getting Started > Your Authtoken*, perintah ini cukup dilakukan sekali):
-   ```sh
-   ngrok config add-authtoken TOKEN_ANDA_DISINI
-   ```
-4. Buka file `.env` dan isi `APP_URL` serta konfigurasi `REVERB_HOST` dengan domain static Anda.
-
-**Contoh isi file `.env` jika domain Ngrok Anda adalah `kucing-terbang.ngrok-free.app`:**
+1. Cari IP Lokal (IPv4) laptop Anda:
+   - Buka CMD/Terminal/PowerShell.
+   - Ketik `ipconfig`.
+   - Cari baris `IPv4 Address` pada bagian adapter Wi-Fi (Contoh: `10.91.233.144`).
+2. Buka file `.env` dan sesuaikan variabel berikut menggunakan IP tersebut:
 
 ```dotenv
-# Ganti dengan domain Anda sendiri
-APP_URL="https://kucing-terbang.ngrok-free.app"
+# Ganti dengan IP laptop Anda
+APP_URL="http://10.91.233.144:8000"
 
-# Konfigurasi Reverb (REVERB_HOST Wajib Sama dengan APP_URL tapi tanpa https://)
-REVERB_APP_ID=821407
-REVERB_APP_KEY=hieghuun6jbnpmgzqlhr
-REVERB_APP_SECRET=9rhe3rkc1njzdpk4durg
-REVERB_HOST="kucing-terbang.ngrok-free.app"
+# Konfigurasi Reverb (Backend tetap ke Localhost)
+REVERB_HOST="127.0.0.1"
 REVERB_PORT=8081
-REVERB_SCHEME=https
+REVERB_SCHEME=http
 
-VITE_REVERB_APP_KEY="${REVERB_APP_KEY}"
-VITE_REVERB_HOST="${REVERB_HOST}"
+# Konfigurasi Akses HP (Frontend/Client)
+VITE_REVERB_HOST="10.91.233.144" # Gunakan IP laptop Anda
 VITE_REVERB_PORT="${REVERB_PORT}"
 VITE_REVERB_SCHEME="${REVERB_SCHEME}"
 ```
 
-> **Catatan:** Jika belum dapat domain static ngroknya, cukup isi `APP_URL="http://localhost"` atau `APP_URL="http://127.0.0.1:8000"` di `.env`.
+3. **Izin Firewall (Wajib)**:
+   Agar HP bisa memanggil server di laptop, jalankan PowerShell sebagai **Administrator** dan eksekusi perintah berikut satu per satu:
+   ```sh
+   netsh advfirewall firewall add rule name="Laravel App" dir=in action=allow protocol=TCP localport=8000
+   netsh advfirewall firewall add rule name="Laravel Reverb" dir=in action=allow protocol=TCP localport=8081
+   netsh advfirewall firewall add rule name="Laravel Vite" dir=in action=allow protocol=TCP localport=5173
+   ```
 
 ### 5. Generate Application Key
 ```sh
@@ -95,7 +94,7 @@ npm install
 npm run build
 ```
 
-## Menjalankan Aplikasi
+### 10. Menjalankan Aplikasi
 
 1. Jalankan server Laravel:
    ```sh
@@ -105,11 +104,13 @@ npm run build
    ```sh
    npm run dev
    ```
-3. Atau jalankan perintah berikut jika ingin menjalankan reverb, artisan server, npm, dan ngrok bersamaan tanpa buat terminal baru:
-   ```sh
-   composer run dev
-   ```
-4. Atau jika hanya ingin jalankan artisan server dan npm saja:
-   ```sh
-   composer run laindev
-   ```
+3. **Jika ingin menguji fitur real-time sync via HP** (Cek no 4):
+   - Jalankan `npm run build` terlebih dahulu.
+   - Gunakan perintah: `composer run lainprod`
+   - Akses via HP: `http://[IP-LAPTOP-ANDA]:8000`
+
+4. **Khusus Frontend Developer** (Jika hanya koding UI di laptop saja):
+   - Gunakan `.env` standar (`APP_URL=http://localhost:8000`).
+   - Jalankan `composer run laindev`.
+   - Buka di browser laptop: `http://localhost:8000`.
+   - *Catatan: Jika koding UI tapi ingin melihat tampilannya di HP lewat IP lokal, pastikan port 5173 sudah diizinkan di Firewall agar CSS muncul.*

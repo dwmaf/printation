@@ -20,9 +20,13 @@ class PrintStationController extends Controller
             $q->latest();
         }])->where('station_id', $stationId)->latest()->get();
 
+        $outlet = Auth::user()->outlet;
+        $outletQr = ($outlet && $outlet->qris_path) ? asset('storage/' . $outlet->qris_path) : asset('images/dana_qr.jpeg');
+
         return view('print-station', [
             'files'  => $files,
             'qrCode' => QrCode::size(300)->margin(2)->generate($uploadUrl),
+            'outletQr' => $outletQr,
         ]);
     }
 

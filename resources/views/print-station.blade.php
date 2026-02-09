@@ -123,7 +123,21 @@
                                         $mainLabel = 'BAYAR ULANG';
                                         $mainBtnClass = 'bg-red-600 hover:bg-red-500 text-white';
                                         $mainMode = 'pay';
-                                    }
+                                    } 
+                                    // elseif ($status === 'completed') {
+                                    //     $badgeText = 'SELESAI DICETAK';
+                                    //     $badgeClass = 'bg-blue-100 text-blue-800';
+                                        
+                                    //     // Opsional 1: Kalau mau bisa bayar lagi buat print copy baru
+                                    //     $mainLabel = 'BAYAR LAGI';
+                                    //     $mainBtnClass = 'bg-gray-200 hover:bg-gray-300 text-gray-800';
+                                    //     $mainMode = 'pay'; // Reset ke mode bayar
+                                        
+                                    //     // Opsional 2: Kalau mau menonaktifkan tombol
+                                    //     // $mainLabel = 'SELESAI';
+                                    //     // $mainBtnClass = 'bg-gray-100 text-gray-400 cursor-not-allowed';
+                                    //     // $mainMode = 'completed'; 
+                                    // }
                                 }
 
                                 // payload untuk LOGIKA (jangan diubah)
@@ -371,9 +385,9 @@
                     </div>
 
                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center">
-                        <div class="text-xs font-bold text-gray-500 uppercase mb-3">QRIS</div>
+                        <div class="text-xs font-bold text-gray-500 uppercase mb-3">QRIS Pembayaran</div>
                         <div class="inline-block bg-white p-2 border-2 border-gray-200 rounded-2xl shadow-sm">
-                            <img id="payQrImage" src="/images/dana_qr.jpeg" class="w-56 h-56 object-contain" alt="QRIS">
+                            <img id="payQrImage" src="{{ $outletQr }}" class="w-56 h-56 object-contain" alt="QRIS">
                         </div>
                         <p class="text-xs text-gray-400 mt-3 font-semibold">
                             Scan QRIS di atas menggunakan GoPay / OVO / Dana / Mobile Banking.
@@ -518,6 +532,23 @@
 </div>
 
 <script>
+    const STATION_ID = @json(Auth::id());
+
+    // Inisialisasi Echo (pastikan app.js sudah memuat Echo & Socket.io/Reverb client)
+    // Jika menggunakan Vite secara standar:
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.Echo) {
+            window.Echo.channel(`printing-channel.${STATION_ID}`)
+                .listen('.file.uploaded', (e) => {
+                    console.log('File baru terdeteksi, merefresh...');
+                    // Cara termudah: reload halaman agar list file terbaru muncul
+                    location.reload(); 
+                    
+                    // Atau jika ingin lebih smooth, Anda bisa memanggil fungsi 
+                    // AJAX untuk mengambil ulang data <tbody> saja.
+                });
+        }
+    });
     // ========= ENDPOINTS (RELATIVE URL = aman untuk NGROK walau APP_URL salah) =========
     const ENDPOINT_TX_STORE   = @json(route('transaction.store', [], false));
     const ENDPOINT_PRINT      = @json(route('process.print', [], false));
@@ -598,7 +629,8 @@
         previewFrame.src = current.fileUrl + "#toolbar=0&navpanes=0&scrollbar=0&view=FitH";
 
         // Decide mode from txStatus (lebih aman dari server)
-        if (!current.txStatus || current.txStatus === 'rejected') {
+        // Jika status selesai (completed), kita paksa mode 'pay' agar bisa bayar lagi
+        if (!current.txStatus || current.txStatus === 'rejected' || current.txStatus === 'completed') {
             current.mode = 'pay';
         } else if (current.txStatus === 'pending') {
             current.mode = 'pending';

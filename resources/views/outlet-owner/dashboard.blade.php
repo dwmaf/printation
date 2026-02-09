@@ -1,4 +1,3 @@
-<!-- filepath: c:\laragon\www\print-app\resources\views\outlet-owner\dashboard.blade.php -->
 @extends('layouts.app')
 
 @section('child')
@@ -17,147 +16,64 @@
             </div>
         </div>
 
-        {{-- FLASH MESSAGES --}}
-        @if (session('success'))
-            <div
-                class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6 rounded shadow-sm flex justify-between items-center">
-                <p class="font-bold">{{ session('success') }}</p>
-                <span class="text-xl cursor-pointer" onclick="this.parentElement.remove()">&times;</span>
-            </div>
-        @endif
-        @if (session('error'))
-            <div
-                class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm flex justify-between items-center">
-                <p class="font-bold">{{ session('error') }}</p>
-                <span class="text-xl cursor-pointer" onclick="this.parentElement.remove()">&times;</span>
-            </div>
-        @endif
-
-
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
 
-            {{-- KOLOM KIRI TABEL VERIFIKASI PEMBAYARAN (UPDATED UI) --}}
-            <div class="lg:col-span-2">
+            {{-- KOLOM KIRI untuk statisktik --}}
+            <div class="lg:col-span-2 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Card Pendapatan -->
+                    <div class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-green-500">
+                        <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Total Pendapatan</p>
+                        <h3 class="text-3xl font-black text-gray-800 mt-1">Rp {{ number_format($totalRevenue, 0, ',', '.') }}</h3>
+                    </div>
 
-                {{-- Header Bagian Kiri --}}
-                <div class="mb-4 flex justify-between items-center">
-                    <h2 class="font-bold text-xl text-gray-800 flex items-center gap-2">
-                        @if ($transactions->isNotEmpty())
-                            <span class="relative flex h-3 w-3">
-                                <span
-                                    class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                <span class="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                            </span>
-                        @endif
-                        Pembayaran Masuk
-                    </h2>
-                    <span class="bg-white border text-gray-600 text-xs font-bold px-3 py-1 rounded-full shadow-sm">
-                        {{ $transactions->count() }} Menunggu
-                    </span>
+                    <!-- Card Antrian -->
+                    <a href="{{ route('outlet.payments') }}" class="bg-white p-6 rounded-2xl shadow-lg border-l-8 border-yellow-500 hover:bg-yellow-50 transition block">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-sm font-bold text-gray-400 uppercase tracking-widest">Antrian Bayar</p>
+                                <h3 class="text-3xl font-black text-gray-800 mt-1">{{ $pendingCount }}</h3>
+                            </div>
+                            <span class="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2 py-1 rounded">VERIFIKASI SEKARANG →</span>
+                        </div>
+                    </a>
                 </div>
 
-                {{-- Table Container style Admin --}}
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="p-4 text-sm font-semibold text-gray-600">Order ID</th>
-                                <th class="p-4 text-sm font-semibold text-gray-600">File & Station</th>
-                                <th class="p-4 text-sm font-semibold text-gray-600">Amount</th>
-                                <th class="p-4 text-sm font-semibold text-gray-600">Status</th>
-                                <th class="p-4 text-sm font-semibold text-gray-600 text-right">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            @forelse($transactions as $tx)
-                                <tr class="hover:bg-gray-50">
-                                    <td class="p-4 align-top">
-                                        <div class="font-bold text-gray-800">#{{ $tx->order_id }}</div>
-                                        <div class="text-xs text-gray-400 mt-1">{{ $tx->created_at->diffForHumans() }}</div>
-                                    </td>
+                {{-- Placeholder untuk Chart atau Data Lain di masa depan --}}
+                <div class="bg-white p-12 rounded-2xl shadow-lg border border-gray-100 flex flex-col items-center justify-center text-center">
+                    <div class="w-16 h-16 bg-blue-50 text-blue-500 rounded-full flex items-center justify-center mb-4">
+                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    </div>
+                    <h3 class="font-bold text-gray-800">Modul Statistik Segera Hadir</h3>
+                    <p class="text-gray-400 text-sm">Pantau performa harian outlet Anda di sini.</p>
+                </div>
+            </div>
 
-                                    <td class="p-4 align-top">
-                                        <div class="font-semibold text-gray-800 mb-1">
-                                            {{ $tx->filename_snapshot ?? ($tx->file->original_name ?? '(File Terhapus)') }}
-                                        </div>
+            {{-- KOLOM KANAN: PENGATURAN OUTLET / QRIS (NEW) --}}
+            <div class="lg:col-span-1 space-y-6">
+                <div class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+                    <h2 class="font-bold text-xl text-gray-800 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+                        </svg>
+                        QRIS Pembayaran
+                    </h2>
+                    
+                    <div class="flex flex-col items-center p-4 bg-gray-50 rounded-xl mb-4 border border-gray-100">
+                        @if($outlet->qris_path)
+                            <img src="{{ asset('storage/' . $outlet->qris_path) }}" class="h-32 w-auto object-contain rounded shadow-sm mb-3">
+                            <span class="text-xs font-bold text-green-600 bg-green-50 px-2 py-1 rounded">QRIS AKTIF</span>
+                        @else
+                            <div class="h-32 w-32 flex items-center justify-center text-gray-300 border-2 border-dashed border-gray-200 rounded-lg mb-3">
+                                No QRIS
+                            </div>
+                            <span class="text-xs font-bold text-red-600 bg-red-50 px-2 py-1 rounded">BELUM DISET</span>
+                        @endif
+                    </div>
 
-                                        <div class="flex items-center gap-2 text-xs">
-                                            <span
-                                                class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded border border-gray-200">
-                                                Station: {{ $tx->station->name ?? 'Unknown' }}
-                                            </span>
-                                            <span class="text-gray-400">|</span>
-                                            <span class="text-gray-500">{{ $tx->total_pages }} Hlm / {{ $tx->copies }}
-                                                Rangkap</span>
-                                        </div>
-                                    </td>
-
-                                    <td class="p-4 align-top">
-                                        <div class="font-bold text-gray-800">
-                                            Rp {{ number_format($tx->amount, 0, ',', '.') }}
-                                        </div>
-                                        <div class="text-xs text-gray-400">Tunai</div>
-                                    </td>
-
-                                    <td class="p-4 align-top">
-                                        @php
-                                            $badge = match ($tx->status) {
-                                                'pending', 'waiting_verification' => 'bg-yellow-100 text-yellow-800',
-                                                'paid', 'processing' => 'bg-green-100 text-green-800',
-                                                'rejected' => 'bg-red-100 text-red-800',
-                                                default => 'bg-gray-100 text-gray-700',
-                                            };
-                                            $label = $tx->status == 'waiting_verification' ? 'MENUNGGU' : $tx->status;
-                                        @endphp
-
-                                        <span class="px-3 py-1 rounded-full text-xs font-bold {{ $badge }}">
-                                            {{ strtoupper($label) }}
-                                        </span>
-                                    </td>
-
-                                    <td class="p-4 align-top text-right">
-                                        @if ($tx->status === 'pending')
-                                            <div class="flex justify-end gap-2">
-                                                {{-- Tombol Tolak --}}
-                                                <form action="{{ route('outlet.reject', $tx->id) }}" method="POST"
-                                                    onsubmit="return confirm('Tolak transaksi ini?')">
-                                                    @csrf
-                                                    <button
-                                                        class="bg-red-600 hover:bg-red-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition shadow-sm">
-                                                        Reject
-                                                    </button>
-                                                </form>
-
-                                                {{-- Tombol Terima --}}
-                                                <form action="{{ route('outlet.verify', $tx->id) }}" method="POST">
-                                                    @csrf
-                                                    <button
-                                                        class="bg-green-600 hover:bg-green-500 text-white font-bold px-4 py-2 rounded-lg text-sm transition shadow-sm">
-                                                        Approve
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        @else
-                                            <span class="text-xs text-gray-400 font-bold">No action</span>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @empty
-                                <tr>
-                                    <td colspan="5" class="p-8 text-center bg-white">
-                                        <div class="flex flex-col items-center justify-center text-gray-400">
-                                            <svg class="w-12 h-12 mb-3 text-gray-300" fill="none" stroke="currentColor"
-                                                viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                            </svg>
-                                            <p class="font-medium">Tidak ada antrian pembayaran saat ini.</p>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforelse
-                        </tbody>
-                    </table>
+                    <a href="{{ route('outlet.editQRIS') }}" class="block w-full text-center bg-gray-900 hover:bg-black text-white font-bold py-3 rounded-xl transition shadow-lg">
+                        GANTI QRIS
+                    </a>
                 </div>
             </div>
         </div>

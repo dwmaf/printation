@@ -36,4 +36,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Outlet::class);
     }
+
+    public function printFiles()
+    {
+        return $this->hasMany(Printfile::class, 'station_id');
+    }
 }

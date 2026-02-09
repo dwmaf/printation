@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Printfile;
+use App\Models\Transaction;
 use Illuminate\Support\Facades\Log;
 
 class PrinterController extends Controller
@@ -12,6 +13,7 @@ class PrinterController extends Controller
     {
         // 1. Validasi Input
         $request->validate([
+            'transaction_id' => 'required|exists:transactions,id',
             'id' => 'required',
             'copies' => 'required|integer|min:1',
             'color_mode' => 'required|in:bw,color',
@@ -61,7 +63,11 @@ class PrinterController extends Controller
 
         try {
             shell_exec($command);
-            
+            // status transaksinya dijadiin completed agar kalau print lagi ya harus bayar lagi
+            $trx = Transaction::find($request->transaction_id);
+            if ($trx) {
+                $trx->update(['status' => 'completed']);
+            }
             return response()->json([
                 'status' => 'success',
                 'message' => 'Perintah cetak terkirim.'
