@@ -1,579 +1,46 @@
-@extends('layouts.app') @section('child')
+@extends('layouts.app')
+@section('child')
 
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
-<!-- <div class="h-screen p-8">
-    <div class="h-full flex flex-col justify-center items-center bg-[#FAFAFA] gap-8 rounded-2xl">
-        <h1 class="text-4xl font-black">
-            Print Station
-        </h1>
-
-        @if($files->isEmpty())
-            <div class="bg-white py-8 rounded-2xl shadow-2xl flex flex-col items-center text-center max-w-lg">
-                <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
-                
-                <div class="relative w-80% bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full [&>svg]:scale-110">
-                    {!! $qrCode !!}
-                </div>
-
-                <div class="flex w-80% items-center space-x-3 bg-[#ECECEC] px-6 py-3 rounded-full">
-                    <div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
-                    <span class="text-sm font-medium">Menunggu upload file...</span>
-                </div>
-            </div>
-
-        @else
-            <div class="w-full max-w-4xl">
-                <div class="flex justify-between items-center mb-6">
-                    <div class="flex items-center space-x-3">
-                        <div class="bg-blue-600 p-2 rounded-lg">
-                            <svg width="35" height="35" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M19.5 9H13.5V3H4.5V21H19.5V9ZM18.8789 7.5L15 3.62109V7.5H18.8789ZM3.75 1.5H15L21 7.5V21.75C21 21.9489 20.921 22.1397 20.7803 22.2803C20.6397 22.421 20.4489 22.5 20.25 22.5H3.75C3.55109 22.5 3.36032 22.421 3.21967 22.2803C3.07902 22.1397 3 21.9489 3 21.75V2.25C3 2.05109 3.07902 1.86032 3.21967 1.71967C3.36032 1.57902 3.55109 1.5 3.75 1.5ZM7.5 12H16.5V13.5H7.5V12ZM7.5 7.5H11.25V9H7.5V7.5ZM7.5 16.5H16.5V18H7.5V16.5Z" fill="white"/>
-                            </svg>
-                        </div>
-
-                        <div>
-                            <h2 class="text-2xl font-bold">Dokumen diterima!</h2>
-                            <p class="text-xs text-gray-400">Silakan pilih file untuk dicetak</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 gap-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
-                @foreach($files as $file)
-                
-                @php
-                    $fileUrl = asset('storage/' . $file->filename);
-                    $isPdf   = $file->type == 'PDF';
-                    $filePath = storage_path('app/public/' . $file->filename);
-        
-                    // Default 1 halaman
-                    $pageCount = 1;
-
-                    // Jika file PDF ada, hitung halamannya
-                    if ($isPdf && file_exists($filePath)) {
-                        $content = @file_get_contents($filePath);
-                        if ($content) {
-                            // Hitung berapa kali kata "/Type /Page" muncul di dalam file PDF
-                            $count = preg_match_all("/\/Type\s*\/Page[^s]/", $content, $matches);
-                            if ($count > 0) {
-                                $pageCount = $count;
-                            }
-                        }
-                    }
-                @endphp
-
-                <div class="bg-[#f3f3f3] hover:bg-[#d4d4d4] p-5 rounded-xl flex justify-between items-center transition-colors group">
-                    
-                    <div class="flex items-center space-x-4 overflow-hidden">
-                        <div class="w-14 h-14 rounded-xl flex items-center justify-center text-lg font-bold shadow-inner shrink-0
-                            {{ $isPdf ? 'bg-red-600 text-white' : 'bg-purple-600 text-white' }}">
-                            {{ $file->type }}
-                        </div>
-
-                        <div class="min-w-0">
-                            <h3 class="text-lg font-bold  truncate pr-4">
-                                {{ $file->original_name ?? $file->filename }}
-                            </h3>
-                            <p class="text-xs text-gray-400">
-                                {{ $file->created_at->diffForHumans() }}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div class="flex justify-end items-center space-x-3 shrink-0">
-                        <button onclick="openPrintModal('{{ $file->id }}', '{{ $fileUrl }}', '{{ $pageCount }}')"
-                            class="bg-white text-gray-900 hover:bg-blue-500 hover:text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all flex items-center group cursor-pointer">
-                            <span class="mr-2">PRINT</span>
-                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                            </svg>
-                        </button>
-
-                        <form action="{{ route('station.destroy', $file->id) }}" method="POST" 
-                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus file ini?');">
-                            @csrf
-                            @method('DELETE')
-                            
-                            <button type="submit" class="bg-gray-200 hover:bg-red-600 text-black p-3 rounded-lg shadow-lg font-bold transition-colors flex items-center justify-center tooltip cursor-pointer" title="Hapus File">
-                                
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                            </button>
-                        </form>
-
-                    </div>
-                </div>
-                @endforeach
-            </div>
-
-            </div>
-
-        @endif
-    </div>
-</div>
-
-<div id="printModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity opacity-0" style="transition: opacity 0.3s ease-out;">
-    
-    <div class="bg-white rounded-2xl overflow-hidden w-full max-w-6xl h-[85vh] flex shadow-2xl scale-95 transition-transform" id="modalContent" style="transition: transform 0.3s ease-out;">
-        
-        {{-- Bagian Kiri: Preview --}}
-        <div class="w-2/3 bg-gray-200 relative flex items-center justify-center border-r border-gray-300">
-            <div id="loadingSpinner" class="absolute flex flex-col items-center">
-                <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-3"></div>
-                <p class="text-gray-500 font-bold">Memuat Preview...</p>
-            </div>
-
-            <iframe id="previewFrame" class="w-full h-full relative z-10" src=""></iframe>
-            
-            <div class="absolute inset-0 z-20 pointer-events-none"></div>
-        </div>
-
-        {{-- Bagian Kanan: Konfigurasi Print --}}
-        <div class="w-1/3 bg-gray-50 flex flex-col h-full overflow-hidden relative">
-            <div class="flex justify-between items-start p-6 pb-2 shrink-0 bg-gray-50 z-10">
-                <h2 class="text-2xl font-black text-gray-800 uppercase tracking-wide">Konfigurasi</h2>
-                <button onclick="closePrintModal()" class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-
-            <div class="flex-1 overflow-y-auto custom-scrollbar p-6 pt-2">
-                <div class="space-y-5">
-                    {{-- 1. Paper Size --}}
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Ukuran Kertas</label>
-                        <select id="printPaperSize" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 font-bold">
-                            <option value="A4" selected>A4</option>
-                            <option value="Legal">Legal / F4</option>
-                        </select>
-                    </div>
-
-                    {{-- 2. Pages --}}
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Rentang Halaman</label>
-                        
-                        <div class="flex items-center mb-3 space-x-4">
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="pageOption" value="all" checked onchange="togglePageInput()" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                                <span class="ml-2 text-sm font-medium text-gray-900">Semua</span>
-                            </label>
-                            <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="pageOption" value="custom" onchange="togglePageInput()" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
-                                <span class="ml-2 text-sm font-medium text-gray-900">Custom</span>
-                            </label>
-                        </div>
-
-                        <div id="customPageInputDiv" class="hidden">
-                            <input id="printPageRange" type="text" placeholder="Contoh: 1-5, 8, 11-13" 
-                                class="w-full text-sm font-bold border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
-                            <p class="text-[10px] text-gray-400 mt-1">Gunakan tanda hubung (-) untuk rentang dan koma (,) untuk halaman acak.</p>
-                        </div>
-                    </div>
-
-                    {{-- 3. Copies --}}
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Jumlah Copy</label>
-                        <div class="flex items-center">
-                            <button onclick="adjustCopies(-1)" class="w-10 h-10 bg-gray-100 rounded-l-lg hover:bg-gray-200 font-bold">-</button>
-                            <input id="printCopies" type="number" value="1" min="1" readonly
-                                class="w-full text-center text-xl font-bold text-gray-800 border-y border-x-0 border-gray-200 h-10 focus:ring-0">
-                            <button onclick="adjustCopies(1)" class="w-10 h-10 bg-gray-100 rounded-r-lg hover:bg-gray-200 font-bold">+</button>
-                        </div>
-                    </div>
-
-                    {{-- 4. Colour Mode --}}
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Mode Warna</label>
-                        <div class="grid grid-cols-2 gap-2">
-                            <label class="cursor-pointer">
-                                <input type="radio" name="colorMode" value="color" checked class="peer sr-only">
-                                <div class="p-2 rounded-lg border-2 border-gray-200 peer-checked:border-blue-600 peer-checked:bg-blue-50 text-center transition-all hover:bg-gray-50">
-                                    <span class="font-bold text-sm block text-gray-700">Berwarna</span>
-                                </div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="colorMode" value="bw" class="peer sr-only">
-                                <div class="p-2 rounded-lg border-2 border-gray-200 peer-checked:border-blue-600 peer-checked:bg-blue-50 text-center transition-all hover:bg-gray-50">
-                                    <span class="font-bold text-sm block text-gray-700">Hitam Putih</span>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    {{-- Rincian Harga --}}
-                    <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl mt-6">
-                        <div class="flex justify-between items-center text-sm text-gray-600 mb-1">
-                            <span>Harga per lembar</span>
-                            <span id="displayPricePerSheet" class="font-bold">Rp 500</span>
-                        </div>
-                        
-                        <div class="flex justify-between items-center text-sm text-gray-600 mb-2">
-                            <span>Kalkulasi</span>
-                            <span id="displayCalculation">1 Hal x 1 Copy</span>
-                        </div>
-
-                        <div class="border-t border-blue-200 pt-3 flex justify-between items-center">
-                            <span class="font-bold text-blue-900 text-lg">TOTAL BAYAR</span>
-                            <span id="displayTotalPrice" class="font-black text-2xl text-blue-600">Rp 500</span>
-                        </div>
-                    </div>
-                    
-                    <div class="h-4"></div>
-                </div>
-            </div>
-
-            <div class="p-6 pt-4 shrink-0 bg-gray-50 border-t border-gray-200 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-                <div class="space-y-3">
-                    <button onclick="confirmPrint()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-lg shadow-lg hover:shadow-blue-500/30 transition-all flex items-center justify-center group">
-                        <svg class="w-6 h-6 mr-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        CETAK SEKARANG
-                    </button>
-                    <button onclick="closePrintModal()" class="w-full py-3 text-gray-500 hover:text-gray-800 font-bold transition-colors">
-                        Batal
-                    </button>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-<script>
-    const modal = document.getElementById('printModal');
-    const modalContent = document.getElementById('modalContent');
-    const previewFrame = document.getElementById('previewFrame');
-    const spinner = document.getElementById('loadingSpinner');
-    
-    // State Variables
-    let selectedFileId = null;
-    let activePageCount = 1; 
-    const PRICE_BW = 500;    
-    const PRICE_COLOR = 1000; 
-
-    // Variabel global untuk menyimpan config sementara
-    let pendingConfig = {};
-
-    // --- LOGIC BUKA/TUTUP MODAL ---
-    function openPrintModal(id, url, pages = 1) {
-        selectedFileId = id;
-        activePageCount = pages;
-
-        // Reset UI 
-        previewFrame.src = ''; 
-        spinner.style.display = 'flex';
-        
-        // Reset Input Values 
-        if(document.getElementById('printCopies')) {
-            document.getElementById('printCopies').value = 1;
-            document.querySelector('input[name="pageOption"][value="all"]').checked = true;
-            document.querySelector('input[name="colorMode"][value="color"]').checked = true;
-            togglePageInput();
-        }
-
-        // Hide toolbar PDF
-        previewFrame.src = url + "#toolbar=0&navpanes=0&scrollbar=0&view=Fit";
-
-        calculateTotal();
-
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-        
-        setTimeout(() => {
-            modal.classList.remove('opacity-0');
-            modalContent.classList.remove('scale-95');
-            modalContent.classList.add('scale-100');
-        }, 10);
-        
-        previewFrame.onload = function() {
-            spinner.style.display = 'none';
-        };
-    }
-
-    function closePrintModal() {
-        modal.classList.add('opacity-0');
-        modalContent.classList.remove('scale-100');
-        modalContent.classList.add('scale-95');
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-            previewFrame.src = '';
-            
-            if(document.getElementById('qrView')) {
-                location.reload(); 
-            }
-        }, 300);
-    }
-
-    // --- LOGIC UI INPUT ---
-    function adjustCopies(amount) {
-        const input = document.getElementById('printCopies');
-        if(!input) return; // Guard clause jika elemen hilang
-        let val = parseInt(input.value) + amount;
-        if(val < 1) val = 1;
-        input.value = val;
-        calculateTotal();
-    }
-
-    // Event Delegation untuk Radio Button
-    document.addEventListener('change', function(e) {
-        if(e.target.name === 'colorMode') {
-            calculateTotal();
-        }
-    });
-
-    function calculateTotal() {
-        // Cek apakah elemen ada 
-        if(!document.getElementById('printCopies')) return;
-
-        const copies = parseInt(document.getElementById('printCopies').value) || 1;
-        const colorMode = document.querySelector('input[name="colorMode"]:checked').value;
-        const pageOption = document.querySelector('input[name="pageOption"]:checked').value;
-        
-        let pagesToPrint = activePageCount; 
-
-        if (pageOption === 'custom') {
-            const input = document.getElementById('printPageRange').value;
-            pagesToPrint = countCustomPages(input); 
-        }
-
-        const pricePerSheet = (colorMode === 'bw') ? PRICE_BW : PRICE_COLOR;
-        const total = pagesToPrint * copies * pricePerSheet;
-
-        const formatRp = (num) => "Rp " + num.toLocaleString('id-ID');
-
-        document.getElementById('displayPricePerSheet').innerText = formatRp(pricePerSheet);
-        document.getElementById('displayCalculation').innerText = `${pagesToPrint} Hal x ${copies} Copy`;
-        document.getElementById('displayTotalPrice').innerText = formatRp(total);
-        
-        return total; // Return nilai total
-    }
-
-    function countCustomPages(rangeString) {
-        if (!rangeString) return 0; 
-        const parts = rangeString.replace(/\s/g, '').split(',');
-        let count = 0;
-        parts.forEach(part => {
-            if (part.includes('-')) {
-                const [start, end] = part.split('-').map(Number);
-                if (start && end && end >= start) {
-                    count += (end - start + 1);
-                }
-            } else {
-                if (part !== '') count++;
-            }
-        });
-        return count === 0 ? 1 : count;
-    }
-
-    const rangeInput = document.getElementById('printPageRange');
-    if(rangeInput) {
-        rangeInput.addEventListener('input', calculateTotal);
-    }
-
-    function togglePageInput() {
-        if(!document.getElementById('printPageRange')) return;
-
-        const isCustom = document.querySelector('input[name="pageOption"]:checked').value === 'custom';
-        const div = document.getElementById('customPageInputDiv');
-        const customInput = document.getElementById('printPageRange');
-
-        if(isCustom) {
-            div.classList.remove('hidden');
-            customInput.focus(); 
-        } else {
-            div.classList.add('hidden');
-            customInput.value = '';
-        }
-        calculateTotal();
-    }
-
-    // --- STEP 1: LOGIC TOMBOL "CETAK SEKARANG" ---
-    function confirmPrint() {
-        // 1. Ambil Data Config
-        const elCopies = document.getElementById('printCopies');
-        if(!elCopies) return; 
-
-        const copies = elCopies.value;
-        const colorMode = document.querySelector('input[name="colorMode"]:checked').value;
-        const paperSize = document.getElementById('printPaperSize').value;
-        const pageOption = document.querySelector('input[name="pageOption"]:checked').value;
-        
-        let pageRange = null;
-        let pagesToPrint = activePageCount;
-
-        if (pageOption === 'custom') {
-            pageRange = document.getElementById('printPageRange').value;
-            if(!pageRange) {
-                alert("Harap isi rentang halaman.");
-                return;
-            }
-            pagesToPrint = countCustomPages(pageRange);
-        }
-
-        // 2. Hitung Total Final
-        const pricePerSheet = (colorMode === 'bw') ? PRICE_BW : PRICE_COLOR;
-        const totalAmount = pagesToPrint * copies * pricePerSheet;
-
-        // 3. Simpan Config ke Variable Global
-        pendingConfig = {
-            file_id: selectedFileId,
-            copies: copies,
-            color_mode: colorMode,
-            paper_size: paperSize,
-            page_range: pageRange,
-            page_count: pagesToPrint,
-            amount: totalAmount
-        };
-
-        // 4. TIMPA PANEL KANAN DENGAN TAMPILAN PEMBAYARAN FULL
-        const rightPanel = document.querySelector('#modalContent .w-1\\/3');
-        
-        // Gunakan API QR Server 
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=TransferRp${totalAmount}`;
-
-        rightPanel.innerHTML = `
-            <div id="qrView" class="h-full flex flex-col bg-white animate-fade-in relative">
-                
-                {{-- Header Sederhana --}}
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center shrink-0">
-                    <h2 class="text-xl font-black text-gray-800 uppercase tracking-wide">PEMBAYARAN</h2>
-                    {{-- Tombol X reload page agar bersih --}}
-                    <button onclick="location.reload()" class="text-gray-400 hover:text-red-500 transition-colors">
-                        <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
-                </div>
-
-                {{-- Body Full (Termasuk Tombol) --}}
-                <div class="flex-1 overflow-y-auto p-6 flex flex-col items-center text-center custom-scrollbar">
-                    
-                    <p class="text-gray-500 mb-2 font-medium">Silakan transfer dengan nominal tepat:</p>
-                    
-                    <div class="bg-blue-600 text-white font-black text-4xl py-4 px-8 rounded-2xl mb-8 shadow-lg shadow-blue-500/30 tracking-wide">
-                        Rp ${totalAmount.toLocaleString('id-ID')}
-                    </div>
-
-                    <div class="bg-white p-2 border-2 border-gray-200 rounded-2xl mb-6 shadow-sm">
-                        <img src="${qrUrl}" class="w-56 h-56 object-contain">
-                    </div>
-
-                    <p class="text-xs text-gray-400 mb-8 max-w-xs mx-auto">
-                        Scan QRIS di atas menggunakan GoPay, OVO, Dana, atau Mobile Banking Anda.
-                    </p>
-
-                    {{-- Spacer agar tombol terdorong ke bawah jika layar tinggi --}}
-                    <div class="mt-auto w-full space-y-3">
-                        <button onclick="submitManualTransaction()" class="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold text-lg shadow-xl shadow-green-500/20 flex items-center justify-center group transition-all transform hover:-translate-y-1">
-                            <span>SAYA SUDAH TRANSFER</span>
-                            <svg class="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </button>
-                        
-                        <button onclick="location.reload()" class="w-full py-3 text-gray-400 hover:text-gray-600 font-bold text-sm cursor-pointer">
-                            Kembali / Batal
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
-    }
-
-    // --- STEP 2: KIRIM DATA KE BACKEND ---
-    function submitManualTransaction() {
-        const btn = event.currentTarget;
-        const originalContent = btn.innerHTML;
-        
-        // Ubah tampilan tombol jadi loading
-        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses...`;
-        btn.disabled = true;
-        btn.classList.add('opacity-75');
-
-        fetch('{{ route("transaction.store") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify(pendingConfig)
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.status === 'success') {
-                // TAMPILKAN TIKET ANTRIAN (ORDER ID)
-                const rightPanel = document.querySelector('#modalContent .w-1\\/3');
-                
-                rightPanel.innerHTML = `
-                    <div class="h-full flex flex-col items-center justify-center text-center p-8 bg-green-50 animate-fade-in">
-                        <div class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 animate-bounce shadow-sm">
-                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                        </div>
-                        
-                        <h2 class="text-3xl font-black text-gray-900 mb-2">BERHASIL!</h2>
-                        <p class="text-gray-600 mb-8 font-medium">Pesanan Anda telah diterima.</p>
-                        
-                        <div class="bg-white border-2 border-dashed border-green-300 p-6 rounded-2xl w-full mb-8 relative shadow-sm">
-                            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">KODE ORDER ANDA</p>
-                            <div class="text-5xl font-black text-gray-900 tracking-widest select-all">
-                                ${data.order_id}
-                            </div>
-                        </div>
-
-                        <p class="text-sm text-gray-500 mb-8 px-4">
-                            Silakan lapor ke <strong>Admin / Kasir</strong> dan tunjukkan Kode Order di atas.
-                        </p>
-
-                        <button onclick="location.reload()" class="w-full py-4 bg-gray-900 text-white rounded-xl font-bold shadow-lg hover:bg-gray-800 transition-all transform hover:scale-[1.02]">
-                            Selesai & Tutup
-                        </button>
-                    </div>
-                `;
-            } else {
-                alert("Gagal: " + data.message);
-                resetBtn();
-            }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Terjadi kesalahan koneksi.");
-            resetBtn();
-        });
-
-        function resetBtn() {
-            btn.innerHTML = originalContent;
-            btn.disabled = false;
-            btn.classList.remove('opacity-75', 'cursor-not-allowed');
-        }
-    }
-</script> -->
-
-
 <div class="h-screen py-8 flex flex-col">
+    {{-- HEADER (UI versi bawah) --}}
     <div class="h-30 flex justify-center items-center gap-4 mb-12">
-        <img src="{{ asset('images/placeholder_logo.png') }}">
+        <img src="{{ asset('images/placeholder_logo.png') }}" class="h-10 w-10 object-contain">
         <h1 class="text-4xl font-black text-center">Print Station</h1>
+        <button onclick="location.reload()"
+                class="ml-6 px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm hover:bg-gray-50 font-bold text-sm">
+            Refresh
+        </button>
     </div>
 
     <div class="flex-1 w-full px-8">
         @if($files->isEmpty())
+            {{-- EMPTY STATE (UI versi bawah) --}}
             <div class="w-full h-96 flex flex-col items-center justify-center">
                 <h2 class="text-2xl font-bold mb-4">Deus Ex-Machina</h2>
                 <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
+
                 <div class="relative w-80% bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full">
                     {!! $qrCode !!}
                 </div>
+
                 <div class="flex items-center space-x-3 bg-[#ECECEC] px-6 py-3 rounded-full">
                     <div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
                     <span class="text-sm font-medium">Menunggu upload file...</span>
                 </div>
             </div>
         @else
+            {{-- LIST FILES (UI versi bawah) --}}
             <div class="w-full overflow-y-auto custom-scrollbar">
                 <div class="mb-8 flex items-center gap-8 h-10">
                     <p id="fileCounter" class="text-lg font-semibold text-gray-700">0 file dipilih</p>
-                    <button id="deleteAllBtn" onclick="deleteSelectedFiles()" class="hidden bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer">
+                    <button id="deleteAllBtn" onclick="deleteSelectedFiles()"
+                            class="hidden bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer">
                         Hapus semua
                     </button>
                 </div>
+
                 <table class="w-full border-collapse">
                     <thead class="bg-gray-100 sticky top-0">
                         <tr class="text-left text-sm font-semibold text-gray-700">
@@ -583,64 +50,156 @@
                             <th class="p-3 text-lg text-center">Tipe</th>
                             <th class="p-3 text-lg">Nama File</th>
                             <th class="p-3 text-lg">Diunggah</th>
+                            <th class="p-3 text-lg text-center">Status</th>
                             <th class="p-3 text-lg text-center">Aksi</th>
                         </tr>
                     </thead>
 
-                <tbody class="divide-y">
-                    @foreach($files as $file)
+                    <tbody class="divide-y">
+                        @foreach($files as $file)
+                            @php
+                                // URL RELATIVE (aman untuk ngrok walau APP_URL salah)
+                                $fileUrl = '/storage/' . ltrim($file->filename, '/');
 
-                    @php
-                        $fileUrl  = asset('storage/' . $file->filename);
-                        
-                        $type = strtoupper($file->type);
-                    @endphp
+                                // transaksi terbaru (relasi transactions harus order latest)
+                                $tx = $file->transactions->first();
+                                $status = $tx->status ?? null;
 
-                    <tr class="hover:bg-gray-50 transition text-center">
-                        <td class="p-3">
-                            <input type="checkbox" class="row-check w-4 h-4 accent-blue-600 rounded cursor-pointer" data-file-id="{{ $file->id }}">
-                        </td>
+                                // parse print_config (JSON) jika ada
+                                $paidConfig = null;
+                                if ($tx && !empty($tx->print_config)) {
+                                    $paidConfig = json_decode($tx->print_config, true);
+                                }
 
-                        <td class="p-3 font-bold 
-                            {{ $isPdf ? 'text-red-600' : 'text-blue-600' }}">
-                            {{ $file->type }}
-                        </td>
+                                // hitung halaman (simple) - default 1
+                                $isPdf = strtoupper($file->type ?? '') === 'PDF' || str_ends_with(strtolower($file->filename), '.pdf');
+                                $filePath = storage_path('app/public/' . $file->filename);
+                                $pageCount = 1;
 
-                        <td class="p-3 truncate max-w-[250px] text-left">
-                            {{ $file->original_name ?? $file->filename }}
-                        </td>
+                                if ($isPdf && file_exists($filePath)) {
+                                    $content = @file_get_contents($filePath);
+                                    if ($content) {
+                                        $count = preg_match_all("/\/Type\s*\/Page[^s]/", $content, $matches);
+                                        if ($count > 0) $pageCount = $count;
+                                    }
+                                }
 
-                        <td class="p-3 text-sm text-gray-500 text-left">
-                            {{ $file->created_at->diffForHumans() }}
-                        </td>
+                                // status badge
+                                $badgeText = 'BELUM BAYAR';
+                                $badgeClass = 'bg-gray-100 text-gray-700';
 
-                        <td class="p-3">
-                            <div class="flex justify-center gap-1">
-                                <button onclick="openPrintModal('{{ $file->id }}', '{{ $fileUrl }}', '{{ $type }}')"
-                                    class="text-gray-900 hover:bg-blue-500 hover:text-white px-3 py-3 rounded-lg font-bold transition-all flex items-center group cursor-pointer tooltip" title="Print">
-                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
-                                    </svg>
-                                </button>
+                                if ($tx) {
+                                    if ($status === 'pending') {
+                                        $badgeText = 'MENUNGGU KONFIRMASI';
+                                        $badgeClass = 'bg-yellow-100 text-yellow-800';
+                                    } elseif ($status === 'paid') {
+                                        $badgeText = 'PAID (SIAP CETAK)';
+                                        $badgeClass = 'bg-green-100 text-green-800';
+                                    } elseif ($status === 'rejected') {
+                                        $badgeText = 'DITOLAK (BAYAR ULANG)';
+                                        $badgeClass = 'bg-red-100 text-red-700';
+                                    } else {
+                                        $badgeText = strtoupper((string)$status);
+                                        $badgeClass = 'bg-gray-100 text-gray-700';
+                                    }
+                                }
 
-                                <form action="{{ route('station.destroy', $file->id) }}" method="POST" class="delete-file">
-                                    @csrf
-                                    @method('DELETE')
-                                    
-                                    <button type="button" class="hover:bg-red-600 text-black hover:text-white p-3 rounded-lg font-bold transition-colors flex items-center justify-center tooltip cursor-pointer" title="Hapus File" onclick="openDeleteModal(this)">
-                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                    </button>
-                                </form>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
+                                // tombol utama (label)
+                                $mainLabel = 'BAYAR';
+                                $mainBtnClass = 'bg-yellow-500 hover:bg-yellow-400 text-white';
+                                $mainMode = 'pay';
+
+                                if ($tx) {
+                                    if ($status === 'pending') {
+                                        $mainLabel = 'DETAIL';
+                                        $mainBtnClass = 'bg-gray-900 hover:bg-gray-800 text-white';
+                                        $mainMode = 'pending';
+                                    } elseif ($status === 'paid') {
+                                        $mainLabel = 'PRINT';
+                                        $mainBtnClass = 'bg-blue-600 hover:bg-blue-500 text-white';
+                                        $mainMode = 'paid';
+                                    } elseif ($status === 'rejected') {
+                                        $mainLabel = 'BAYAR ULANG';
+                                        $mainBtnClass = 'bg-red-600 hover:bg-red-500 text-white';
+                                        $mainMode = 'pay';
+                                    }
+                                }
+
+                                // payload untuk LOGIKA (jangan diubah)
+                                $openPayload = [
+                                    'file_id' => $file->id,
+                                    'url' => $fileUrl,
+                                    'pages' => $pageCount,
+                                    'type' => $file->type ?? 'FILE',
+                                    'original_name' => $file->original_name ?? $file->filename,
+                                    'tx_id' => $tx->id ?? null,
+                                    'tx_status' => $status,
+                                    'order_id' => $tx->order_id ?? null,
+                                    'amount' => $tx->amount ?? null,
+                                    'paid_config' => $paidConfig,
+                                    'mode' => $mainMode,
+                                ];
+                            @endphp
+
+                            <tr class="hover:bg-gray-50 transition text-center">
+                                <td class="p-3">
+                                    <input type="checkbox"
+                                           class="row-check w-4 h-4 accent-blue-600 rounded cursor-pointer"
+                                           data-file-id="{{ $file->id }}">
+                                </td>
+
+                                <td class="p-3 font-bold {{ $isPdf ? 'text-red-600' : 'text-blue-600' }}">
+                                    {{ strtoupper($file->type ?? 'FILE') }}
+                                </td>
+
+                                <td class="p-3 truncate max-w-[300px] text-left">
+                                    {{ $file->original_name ?? $file->filename }}
+                                    @if($tx && !empty($tx->order_id))
+                                        <div class="text-xs text-gray-400 font-semibold mt-1">
+                                            ORDER: <span class="text-gray-600">{{ $tx->order_id }}</span>
+                                        </div>
+                                    @endif
+                                </td>
+
+                                <td class="p-3 text-sm text-gray-500 text-left">
+                                    {{ $file->created_at->diffForHumans() }}
+                                </td>
+
+                                <td class="p-3">
+                                    <span class="px-3 py-1 rounded-full text-xs font-bold {{ $badgeClass }}">
+                                        {{ $badgeText }}
+                                    </span>
+                                </td>
+
+                                <td class="p-3">
+                                    <div class="flex justify-center gap-2">
+                                        {{-- tombol utama: BAYAR/DETAIL/PRINT sesuai status --}}
+                                        <button type="button"
+                                                onclick='openPrintModal(@json($openPayload))'
+                                                class="px-4 py-2 rounded-lg font-bold shadow-sm {{ $mainBtnClass }}">
+                                            {{ $mainLabel }}
+                                        </button>
+
+                                        {{-- delete --}}
+                                        <form action="{{ route('station.destroy', $file->id) }}" method="POST" class="delete-file">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="button"
+                                                    class="hover:bg-red-600 bg-gray-100 text-gray-800 hover:text-white px-4 py-2 rounded-lg font-bold transition-colors cursor-pointer"
+                                                    onclick="openDeleteModal(this)">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
         @endif
+
+        {{-- DELETE MODAL (UI versi bawah) --}}
         <div id="deleteModal" class="fixed inset-0 bg-black/60 hidden items-center justify-center z-50">
             <div class="bg-white rounded-2xl p-6 w-[350px] text-center shadow-xl">
                 <h2 id="deleteModalTitle" class="text-xl font-bold mb-3">Hapus File?</h2>
@@ -648,12 +207,11 @@
 
                 <div class="flex gap-3">
                     <button onclick="closeDeleteModal()"
-                        class="w-full py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold cursor-pointer">
+                            class="w-full py-2 rounded-lg bg-gray-200 hover:bg-gray-300 font-semibold cursor-pointer">
                         Batal
                     </button>
-
                     <button onclick="confirmDelete()"
-                        class="w-full py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 font-semibold cursor-pointer">
+                            class="w-full py-2 rounded-lg bg-red-600 text-white hover:bg-red-500 font-semibold cursor-pointer">
                         Hapus
                     </button>
                 </div>
@@ -662,76 +220,99 @@
     </div>
 </div>
 
-<div id="printModal" class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity opacity-0" style="transition: opacity 0.3s ease-out;">
-    
-    <div class="bg-white rounded-2xl overflow-hidden w-full max-w-6xl h-[85vh] flex shadow-2xl scale-95 transition-transform" id="modalContent" style="transition: transform 0.3s ease-out;">
-        
-        {{-- Bagian Kiri: Preview --}}
+{{-- PRINT MODAL (UI “bawah” tapi panelnya tetap lengkap utk logika “atas”) --}}
+<div id="printModal"
+     class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity opacity-0"
+     style="transition: opacity 0.25s ease-out;">
+    <div id="modalContent"
+         class="bg-white rounded-2xl overflow-hidden w-full max-w-6xl h-[85vh] flex shadow-2xl scale-95 transition-transform"
+         style="transition: transform 0.25s ease-out;">
+
+        {{-- LEFT: PREVIEW --}}
         <div class="w-2/3 bg-gray-200 relative flex items-center justify-center border-r border-gray-300">
             <div id="loadingSpinner" class="absolute flex flex-col items-center">
                 <div class="animate-spin rounded-full h-12 w-12 border-b-4 border-blue-600 mb-3"></div>
                 <p class="text-gray-500 font-bold">Memuat Preview...</p>
             </div>
 
-            <iframe id="previewFrame" class="w-full h-full relative z-10" src=""></iframe>
-            
+            <iframe id="previewFrame" class="w-full h-full relative z-10 bg-white" src=""></iframe>
             <div class="absolute inset-0 z-20 pointer-events-none"></div>
         </div>
 
-        {{-- Bagian Kanan: Konfigurasi Print --}}
+        {{-- RIGHT: PANEL --}}
         <div class="w-1/3 bg-gray-50 flex flex-col h-full overflow-hidden relative">
-            <div class="flex justify-between items-start p-6 pb-2 shrink-0 bg-gray-50 z-10">
-                <h2 class="text-2xl font-black text-gray-800 uppercase tracking-wide">Konfigurasi</h2>
-                <!-- <button onclick="closePrintModal()" class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button> -->
+
+            {{-- HEADER --}}
+            <div class="flex justify-between items-start p-6 pb-3 shrink-0 bg-gray-50 z-10 border-b border-gray-200">
+                <div>
+                    <h2 id="panelTitle" class="text-xl font-black text-gray-900 uppercase tracking-wide">Konfigurasi</h2>
+                    <p id="panelSubTitle" class="text-xs text-gray-500 font-bold mt-1"></p>
+                </div>
+                <button onclick="closePrintModal()"
+                        class="text-gray-400 hover:text-red-500 transition-colors cursor-pointer">
+                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
 
-            <div class="flex-1 overflow-y-auto custom-scrollbar p-6 pt-2">
-                <div class="space-y-5">
-                    {{-- 1. Paper Size --}}
+            {{-- BODY --}}
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-6">
+
+                {{-- PANEL: CONFIG (PAY MODE) --}}
+                <div id="panelConfig" class="space-y-5">
+
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                        <div class="text-sm font-bold text-gray-900" id="fileNameConfig"></div>
+                        <div class="text-xs text-gray-400 font-bold mt-1" id="fileMetaConfig"></div>
+                    </div>
+
                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Ukuran Kertas</label>
-                        <select id="printPaperSize" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 font-bold">
+                        <select id="printPaperSize"
+                                class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 font-bold">
                             <option value="A4" selected>A4</option>
                             <option value="Legal">Legal / F4</option>
                         </select>
                     </div>
 
-                    {{-- 2. Pages --}}
-                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <div id="containerPageRange" class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Rentang Halaman</label>
-                        
+
                         <div class="flex items-center mb-3 space-x-4">
                             <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="pageOption" value="all" checked onchange="togglePageInput()" class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                <input type="radio" name="pageOption" value="all" checked
+                                       class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer">
                                 <span class="ml-2 text-sm font-medium text-gray-900">Semua</span>
                             </label>
                             <label class="flex items-center cursor-pointer">
-                                <input type="radio" name="pageOption" value="custom" onchange="togglePageInput()" class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                <input type="radio" name="pageOption" value="custom"
+                                       class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer">
                                 <span class="ml-2 text-sm font-medium text-gray-900">Custom</span>
                             </label>
                         </div>
 
                         <div id="customPageInputDiv" class="hidden">
-                            <input id="printPageRange" type="text" placeholder="Contoh: 1-5, 8, 11-13" 
-                                class="w-full text-sm font-bold border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
-                            <p class="text-[10px] text-gray-400 mt-1">Gunakan tanda hubung (-) untuk rentang dan koma (,) untuk halaman acak.</p>
+                            <input id="printPageRange" type="text" placeholder="Contoh: 1-5, 8, 11-13"
+                                   class="w-full text-sm font-bold border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                            <p class="text-[10px] text-gray-400 mt-1 font-semibold">
+                                Gunakan tanda hubung (-) untuk rentang dan koma (,) untuk halaman acak.
+                            </p>
                         </div>
                     </div>
 
-                    {{-- 3. Copies --}}
                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Jumlah Copy</label>
                         <div class="flex items-center">
-                            <button onclick="adjustCopies(-1)" class="w-10 h-10 bg-gray-100 rounded-l-lg hover:bg-gray-200 font-bold cursor-pointer">-</button>
+                            <button type="button" onclick="adjustCopies(-1)"
+                                    class="w-10 h-10 bg-gray-100 rounded-l-lg hover:bg-gray-200 font-bold cursor-pointer">-</button>
                             <input id="printCopies" type="number" value="1" min="1" readonly
-                                class="w-full text-center text-xl font-bold text-gray-800 border-y border-x-0 border-gray-200 h-10 focus:ring-0">
-                            <button onclick="adjustCopies(1)" class="w-10 h-10 bg-gray-100 rounded-r-lg hover:bg-gray-200 font-bold cursor-pointer">+</button>
+                                   class="w-full text-center text-xl font-bold text-gray-800 border-y border-x-0 border-gray-200 h-10 focus:ring-0">
+                            <button type="button" onclick="adjustCopies(1)"
+                                    class="w-10 h-10 bg-gray-100 rounded-r-lg hover:bg-gray-200 font-bold cursor-pointer">+</button>
                         </div>
                     </div>
 
-                    {{-- 4. Colour Mode --}}
                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Mode Warna</label>
                         <div class="grid grid-cols-2 gap-2">
@@ -750,16 +331,15 @@
                         </div>
                     </div>
 
-                    {{-- Rincian Harga --}}
                     <div class="bg-blue-50 border border-blue-200 p-4 rounded-xl mt-6">
-                        <div class="flex justify-between items-center text-sm text-gray-600 mb-1">
+                        <div class="flex justify-between items-center text-sm text-gray-600 mb-1 font-semibold">
                             <span>Harga per lembar</span>
                             <span id="displayPricePerSheet" class="font-bold">Rp 500</span>
                         </div>
-                        
-                        <div class="flex justify-between items-center text-sm text-gray-600 mb-2">
+
+                        <div class="flex justify-between items-center text-sm text-gray-600 mb-2 font-semibold">
                             <span>Kalkulasi</span>
-                            <span id="displayCalculation">1 Hal x 1 Copy</span>
+                            <span id="displayCalculation" class="font-bold">1 Hal x 1 Copy</span>
                         </div>
 
                         <div class="border-t border-blue-200 pt-3 flex justify-between items-center">
@@ -767,75 +347,285 @@
                             <span id="displayTotalPrice" class="font-black text-2xl text-blue-600">Rp 500</span>
                         </div>
                     </div>
-                    
-                    <div class="h-4"></div>
-                </div>
-            </div>
 
-            <div class="p-6 pt-4 shrink-0 bg-gray-50 border-t border-gray-200 z-10 shadow-[0_-10px_40px_rgba(0,0,0,0.05)]">
-                <div class="space-y-3">
-                    <button id="btnPrintNow" onclick="confirmPrint()" class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-lg shadow-lg hover:shadow-blue-500/30 transition-all flex items-center justify-center group cursor-pointer">
-                        <svg class="w-6 h-6 mr-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                        CETAK SEKARANG
-                    </button>
-                    <button onclick="closePrintModal()" class="w-full py-3 text-gray-500 hover:text-gray-800 font-bold transition-colors cursor-pointer">
-                        Batal
+                    <div class="pt-2 space-y-3">
+                        <button type="button" onclick="goToPayment()"
+                                class="w-full py-4 bg-yellow-500 hover:bg-yellow-400 text-white rounded-xl font-black text-lg shadow-lg transition-all">
+                            LANJUT PEMBAYARAN
+                        </button>
+                        <button type="button" onclick="closePrintModal()"
+                                class="w-full py-3 text-gray-500 hover:text-gray-800 font-bold transition-colors cursor-pointer">
+                            Batal
+                        </button>
+                    </div>
+                </div>
+
+                {{-- PANEL: PAYMENT --}}
+                <div id="panelPayment" class="hidden space-y-5">
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                        <div class="text-sm font-bold text-gray-900">Silakan transfer dengan nominal tepat:</div>
+                        <div id="payAmount" class="mt-3 bg-blue-600 text-white font-black text-4xl py-4 px-4 rounded-2xl text-center shadow-lg shadow-blue-500/20">
+                            Rp 0
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center">
+                        <div class="text-xs font-bold text-gray-500 uppercase mb-3">QRIS</div>
+                        <div class="inline-block bg-white p-2 border-2 border-gray-200 rounded-2xl shadow-sm">
+                            <img id="payQrImage" src="/images/dana_qr.jpeg" class="w-56 h-56 object-contain" alt="QRIS">
+                        </div>
+                        <p class="text-xs text-gray-400 mt-3 font-semibold">
+                            Scan QRIS di atas menggunakan GoPay / OVO / Dana / Mobile Banking.
+                        </p>
+                    </div>
+
+                    <div class="space-y-2">
+                        <button id="btnAlreadyTransfer" type="button" onclick="submitManualTransaction(event)"
+                                class="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-xl font-black text-lg shadow-lg transition-all">
+                            SAYA SUDAH TRANSFER
+                        </button>
+
+                        <button type="button" onclick="backToConfig()"
+                                class="w-full py-3 text-gray-500 hover:text-gray-800 font-bold transition-colors cursor-pointer">
+                            Kembali
+                        </button>
+                    </div>
+                </div>
+
+                {{-- PANEL: WAITING --}}
+                <div id="panelWaiting" class="hidden space-y-5">
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm text-center">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-yellow-100 text-yellow-700 flex items-center justify-center mb-4">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+
+                        <h3 class="text-xl font-black text-gray-900">MENUNGGU KONFIRMASI ADMIN</h3>
+                        <p class="text-gray-500 font-semibold text-sm mt-2">
+                            Tunjukkan kode ini ke admin/kasir.
+                        </p>
+
+                        <div class="mt-5 bg-gray-900 text-white font-black text-4xl py-4 rounded-2xl tracking-widest">
+                            <span id="waitingOrderId">-</span>
+                        </div>
+
+                        <div class="mt-4 text-sm font-bold text-gray-700">
+                            Status: <span class="text-yellow-700">PENDING</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <button type="button" onclick="location.reload()"
+                                class="w-full py-4 bg-gray-900 hover:bg-gray-800 text-white rounded-xl font-black text-lg">
+                            Refresh Status
+                        </button>
+
+                        <button type="button" onclick="closePrintModal(true)"
+                                class="w-full py-3 text-gray-500 hover:text-gray-800 font-bold transition-colors cursor-pointer">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+
+                {{-- PANEL: PAID / PRINT --}}
+                <div id="panelPaid" class="hidden space-y-5">
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                        <div class="text-sm font-bold text-gray-900" id="fileNamePaid"></div>
+                        <div class="text-xs text-gray-400 font-bold mt-1" id="fileMetaPaid"></div>
+                    </div>
+
+                    <div class="bg-green-50 border border-green-200 p-4 rounded-xl">
+                        <div class="flex items-center justify-between">
+                            <div class="font-black text-green-900">STATUS: PAID</div>
+                            <div class="text-xs font-bold text-green-800">Siap cetak</div>
+                        </div>
+
+                        <div class="mt-3 text-sm text-gray-700 font-semibold">
+                            Order ID:
+                            <span class="font-black text-gray-900" id="paidOrderId">-</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                        <div class="text-xs font-bold text-gray-500 uppercase mb-3">Konfigurasi (terkunci)</div>
+                        <div class="grid grid-cols-2 gap-3 text-sm font-black text-gray-900">
+                            <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                                <div class="text-[11px] text-gray-500 font-bold">Paper</div>
+                                <div id="lockedPaper">-</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                                <div class="text-[11px] text-gray-500 font-bold">Warna</div>
+                                <div id="lockedColor">-</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                                <div class="text-[11px] text-gray-500 font-bold">Copy</div>
+                                <div id="lockedCopies">-</div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                                <div class="text-[11px] text-gray-500 font-bold">Halaman</div>
+                                <div id="lockedPages">-</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4 flex items-center justify-between border-t pt-3">
+                            <div class="text-sm font-black text-gray-700">TOTAL</div>
+                            <div class="text-2xl font-black text-blue-600" id="lockedTotal">Rp 0</div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2">
+                        <button id="btnPrintNow" type="button" onclick="sendPrintJob(event)"
+                                class="w-full py-4 bg-blue-600 hover:bg-blue-500 text-white rounded-xl font-black text-lg shadow-lg transition-all">
+                            CETAK SEKARANG
+                        </button>
+
+                        <button type="button" onclick="closePrintModal()"
+                                class="w-full py-3 text-gray-500 hover:text-gray-800 font-bold transition-colors cursor-pointer">
+                            Tutup
+                        </button>
+                    </div>
+                </div>
+
+                {{-- PANEL: PRINTING --}}
+                <div id="panelPrinting" class="hidden space-y-5">
+                    <div class="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm text-center">
+                        <div class="w-16 h-16 mx-auto rounded-full bg-blue-100 text-blue-700 flex items-center justify-center mb-4">
+                            <div class="animate-spin rounded-full h-10 w-10 border-b-4 border-blue-600"></div>
+                        </div>
+
+                        <h3 class="text-xl font-black text-gray-900">MENCETAK...</h3>
+                        <p class="text-gray-500 font-semibold text-sm mt-2">
+                            Mengirim job ke server print. Jangan tutup halaman.
+                        </p>
+
+                        <div class="mt-5 bg-gray-900 text-white font-black text-4xl py-4 rounded-2xl tracking-widest">
+                            <span id="printingOrderId">-</span>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="closePrintModal()"
+                            class="w-full py-3 text-gray-500 hover:text-gray-800 font-bold transition-colors cursor-pointer">
+                        Tutup
                     </button>
                 </div>
-            </div>
 
+            </div>
         </div>
     </div>
 </div>
 
 <script>
-    const modal = document.getElementById('printModal');
+    // ========= ENDPOINTS (RELATIVE URL = aman untuk NGROK walau APP_URL salah) =========
+    const ENDPOINT_TX_STORE   = @json(route('transaction.store', [], false));
+    const ENDPOINT_PRINT      = @json(route('process.print', [], false));
+    const CSRF_TOKEN          = @json(csrf_token());
+
+    // ========= PRICE RULE =========
+    const PRICE_BW = 500;
+    const PRICE_COLOR = 1000;
+
+    // ========= MODAL ELEMENTS =========
+    const modal        = document.getElementById('printModal');
     const modalContent = document.getElementById('modalContent');
     const previewFrame = document.getElementById('previewFrame');
-    const spinner = document.getElementById('loadingSpinner');
-    
-    // State Variables
-    let selectedFileId = null;
-    let activePageCount = 1; 
-    const PRICE_BW = 500;    
-    const PRICE_COLOR = 1000; 
+    const spinner      = document.getElementById('loadingSpinner');
 
-    // Variabel global untuk menyimpan config sementara
-    let pendingConfig = {};
+    const panelTitle    = document.getElementById('panelTitle');
+    const panelSubTitle = document.getElementById('panelSubTitle');
 
-    // --- LOGIC BUKA/TUTUP MODAL ---
-    async function openPrintModal(id, url, type = 'PDF') {
-        selectedFileId = id;
-        const btnPrint = document.getElementById('btnPrintNow');
-        
-        // 1. STATE AWAL: RESET UI & MATIKAN TOMBOL
-        document.getElementById('displayCalculation').innerHTML = '<span class="animate-pulse text-blue-500 font-bold">Sedang menghitung...</span>';
-        document.getElementById('displayTotalPrice').innerText = 'Rp ...';
-        
-        // Reset variabel halaman sementara
-        activePageCount = 1; 
+    const panelConfig   = document.getElementById('panelConfig');
+    const panelPayment  = document.getElementById('panelPayment');
+    const panelWaiting  = document.getElementById('panelWaiting');
+    const panelPaid     = document.getElementById('panelPaid');
+    const panelPrinting = document.getElementById('panelPrinting');
 
-        // Matikan tombol cetak
-        if(btnPrint) {
-            btnPrint.disabled = true;
-            btnPrint.classList.add('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
-            btnPrint.classList.remove('bg-blue-600', 'hover:bg-blue-500', 'shadow-lg');
-            btnPrint.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Menghitung Halaman...`;
-        }
+    // ========= STATE =========
+    let current = {
+        fileId: null,
+        fileUrl: null,
+        fileName: null,
+        fileType: null,
+        pages: 1,
 
-        // Reset Input Form ke Default
-        if(document.getElementById('printCopies')) {
-            document.getElementById('printCopies').value = 1;
-            document.querySelector('input[name="pageOption"][value="all"]').checked = true;
-            document.querySelector('input[name="colorMode"][value="color"]').checked = true;
-            togglePageInput();
-        }
+        txId: null,
+        txStatus: null,
+        orderId: null,
+        amount: null,
+        paidConfig: null,
 
-        // Reset UI Preview
-        previewFrame.src = ''; 
+        mode: 'pay', // pay | pending | paid
+    };
+
+    let pendingConfig = {}; // payload to transaction.store
+    let selectedDeleteForm = null;
+
+    // ========= HELPERS =========
+    function formatRp(num) {
+        const n = Number(num || 0);
+        return "Rp " + n.toLocaleString('id-ID');
+    }
+
+    function showOnly(panelEl) {
+        [panelConfig, panelPayment, panelWaiting, panelPaid, panelPrinting].forEach(p => p.classList.add('hidden'));
+        panelEl.classList.remove('hidden');
+    }
+
+    // ========= OPEN / CLOSE MODAL =========
+    function openPrintModal(opts) {
+        // Set state
+        current.fileId     = opts.file_id;
+        current.fileUrl    = opts.url;
+        current.fileName   = opts.original_name || 'FILE';
+        current.fileType   = opts.type || 'FILE';
+        current.pages      = parseInt(opts.pages || 1);
+
+        current.txId       = opts.tx_id || null;
+        current.txStatus   = opts.tx_status || null;
+        current.orderId    = opts.order_id || null;
+        current.amount     = opts.amount || null;
+        current.paidConfig = opts.paid_config || null;
+        current.mode       = opts.mode || 'pay';
+
+        // Reset preview
+        previewFrame.src = '';
         spinner.style.display = 'flex';
+        previewFrame.onload = () => { spinner.style.display = 'none'; };
 
-        // Tampilkan Modal
+        // Load preview (PDF toolbar hidden)
+        previewFrame.src = current.fileUrl + "#toolbar=0&navpanes=0&scrollbar=0&view=FitH";
+
+        // Decide mode from txStatus (lebih aman dari server)
+        if (!current.txStatus || current.txStatus === 'rejected') {
+            current.mode = 'pay';
+        } else if (current.txStatus === 'pending') {
+            current.mode = 'pending';
+        } else if (current.txStatus === 'paid') {
+            current.mode = 'paid';
+        } else {
+            current.mode = 'pending';
+        }
+
+        // Render right panel
+        if (current.mode === 'pay') {
+            panelTitle.innerText = 'Konfigurasi';
+            panelSubTitle.innerText = 'Atur cetak & lanjut pembayaran';
+            renderConfigPanel();
+            showOnly(panelConfig);
+        } else if (current.mode === 'pending') {
+            panelTitle.innerText = 'Status Transaksi';
+            panelSubTitle.innerText = 'Menunggu konfirmasi admin';
+            document.getElementById('waitingOrderId').innerText = current.orderId || '-';
+            showOnly(panelWaiting);
+        } else if (current.mode === 'paid') {
+            panelTitle.innerText = 'Siap Cetak';
+            panelSubTitle.innerText = 'Konfigurasi terkunci sesuai pembayaran';
+            renderPaidPanel();
+            showOnly(panelPaid);
+        }
+
+        // Open modal animation
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         setTimeout(() => {
@@ -843,146 +633,52 @@
             modalContent.classList.remove('scale-95');
             modalContent.classList.add('scale-100');
         }, 10);
-
-        // 2. PROSES HITUNG HALAMAN (ASYNC)
-        const rangeContainer = document.getElementById('containerPageRange');
-        const imageTypes = ['JPG', 'JPEG', 'PNG', 'WEBP'];
-        const safeType = (type || '').toUpperCase();
-        const isImage = imageTypes.includes(safeType);
-
-        try {
-            if (isImage) {
-                // GAMBAR: 1 halaman
-                if(rangeContainer) rangeContainer.classList.add('hidden');
-                activePageCount = 1;
-            } else {
-                // PDF: Download hitung halaman
-                if(rangeContainer) rangeContainer.classList.remove('hidden');
-                
-                const existingPdfBytes = await fetch(url).then(res => res.arrayBuffer());
-                const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
-                activePageCount = pdfDoc.getPageCount();
-            }
-        } catch (error) {
-            console.error("Gagal baca halaman:", error);
-            activePageCount = 1; 
-            alert("Gagal mendeteksi halaman otomatis. Default ke 1.");
-        }
-
-        // 3. STATE AKHIR: AKTIFKAN TOMBOL & HITUNG HARGA
-        calculateTotal(); 
-
-        // Hidupkan kembali tombol cetak
-        if(btnPrint) {
-            btnPrint.disabled = false;
-            btnPrint.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-gray-400');
-            btnPrint.classList.add('bg-blue-600', 'hover:bg-blue-500', 'shadow-lg');
-            
-            // Kembalikan teks & ikon asli
-            btnPrint.innerHTML = `
-                <svg class="w-6 h-6 mr-2 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                CETAK SEKARANG
-            `;
-        }
-
-        // 4. Load Preview PDF
-        previewFrame.src = url + "#toolbar=0&navpanes=0&scrollbar=0&view=Fit";
-        previewFrame.onload = function() {
-            spinner.style.display = 'none';
-        };
     }
 
-    function closePrintModal() {
+    function closePrintModal(forceReload = false) {
         modal.classList.add('opacity-0');
         modalContent.classList.remove('scale-100');
         modalContent.classList.add('scale-95');
+
         setTimeout(() => {
             modal.classList.add('hidden');
             modal.classList.remove('flex');
             previewFrame.src = '';
-            
-            if(document.getElementById('qrView')) {
-                location.reload(); 
-            }
-        }, 300);
+            if (forceReload) location.reload();
+        }, 250);
     }
 
-    // --- LOGIC UI INPUT ---
+    // ========= CONFIG PANEL LOGIC =========
+    function renderConfigPanel() {
+        document.getElementById('fileNameConfig').innerText = current.fileName;
+        document.getElementById('fileMetaConfig').innerText = `Tipe: ${current.fileType} • Total halaman file: ${current.pages}`;
+
+        // reset inputs
+        document.getElementById('printPaperSize').value = 'A4';
+        document.getElementById('printCopies').value = 1;
+        document.querySelector('input[name="pageOption"][value="all"]').checked = true;
+        document.querySelector('input[name="colorMode"][value="color"]').checked = true;
+        document.getElementById('printPageRange').value = '';
+        togglePageInput();
+        calculateTotal();
+    }
+
     function adjustCopies(amount) {
         const input = document.getElementById('printCopies');
-        if(!input) return; // Guard clause jika elemen hilang
-        let val = parseInt(input.value) + amount;
-        if(val < 1) val = 1;
+        let val = parseInt(input.value || 1) + amount;
+        if (val < 1) val = 1;
         input.value = val;
         calculateTotal();
     }
 
-    // Event Delegation untuk Radio Button
-    document.addEventListener('change', function(e) {
-        if(e.target.name === 'colorMode') {
-            calculateTotal();
-        }
-    });
-
-    function calculateTotal() {
-        // Cek apakah elemen ada 
-        if(!document.getElementById('printCopies')) return;
-
-        const copies = parseInt(document.getElementById('printCopies').value) || 1;
-        const colorMode = document.querySelector('input[name="colorMode"]:checked').value;
-        const pageOption = document.querySelector('input[name="pageOption"]:checked').value;
-        
-        let pagesToPrint = activePageCount; 
-
-        if (pageOption === 'custom') {
-            const input = document.getElementById('printPageRange').value;
-            pagesToPrint = countCustomPages(input); 
-        }
-
-        const pricePerSheet = (colorMode === 'bw') ? PRICE_BW : PRICE_COLOR;
-        const total = pagesToPrint * copies * pricePerSheet;
-
-        const formatRp = (num) => "Rp " + num.toLocaleString('id-ID');
-
-        document.getElementById('displayPricePerSheet').innerText = formatRp(pricePerSheet);
-        document.getElementById('displayCalculation').innerText = `${pagesToPrint} Hal x ${copies} Copy`;
-        document.getElementById('displayTotalPrice').innerText = formatRp(total);
-        
-        return total; // Return nilai total
-    }
-
-    function countCustomPages(rangeString) {
-        if (!rangeString) return 0; 
-        const parts = rangeString.replace(/\s/g, '').split(',');
-        let count = 0;
-        parts.forEach(part => {
-            if (part.includes('-')) {
-                const [start, end] = part.split('-').map(Number);
-                if (start && end && end >= start) {
-                    count += (end - start + 1);
-                }
-            } else {
-                if (part !== '') count++;
-            }
-        });
-        return count === 0 ? 1 : count;
-    }
-
-    const rangeInput = document.getElementById('printPageRange');
-    if(rangeInput) {
-        rangeInput.addEventListener('input', calculateTotal);
-    }
-
     function togglePageInput() {
-        if(!document.getElementById('printPageRange')) return;
-
         const isCustom = document.querySelector('input[name="pageOption"]:checked').value === 'custom';
         const div = document.getElementById('customPageInputDiv');
         const customInput = document.getElementById('printPageRange');
 
-        if(isCustom) {
+        if (isCustom) {
             div.classList.remove('hidden');
-            customInput.focus(); 
+            customInput.focus();
         } else {
             div.classList.add('hidden');
             customInput.value = '';
@@ -990,182 +686,255 @@
         calculateTotal();
     }
 
-    // --- STEP 1: LOGIC TOMBOL "CETAK SEKARANG" ---
-    function confirmPrint() {
-        // 1. Ambil Data Config
-        const elCopies = document.getElementById('printCopies');
-        if(!elCopies) return; 
+    function countCustomPages(rangeString) {
+        if (!rangeString) return 0;
+        const parts = rangeString.replace(/\s/g, '').split(',');
+        let count = 0;
 
-        const copies = elCopies.value;
+        parts.forEach(part => {
+            if (part.includes('-')) {
+                const [start, end] = part.split('-').map(Number);
+                if (start && end && end >= start) count += (end - start + 1);
+            } else {
+                if (part !== '') count++;
+            }
+        });
+
+        return count;
+    }
+
+    function calculateTotal() {
+        const copies = parseInt(document.getElementById('printCopies').value) || 1;
         const colorMode = document.querySelector('input[name="colorMode"]:checked').value;
-        const paperSize = document.getElementById('printPaperSize').value;
         const pageOption = document.querySelector('input[name="pageOption"]:checked').value;
-        
-        let pageRange = null;
-        let pagesToPrint = activePageCount;
+
+        let pagesToPrint = current.pages;
 
         if (pageOption === 'custom') {
+            const input = document.getElementById('printPageRange').value;
+            const c = countCustomPages(input);
+            pagesToPrint = c > 0 ? c : 0;
+        }
+
+        const pricePerSheet = (colorMode === 'bw') ? PRICE_BW : PRICE_COLOR;
+        const total = pagesToPrint * copies * pricePerSheet;
+
+        document.getElementById('displayPricePerSheet').innerText = formatRp(pricePerSheet);
+        document.getElementById('displayCalculation').innerText = `${pagesToPrint} Hal x ${copies} Copy`;
+        document.getElementById('displayTotalPrice').innerText = formatRp(total);
+
+        return { total, pagesToPrint, copies, colorMode, pricePerSheet };
+    }
+
+    document.addEventListener('change', function(e) {
+        if (e.target.name === 'colorMode') calculateTotal();
+        if (e.target.name === 'pageOption') togglePageInput();
+    });
+
+    const rangeInput = document.getElementById('printPageRange');
+    if (rangeInput) rangeInput.addEventListener('input', calculateTotal);
+
+    // ========= PAYMENT FLOW =========
+    function goToPayment() {
+        const pageOption = document.querySelector('input[name="pageOption"]:checked').value;
+
+        // hitung total
+        const calc = calculateTotal();
+
+        // validasi custom page
+        let pageRange = null;
+        if (pageOption === 'custom') {
             pageRange = document.getElementById('printPageRange').value;
-            if(!pageRange) {
+            if (!pageRange) {
                 alert("Harap isi rentang halaman.");
                 return;
             }
-            pagesToPrint = countCustomPages(pageRange);
+            if (calc.pagesToPrint <= 0) {
+                alert("Rentang halaman tidak valid.");
+                return;
+            }
         }
 
-        // 2. Hitung Total Final
-        const pricePerSheet = (colorMode === 'bw') ? PRICE_BW : PRICE_COLOR;
-        const totalAmount = pagesToPrint * copies * pricePerSheet;
-
-        // 3. Simpan Config ke Variable Global
+        // build payload buat transaksi (pending)
         pendingConfig = {
-            file_id: selectedFileId,
-            copies: copies,
-            color_mode: colorMode,
-            paper_size: paperSize,
+            file_id: current.fileId,
+            copies: calc.copies,
+            color_mode: calc.colorMode,
+            paper_size: document.getElementById('printPaperSize').value,
             page_range: pageRange,
-            page_count: pagesToPrint,
-            amount: totalAmount
+            page_count: (pageOption === 'custom') ? calc.pagesToPrint : current.pages,
+            amount: calc.total
         };
 
-        // 4. TIMPA PANEL KANAN DENGAN TAMPILAN PEMBAYARAN FULL
-        const rightPanel = document.querySelector('#modalContent .w-1\\/3');
-        
-        // Gunakan API QR Server 
-        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=TransferRp${totalAmount}`;
+        // render payment panel
+        panelTitle.innerText = 'Pembayaran';
+        panelSubTitle.innerText = 'Transfer sesuai nominal, lalu klik “Saya sudah transfer”';
+        document.getElementById('payAmount').innerText = formatRp(pendingConfig.amount);
 
-        rightPanel.innerHTML = `
-            <div id="qrView" class="h-full flex flex-col bg-white animate-fade-in relative">
-                
-                {{-- Header Sederhana --}}
-                <div class="p-6 border-b border-gray-100 flex justify-between items-center shrink-0">
-                    <h2 class="text-xl font-black text-gray-800 tracking-wide">PEMBAYARAN</h2>
-                    
-                </div>
-
-                {{-- Body Full (Termasuk Tombol) --}}
-                <div class="flex-1 overflow-y-auto p-6 flex flex-col items-center text-center custom-scrollbar">
-                    
-                    <div class="bg-blue-600 text-white font-black text-4xl py-4 px-8 rounded-2xl mb-8 shadow-lg shadow-blue-500/30 tracking-wide">
-                        Rp ${totalAmount.toLocaleString('id-ID')}
-                    </div>
-
-                    <div class="bg-white p-2 border-2 border-gray-200 rounded-2xl mb-6 shadow-sm">
-                        <img src="${qrUrl}" class="w-56 h-56 object-contain">
-                    </div>
-
-                    <p class="text-xs text-gray-400 mb-2 max-w-xs mx-auto">
-                        Scan QRIS di atas menggunakan GoPay, OVO, Dana, atau Mobile Banking Anda.
-                    </p>
-
-                    {{-- Spacer agar tombol terdorong ke bawah jika layar tinggi --}}
-                    <div class="mt-auto w-full space-y-3">
-                        <button onclick="submitManualTransaction()" class="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-xl font-bold text-lg shadow-xl shadow-green-500/20 flex items-center justify-center group transition-all  cursor-pointer">
-                            <span>SAYA SUDAH TRANSFER</span>
-                            <svg class="w-6 h-6 ml-2 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                        </button>
-                        
-                        <button onclick="backToConfig()" class="w-full py-3 text-gray-400 hover:text-gray-600 font-bold text-sm cursor-pointer">
-                            Kembali / Batal
-                        </button>
-                    </div>
-                </div>
-            </div>
-        `;
+        showOnly(panelPayment);
     }
 
-    // --- STEP 2: KIRIM DATA KE BACKEND ---
-    function submitManualTransaction() {
-        const btn = event.currentTarget;
-        const originalContent = btn.innerHTML;
-        
-        // Ubah tampilan tombol jadi loading
-        btn.innerHTML = `<svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> Memproses...`;
+    function backToConfig() {
+        panelTitle.innerText = 'Konfigurasi';
+        panelSubTitle.innerText = 'Atur cetak & lanjut pembayaran';
+        showOnly(panelConfig);
+        calculateTotal();
+    }
+
+    async function submitManualTransaction(e) {
+        const btn = e.currentTarget;
+        const old = btn.innerHTML;
+
         btn.disabled = true;
-        btn.classList.add('opacity-75', 'cursor-pointer');
+        btn.innerHTML = 'Memproses...';
+        btn.classList.add('opacity-75');
 
-        fetch('{{ route("transaction.store") }}', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify(pendingConfig)
-        })
-        .then(res => res.json())
-        .then(data => {
-            if(data.status === 'success') {
-                // TAMPILKAN TIKET ANTRIAN (ORDER ID)
-                const rightPanel = document.querySelector('#modalContent .w-1\\/3');
-                
-                rightPanel.innerHTML = `
-                    <div class="h-full flex flex-col items-center justify-center text-center p-8 bg-green-50 animate-fade-in">
-                        <div class="w-24 h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mb-6 animate-bounce shadow-sm">
-                            <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
-                        </div>
-                        
-                        <h2 class="text-3xl font-black text-gray-900 mb-2">BERHASIL!</h2>
-                        <p class="text-gray-600 mb-8 font-medium">Pesanan Anda telah diterima.</p>
-                        
-                        <div class="bg-white border-2 border-dashed border-green-300 p-6 rounded-2xl w-full mb-8 relative shadow-sm">
-                            <p class="text-xs text-gray-400 font-bold uppercase tracking-wider mb-2">KODE ORDER ANDA</p>
-                            <div class="text-5xl font-black text-gray-900 tracking-widest select-all">
-                                ${data.order_id}
-                            </div>
-                        </div>
+        try {
+            const res = await fetch(ENDPOINT_TX_STORE, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(pendingConfig)
+            });
 
-                        <p class="text-sm text-gray-500 mb-8 px-4">
-                            Silakan lapor ke <strong>Admin / Kasir</strong> dan tunjukkan Kode Order di atas.
-                        </p>
+            let data = {};
+            try { data = await res.json(); } catch (_) {}
 
-                        <button onclick="location.reload()" class="w-full py-4 bg-gray-900 text-white rounded-xl font-bold shadow-lg hover:bg-gray-800 transition-all transform hover:scale-[1.02] cursor-pointer">
-                            Selesai
-                    </div>
-                `;
-            } else {
-                alert("Gagal: " + data.message);
-                resetBtn();
+            if (!res.ok || data.status !== 'success') {
+                throw new Error(data.message || 'Gagal membuat transaksi.');
             }
-        })
-        .catch(err => {
-            console.error(err);
-            alert("Terjadi kesalahan koneksi.");
-            resetBtn();
-        });
 
-        function resetBtn() {
-            btn.innerHTML = originalContent;
+            // sukses -> masuk waiting
+            current.mode = 'pending';
+            current.txStatus = 'pending';
+            current.orderId = data.order_id;
+
+            panelTitle.innerText = 'Status Transaksi';
+            panelSubTitle.innerText = 'Menunggu konfirmasi admin';
+            document.getElementById('waitingOrderId').innerText = current.orderId || '-';
+
+            showOnly(panelWaiting);
+
+        } catch (err) {
+            console.error(err);
+            alert("Gagal: " + (err.message || "Terjadi kesalahan server"));
             btn.disabled = false;
+            btn.innerHTML = old;
             btn.classList.remove('opacity-75');
         }
     }
 
-    // Pencet Kembali / Batal bakal balik ke konfigurasi
-    let originalRightPanelHTML = '';
-    const rightPanel = document.querySelector('#modalContent .w-1\\/3');
+    // ========= PAID / PRINT FLOW =========
+    function renderPaidPanel() {
+        document.getElementById('fileNamePaid').innerText = current.fileName;
+        document.getElementById('fileMetaPaid').innerText = `Tipe: ${current.fileType} • Total halaman file: ${current.pages}`;
+        document.getElementById('paidOrderId').innerText = current.orderId || '-';
 
-    if (!originalRightPanelHTML) {
-        originalRightPanelHTML = rightPanel.innerHTML;
+        // config terkunci diambil dari DB (print_config)
+        const cfg = current.paidConfig || {};
+        const paper = cfg.paper_size || 'A4';
+        const color = cfg.color_mode || '-';
+        const copies = cfg.copies ?? '-';
+        const pageCount = cfg.page_count ?? '-';
+
+        document.getElementById('lockedPaper').innerText = paper;
+        document.getElementById('lockedColor').innerText = (color === 'bw') ? 'Hitam Putih' : (color === 'color' ? 'Berwarna' : color);
+        document.getElementById('lockedCopies').innerText = copies;
+        document.getElementById('lockedPages').innerText = pageCount;
+
+        // total ambil dari kolom amount kalau ada, fallback hitung
+        let total = current.amount;
+        if (total == null) {
+            const price = (color === 'bw') ? PRICE_BW : PRICE_COLOR;
+            total = (Number(pageCount || 0) * Number(copies || 0) * price);
+        }
+        document.getElementById('lockedTotal').innerText = formatRp(total);
     }
 
-    function backToConfig() {
-        const rightPanel = document.querySelector('#modalContent .w-1\\/3');
-        rightPanel.innerHTML = originalRightPanelHTML;
+    async function sendPrintJob(e) {
+        document.getElementById('printingOrderId').innerText = current.orderId || '-';
+        panelTitle.innerText = 'Mencetak...';
+        panelSubTitle.innerText = 'Mengirim job print ke server print';
+        showOnly(panelPrinting);
 
-        // Rebind event listener yang hilang
-        calculateTotal();
+        // payload: kirim tx_id + file_id (untuk kompatibilitas)
+        // config yang dikirim juga dari DB (paid_config), bukan dari input user
+        const cfg = current.paidConfig || {};
+        const payload = {
+            transaction_id: current.txId,
+            id: current.fileId,
+            copies: cfg.copies ?? 1,
+            color_mode: cfg.color_mode ?? 'bw',
+            paper_size: cfg.paper_size ?? 'A4',
+            page_range: cfg.page_range ?? null,
+        };
+
+        try {
+            const res = await fetch(ENDPOINT_PRINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': CSRF_TOKEN,
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            let data = {};
+            try { data = await res.json(); } catch (_) {}
+
+            if (!res.ok || (data.status && data.status !== 'success')) {
+                throw new Error(data.message || 'Gagal konek ke server print.');
+            }
+
+            alert(data.message || 'Perintah print dikirim.');
+            closePrintModal(true);
+
+        } catch (err) {
+            console.error(err);
+            alert(err.message || 'Gagal konek ke server print.');
+
+            panelTitle.innerText = 'Siap Cetak';
+            panelSubTitle.innerText = 'Konfigurasi terkunci sesuai pembayaran';
+            renderPaidPanel();
+            showOnly(panelPaid);
+        }
     }
 
-    // Buat checkbox bisa centang semua
+    // ========= DELETE FLOW =========
+    function openDeleteModal(btn) {
+        selectedDeleteForm = btn.closest('form');
+        document.getElementById('deleteModalTitle').textContent = 'Hapus File?';
+        document.getElementById('deleteModalMessage').textContent = 'File akan dihapus permanen.';
+
+        const m = document.getElementById('deleteModal');
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+    }
+
+    function closeDeleteModal() {
+        const m = document.getElementById('deleteModal');
+        m.classList.add('hidden');
+        m.classList.remove('flex');
+        selectedDeleteForm = null;
+    }
+
+    function confirmDelete() {
+        if (selectedDeleteForm) selectedDeleteForm.submit();
+    }
+
+    // ========= MULTI SELECT DELETE (UI bawah) =========
     const checkAll = document.getElementById('checkAll');
     const rowChecks = document.querySelectorAll('.row-check');
     const fileCounter = document.getElementById('fileCounter');
     const deleteAllBtn = document.getElementById('deleteAllBtn');
 
-    // Update counter dan button visibility
     function updateSelection() {
         const checkedCount = [...rowChecks].filter(cb => cb.checked).length;
-        
+
         if (checkedCount > 1) {
             fileCounter.textContent = `${checkedCount} file dipilih`;
             deleteAllBtn.classList.remove('hidden');
@@ -1178,103 +947,71 @@
         }
     }
 
-    checkAll.addEventListener('change', function () {
-        rowChecks.forEach(cb => {
-            cb.checked = checkAll.checked;
+    if (checkAll) {
+        checkAll.addEventListener('change', function () {
+            rowChecks.forEach(cb => cb.checked = checkAll.checked);
+            updateSelection();
         });
-        updateSelection();
+    }
+
+    rowChecks.forEach(cb => {
+        cb.addEventListener('change', function () {
+            const allChecked = [...rowChecks].every(c => c.checked);
+            if (checkAll) checkAll.checked = allChecked;
+            updateSelection();
+        });
     });
 
-    /* ------------------ */
-    // Konfirmasi hapus file
-    let selectedForm = null;
-    let isMultipleDelete = false;
-    let selectedFileIds = [];
-    
-    function openDeleteModal(btn) {
-        selectedForm = btn.closest('form');
-        isMultipleDelete = false;
-        
+    function deleteSelectedFiles() {
+        const checkedBoxes = [...rowChecks].filter(cb => cb.checked);
+        if (checkedBoxes.length === 0) return;
+
+        // gunakan modal yang sama, tapi submit ke route destroy-multiple
         document.getElementById('deleteModalTitle').textContent = 'Hapus File?';
-        document.getElementById('deleteModalMessage').textContent = 'File akan dihapus permanen.';
-        
-        const modal = document.getElementById('deleteModal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
+        document.getElementById('deleteModalMessage').textContent = `${checkedBoxes.length} file akan dihapus permanen.`;
+
+        selectedDeleteForm = null; // supaya confirmDelete pakai form multi
+        window.__multiDeleteIds = checkedBoxes.map(cb => cb.dataset.fileId);
+
+        const m = document.getElementById('deleteModal');
+        m.classList.remove('hidden');
+        m.classList.add('flex');
     }
 
-    function closeDeleteModal() {
-        const modal = document.getElementById('deleteModal');
-        modal.classList.add('hidden');
-        modal.classList.remove('flex');
-        selectedForm = null;
-        isMultipleDelete = false;
-        selectedFileIds = [];
-    }
-
-    function confirmDelete() {
-        if (isMultipleDelete) {
-            // Handle multiple delete
+    // override confirmDelete untuk multi-delete juga (tanpa ubah flow single delete)
+    const _confirmDeleteOriginal = confirmDelete;
+    confirmDelete = function () {
+        if (window.__multiDeleteIds && window.__multiDeleteIds.length > 0) {
             const form = document.createElement('form');
             form.method = 'POST';
-            form.action = '{{ route("station.destroy-multiple") }}';
-            
+            form.action = @json(route("station.destroy-multiple", [], false));
+
             const csrfInput = document.createElement('input');
             csrfInput.type = 'hidden';
             csrfInput.name = '_token';
-            csrfInput.value = '{{ csrf_token() }}';
+            csrfInput.value = CSRF_TOKEN;
             form.appendChild(csrfInput);
-            
+
             const methodInput = document.createElement('input');
             methodInput.type = 'hidden';
             methodInput.name = '_method';
             methodInput.value = 'DELETE';
             form.appendChild(methodInput);
-            
-            selectedFileIds.forEach(id => {
+
+            window.__multiDeleteIds.forEach(id => {
                 const idInput = document.createElement('input');
                 idInput.type = 'hidden';
                 idInput.name = 'file_ids[]';
                 idInput.value = id;
                 form.appendChild(idInput);
             });
-            
+
             document.body.appendChild(form);
             form.submit();
-        } else if (selectedForm) {
-            // Handle single delete
-            selectedForm.submit();
-        }
-    }
-
-    // Kalau salah satu unchecked, yg lain juga
-    rowChecks.forEach(cb => {
-        cb.addEventListener('change', function () {
-            const allChecked = [...rowChecks].every(c => c.checked);
-            checkAll.checked = allChecked;
-            updateSelection();
-        });
-    });
-
-    // Fungsi untuk menghapus semua file yang dipilih
-    function deleteSelectedFiles() {
-        const checkedBoxes = [...rowChecks].filter(cb => cb.checked);
-        
-        if (checkedBoxes.length === 0) {
             return;
         }
-
-        // Set flag dan data untuk multiple delete
-        isMultipleDelete = true;
-        selectedFileIds = checkedBoxes.map(cb => cb.dataset.fileId);
-        
-        // Update modal content
-        document.getElementById('deleteModalTitle').textContent = 'Hapus File?';
-        document.getElementById('deleteModalMessage').textContent = `${checkedBoxes.length} file akan dihapus permanen.`;
-        
-        // Open modal
-        const modal = document.getElementById('deleteModal');
-        modal.classList.remove('hidden');
-        modal.classList.add('flex');
-    }
+        _confirmDeleteOriginal();
+    };
 </script>
+
+@endsection

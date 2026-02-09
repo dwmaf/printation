@@ -19,25 +19,38 @@ class AuthController extends Controller
             'password' => 'required',
         ]);
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-
-            // REDIRECT SESUAI ROLE SPATIE
-            if ($user->hasRole('super-admin')) {
-                return redirect()->route('admin.outlets');
-            } elseif ($user->hasRole('outlet-owner')) {
-                return redirect('/outlet-owner/dashboard');
-            } elseif ($user->hasRole('station')) {
-                return redirect('/station');
-            }
+        if (!Auth::attempt($credentials)) {
+            return back()->withErrors(['email' => 'Email atau password salah.'])->withInput();
         }
 
-        return back()->withErrors(['email' => 'Email atau password salah.']);
+        $request->session()->regenerate();
+
+        $user = Auth::user();
+
+        // Redirect sesuai role
+        if ($user->hasRole('super-admin')) {
+            return redirect()->route('admin.outlets');
+        }
+
+        if ($user->hasRole('outlet-owner')) {
+            return redirect('/outlet-owner/dashboard');
+        }
+
+        if ($user->hasRole('station')) {
+            return redirect('/station');
+        }
+
+        // Kalau login sukses tapi role belum diset
+        Auth::logout();
+        return back()->withErrors(['email' => 'Akun kamu belum punya role. Hubungi admin.'])->withInput();
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
         return redirect('/login');
     }
 }

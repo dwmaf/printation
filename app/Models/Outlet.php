@@ -7,21 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 class Outlet extends Model
 {
     protected $guarded = [];
+
     public function users()
     {
-        // Outlet ini "Punya Banyak" User (Owner + Stations)
-        return $this->hasMany(User::class);
+        return $this->hasMany(\App\Models\User::class);
     }
+
     public function owner()
     {
-        return $this->hasOne(User::class)->whereHas('roles', function ($query) {
-            $query->where('name', 'outlet-owner');
+        return $this->hasOne(\App\Models\User::class)->whereHas('roles', function ($q) {
+            $q->where('name', 'outlet-owner');
         });
     }
 
-    // Opsional: Helper khusus untuk ambil stations saja
     public function stations()
     {
-        return $this->hasMany(User::class)->role('station'); // Pakai scope Spatie
+        return $this->hasMany(\App\Models\User::class)->role('station');
     }
 }

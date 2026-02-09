@@ -3,19 +3,70 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Transaction extends Model
 {
+    use HasFactory;
+
+    // biar gampang mass assign (kayak kamu)
     protected $guarded = [];
 
-    // Casting JSON ke Array otomatis
+    // kalau kolom status kamu string biasa, ini aman
+    // kalau status kamu enum, juga aman
     protected $casts = [
-        'print_config' => 'array',
+        'created_at' => 'datetime',
+        'updated_at' => 'datetime',
+        'paid_at'    => 'datetime',
+        'print_config' => 'array', // karena kamu bilang print_config longtext JSON
     ];
 
-    // Relasi ke File (Printfile)
-    public function file()
+    // =========================
+    // RELATIONS
+    // =========================
+
+    public function printfile()
     {
-        return $this->belongsTo(Printfile::class, 'file_id');
+        return $this->belongsTo(Printfile::class);
+    }
+
+    /**
+     * Station yang bikin transaksi (ngikut dari printfile->station)
+     * NOTE: ini butuh relasi station() di Printfile model.
+     */
+    public function station()
+    {
+        return $this->hasOneThrough(
+            User::class,      // target
+            Printfile::class, // through
+            'id',             // Printfile PK
+            'id',             // User PK
+            'printfile_id',   // Transaction FK ke Printfile
+            'station_id'      // Printfile FK ke User(station)
+        );
+    }
+
+    /**
+     * Outlet transaksi (ngikut dari station->outlet)
+     * NOTE: ini butuh user punya outlet() relation (udah kamu bikin).
+     */
+    public function outlet()
+    {
+        return $this->station?->outlet();
+        // ini "dynamic" relation style, tapi untuk query builder lebih enak pakai with station.outlet di controller
+    }
+
+    // =========================
+    // SCOPES (biar query gampang)
+    // =========================
+
+    public function scopePending($q)
+    {
+        return $q->where('status', 'pending');
+    }
+
+    public function scopePaid($q)
+    {
+        return $q->where('status', 'paid');
     }
 }

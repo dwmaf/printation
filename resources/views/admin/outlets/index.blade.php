@@ -8,10 +8,18 @@
             <h1 class="text-3xl font-bold text-gray-800">Super Admin Dashboard</h1>
             <p class="text-gray-500">Kelola Data Mitra Outlet & Akses</p>
         </div>
-        <form action="{{ route('logout') }}" method="POST">
-            @csrf
-            <button class="text-red-600 font-bold hover:underline">Logout</button>
-        </form>
+
+        <div class="flex items-center gap-6">
+            <a href="{{ route('admin.transactions') }}"
+               class="px-4 py-2 rounded-lg border border-gray-300 bg-white hover:bg-gray-50 font-bold text-gray-700">
+                Transactions
+            </a>
+
+            <form action="{{ route('logout') }}" method="POST">
+                @csrf
+                <button class="text-red-600 font-bold hover:underline">Logout</button>
+            </form>
+        </div>
     </div>
 
     @if(session('success'))
