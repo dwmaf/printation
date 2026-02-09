@@ -11,16 +11,19 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 class PrintStationController extends Controller
 {
     public function index()
-    {
-        return view('/print-station', [
-            'files' => Printfile::latest()->get(),
-            'qrCode' => QrCode::size(250)->generate(url('/upload'))
-        ]);
-    }
+{
+    $uploadUrl = rtrim(config('app.url'), '/') . '/upload';
+
+    return view('/print-station', [
+        'files'  => Printfile::latest()->get(),
+        'qrCode' => QrCode::size(300)->margin(2)->generate($uploadUrl),
+    ]);
+}
+
 
     public function show(Request $request, Printfile $printfile)
     {
-        return view('print-afile',[
+        return view('print-afile', [
             'file' => $printfile,
         ]);
     }
@@ -47,9 +50,9 @@ class PrintStationController extends Controller
     {
         // path file di db
         $path = storage_path('app/public/' . $printfile->filename);
-        
+
         $pageCount = 0;
-        
+
         // Cek tipe file (hanya hitung jika PDF)
         if (str_contains(strtolower($printfile->filename), '.pdf') && file_exists($path)) {
             try {
@@ -65,9 +68,9 @@ class PrintStationController extends Controller
         // dia ngasih json id filenya, url filenya, jumlah halaman, dan tipe file
         return response()->json([
             'id' => $printfile->id,
-            'url' => asset('storage/uploads/' . $printfile->filename), // Pastikan path public benar
+            'url' => asset('storage/' . $printfile->filename),
             'pages' => $pageCount,
-            'type' => $printfile->type 
+            'type' => $printfile->type
         ]);
     }
 }

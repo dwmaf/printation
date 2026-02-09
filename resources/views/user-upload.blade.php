@@ -1,17 +1,15 @@
 @extends("layouts.app")
 
-{{-- bagian arif --}}
-{{-- tampilan di hp user setelah scan kyur, tempat upload file, pakai form wire livewire, pastiin nama variabelnya sama dgn yg di UserUpload.php --}}
-
 @section("child")
     <div>
-        <form action="/upload" method="POST" enctype="multipart/form-data" class="flex items-center justify-center min-h-screen" id="uploadForm">
-            @csrf
-            <label for="input-file" id="dropzone" class="block w-full max-w-lg min-h-[500px] p-7 bg-white text-center cursor-pointer">
-                <div class="flex gap-3 justify-center items-center mb-12">
+        <form enctype="multipart/form-data" class="flex items-center justify-center min-h-screen" >
+            <label for="input-file" id="dropzone" class="block w-full max-w-lg h-100 p-7 bg-white text-center">
+                <div class="flex gap-3 justify-center items-center mb-6">
                     <img src="{{ asset('images/placeholder_logo.png') }}" class="w-16" />
                     <h1 class="text-4xl font-bold">PRINT</h1>
                 </div>
+
+                {{-- FIX: Samakan name dengan controller => file[] --}}
                 <input
                     type="file"
                     id="input-file"
@@ -34,15 +32,24 @@
                         <p class="text-lg font-medium">
                             Klik disini untuk <br> mengunggah file.
                         </p>
-                        <span class="block text-[12px] mt-3 text-[#777]">Format PDF, PNG, JPG, dan JPEG <br> max. 10MB hingga 10 file</span>
+                        <span class="block text-[12px] mt-3 text-[#777]">
+                            Format PDF, PNG, JPG, dan JPEG <br>
+                            max. 10MB hingga 10 file
+                        </span>
                     @endif
                 </div>
             </label>
 
             @error('file')
-            <small class="error">{{ $message }}</small>
+                <small class="error">{{ $message }}</small>
             @enderror
         </form>
-        {{-- Live as if you were to die tomorrow. Learn as if you were to live forever. - Mahatma Gandhi --}}
+
+        {{-- AUTO SUBMIT: Begitu pilih file langsung upload --}}
+        <script>
+            document.getElementById("input-file").addEventListener("change", function () {
+                this.form.submit();
+            });
+        </script>
     </div>
 @endsection
