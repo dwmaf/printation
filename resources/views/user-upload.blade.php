@@ -5,11 +5,11 @@
     <form action="{{ url('/upload') }}" method="POST" enctype="multipart/form-data"
           class="flex items-center justify-center min-h-screen">
         @csrf
-
+        <input type="hidden" name="station_id" value="{{ $station->id }}">
         <label for="input-file" id="dropzone" class="block w-full max-w-lg h-100 p-7 bg-white text-center">
             <div class="flex gap-3 justify-center items-center mb-6">
                 <img src="{{ asset('images/placeholder_logo.png') }}" class="w-16" />
-                <h1 class="text-4xl font-bold">PRINT</h1>
+                <h1 class="text-4xl font-bold">PRINT {{ $station->name }}</h1>
             </div>
 
             <input

@@ -18,7 +18,7 @@
         @if($files->isEmpty())
             {{-- EMPTY STATE (UI versi bawah) --}}
             <div class="w-full h-96 flex flex-col items-center justify-center">
-                <h2 class="text-2xl font-bold mb-4">Deus Ex-Machina</h2>
+                <h2 class="text-2xl font-bold mb-4">{{ Auth::user()->name }}</h2>
                 <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
 
                 <div class="relative w-80% bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full">
@@ -32,6 +32,7 @@
             </div>
         @else
             {{-- LIST FILES (UI versi bawah) --}}
+            <h2 class="text-2xl font-bold mb-4">{{ Auth::user()->name }}</h2>
             <div class="w-full overflow-y-auto custom-scrollbar">
                 <div class="mb-8 flex items-center gap-8 h-10">
                     <p id="fileCounter" class="text-lg font-semibold text-gray-700">0 file dipilih</p>

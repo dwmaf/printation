@@ -7,14 +7,17 @@ use App\Models\Printfile;
 
 class PrintController extends Controller
 {
-    public function uploadPage()
+    public function uploadPage($station_id)
     {
-        return view('user-upload');
+        $station = \App\Models\User::find($station_id);
+        if(!$station) abort(404, 'Station tidak ditemukan');
+        return view('user-upload', ['station' => $station]);
     }
 
     public function store(Request $request)
 {
     $request->validate([
+        'station_id' => 'required|exists:users,id',
         'file'   => 'required|array|min:1',
         'file.*' => 'file|mimes:pdf,jpg,jpeg,png,docx|max:10240',
     ]);
@@ -25,6 +28,7 @@ class PrintController extends Controller
         Printfile::create([
             'filename'      => $path,
             'original_name' => $uploadedFile->getClientOriginalName(),
+            'station_id' => $request->station_id
         ]);
     }
 

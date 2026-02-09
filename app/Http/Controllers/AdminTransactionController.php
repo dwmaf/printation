@@ -15,6 +15,7 @@ class AdminTransactionController extends Controller
         return view('admin.transactions.index', compact('transactions'));
     }
 
+    // approve dan reject bakal dicomment
     public function approve(Transaction $transaction)
     {
         $transaction->update([

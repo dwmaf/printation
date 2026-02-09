@@ -36,15 +36,16 @@ class TransactionController extends Controller
             'page_range' => $data['page_range'],
             'page_count' => (int) $data['page_count'],
         ]);
-
+        $filenameSnapshot = $file->original_name;
         $tx = Transaction::create([
             // KUNCI: tabel kamu butuh ini semua
             'order_id'     => $orderId,
             'file_id'      => $file->id,          // WAJIB (NOT NULL)
-            'printfile_id' => $file->id,          // boleh ada juga (kamu sudah punya)
+            'station_id'   => $file->station_id, 
             'amount'       => (int) $data['amount'],
             'status'       => 'pending',
             'print_config' => $printConfig,       // WAJIB (NOT NULL)
+            'filename_snapshot' => $filenameSnapshot 
         ]);
 
         return response()->json([

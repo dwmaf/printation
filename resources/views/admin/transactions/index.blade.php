@@ -6,8 +6,8 @@
     {{-- Header --}}
     <div class="flex justify-between items-center mb-8">
         <div>
-            <h1 class="text-3xl font-bold text-gray-800">Admin Transactions</h1>
-            <p class="text-gray-500">Konfirmasi pembayaran sebelum user bisa print</p>
+            <h1 class="text-3xl font-bold text-gray-800">Admin - Monitoring Transaksi</h1>
+            {{-- <p class="text-gray-500">Konfirmasi pembayaran sebelum user bisa print</p> --}}
         </div>
 
         <div class="flex items-center gap-4">
@@ -40,6 +40,7 @@
                     <th class="p-4 text-sm font-semibold text-gray-600">Amount</th>
                     <th class="p-4 text-sm font-semibold text-gray-600">Status</th>
                     <th class="p-4 text-sm font-semibold text-gray-600">Created</th>
+                    {{-- header action akan dicomment --}}
                     <th class="p-4 text-sm font-semibold text-gray-600 text-right">Action</th>
                 </tr>
             </thead>
@@ -96,6 +97,7 @@
                             {{ $tx->created_at?->diffForHumans() }}
                         </td>
 
+                        {{-- td berikut akan dicomment --}}
                         <td class="p-4 text-right">
                             @if($tx->status === 'pending')
                                 <div class="flex justify-end gap-2">

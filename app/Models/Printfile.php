@@ -8,7 +8,7 @@ class Printfile extends Model
 {
     public function transactions()
     {
-        return $this->hasMany(\App\Models\Transaction::class, 'printfile_id')->latest();
+        return $this->hasMany(\App\Models\Transaction::class, 'file_id')->latest();
     }
 
 

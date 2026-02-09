@@ -10,13 +10,7 @@ use App\Http\Controllers\PrinterController;
 use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\AdminTransactionController;
 use App\Http\Controllers\TransactionStatusController;
-
-Route::delete('/station/destroy-multiple', [PrintStationController::class, 'destroyMultiple'])
-    ->name('station.destroy-multiple');
-
-// FILE INFO
-Route::get('/station/file/{printfile}/info', [PrintStationController::class, 'getFileInfo'])
-    ->name('station.fileInfo');
+use App\Http\Controllers\OutletController;
 
 // CREATE TX (sudah ada di kamu)
 Route::post('/transaction', [TransactionController::class, 'store'])
@@ -25,10 +19,6 @@ Route::post('/transaction', [TransactionController::class, 'store'])
 // STATUS TX (BARU)
 Route::get('/transaction/status/{orderId}', [TransactionController::class, 'status'])
     ->name('transaction.status');
-
-// PRINT JOB VIA LARAVEL PROXY (BARU) -> NO CTRL+P
-Route::post('/station/print/{orderId}', [PrintStationController::class, 'printJob'])
-    ->name('station.print');
 
 Route::get('/transactions/status/{orderId}', [TransactionStatusController::class, 'show']);
 
@@ -62,6 +52,7 @@ Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
 
     // ✅ TAMBAH INI
     Route::get('/admin/transactions', [\App\Http\Controllers\AdminTransactionController::class, 'index'])->name('admin.transactions');
+    // kedua route ini akan dicomment
     Route::post('/admin/transactions/{transaction}/approve', [\App\Http\Controllers\AdminTransactionController::class, 'approve'])->name('admin.transactions.approve');
     Route::post('/admin/transactions/{transaction}/reject', [\App\Http\Controllers\AdminTransactionController::class, 'reject'])->name('admin.transactions.reject');
 });
@@ -73,19 +64,28 @@ Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
 |--------------------------------------------------------------------------
 | Kalau kamu belum siap lock station, biarkan tanpa middleware dulu.
 | Kalau sudah siap, ubah jadi:
-| Route::group(['middleware' => ['auth','role:station']], function () { ... });
 */
-Route::get('/station', [PrintStationController::class, 'index'])->name('station.index');
-Route::get('/station/{printfile}', [PrintStationController::class, 'show'])->name('station.show');
-Route::delete('/station/{printfile}', [PrintStationController::class, 'destroy'])->name('station.destroy');
-Route::get('/station/file-info/{printfile}', [PrintStationController::class, 'getFileInfo'])->name('station.info');
+Route::group(['middleware' => ['auth','role:station']], function () { 
+    Route::get('/station', [PrintStationController::class, 'index'])->name('station.index');
+    Route::get('/station/{printfile}', [PrintStationController::class, 'show'])->name('station.show');
+    Route::delete('/station/{printfile}', [PrintStationController::class, 'destroy'])->name('station.destroy');
+    Route::get('/station/file-info/{printfile}', [PrintStationController::class, 'getFileInfo'])->name('station.info');
+    Route::delete('/station/destroy-multiple', [PrintStationController::class, 'destroyMultiple'])
+        ->name('station.destroy-multiple');
+    // FILE INFO
+    Route::get('/station/file/{printfile}/info', [PrintStationController::class, 'getFileInfo'])
+        ->name('station.fileInfo');
+    // PRINT JOB VIA LARAVEL PROXY (BARU) -> NO CTRL+P
+    Route::post('/station/print/{orderId}', [PrintStationController::class, 'printJob'])
+        ->name('station.print');
+ });
 
 /*
 |--------------------------------------------------------------------------
 | USER UPLOAD (HP)
 |--------------------------------------------------------------------------
 */
-Route::get('/upload', [PrintController::class, 'uploadPage'])->name('upload.page');
+Route::get('/upload/{station_id}', [PrintController::class, 'uploadPage'])->name('upload.page');
 Route::post('/upload', [PrintController::class, 'store'])->name('upload.store');
 
 /*
@@ -95,3 +95,18 @@ Route::post('/upload', [PrintController::class, 'store'])->name('upload.store');
 */
 Route::post('/process-print', [PrinterController::class, 'print'])->name('process.print');
 Route::post('/transaction/store', [TransactionController::class, 'store'])->name('transaction.store');
+
+
+/*
+|--------------------------------------------------------------------------
+| OUTLET OWNER
+|--------------------------------------------------------------------------
+*/
+Route::group(['middleware' => ['auth', 'role:outlet-owner']], function () {
+    Route::get('/outlet/dashboard', [OutletController::class, 'index'])->name('outlet.dashboard');
+    Route::get('/outlet/stations', [OutletController::class, 'indexStation'])->name('outlet.stations.index');
+    Route::post('/outlet/verify/{id}', [OutletController::class, 'verify'])->name('outlet.verify');
+    Route::post('/outlet/reject/{id}', [OutletController::class, 'reject'])->name('outlet.reject');
+    Route::post('/outlet/station', [OutletController::class, 'storeStation'])->name('outlet.storeStation');
+    Route::delete('/outlet/station/{id}', [OutletController::class, 'destroyStation'])->name('outlet.destroyStation');
+});

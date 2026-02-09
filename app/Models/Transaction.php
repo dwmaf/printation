@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Transaction extends Model
@@ -36,14 +37,15 @@ class Transaction extends Model
      */
     public function station()
     {
-        return $this->hasOneThrough(
-            User::class,      // target
-            Printfile::class, // through
-            'id',             // Printfile PK
-            'id',             // User PK
-            'printfile_id',   // Transaction FK ke Printfile
-            'station_id'      // Printfile FK ke User(station)
-        );
+        // return $this->hasOneThrough(
+        //     User::class,      // target
+        //     Printfile::class, // through
+        //     'id',             // Printfile PK
+        //     'id',             // User PK
+        //     'printfile_id',   // Transaction FK ke Printfile
+        //     'station_id'      // Printfile FK ke User(station)
+        // );
+        return $this->belongsTo(User::class, 'station_id');
     }
 
     /**
@@ -52,7 +54,7 @@ class Transaction extends Model
      */
     public function outlet()
     {
-        return $this->station?->outlet();
+        return $this->station?->outlet;
         // ini "dynamic" relation style, tapi untuk query builder lebih enak pakai with station.outlet di controller
     }
 

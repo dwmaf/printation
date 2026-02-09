@@ -33,7 +33,7 @@ class AuthController extends Controller
         }
 
         if ($user->hasRole('outlet-owner')) {
-            return redirect('/outlet-owner/dashboard');
+            return redirect()->route('outlet.dashboard');
         }
 
         if ($user->hasRole('station')) {
