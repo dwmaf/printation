@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\PrintFile;
 use Illuminate\Support\Facades\Storage;
+use App\Events\TransactionUpdated;
 
 class OutletController extends Controller
 {
@@ -123,6 +124,7 @@ class OutletController extends Controller
         if($trx->station && $trx->station->outlet_id != Auth::user()->outlet_id) abort(403);
 
         $trx->update(['status' => 'paid']); // Trigger ke printer station
+        event(new TransactionUpdated($trx->station_id));
         return back()->with('success', 'Pembayaran diverifikasi.');
     }
 
@@ -134,7 +136,7 @@ class OutletController extends Controller
         if($trx->station && $trx->station->outlet_id != Auth::user()->outlet_id) abort(403);
 
         $trx->update(['status' => 'rejected']);
-
+        event(new TransactionUpdated($trx->station_id));
         return back()->with('error', 'Transaksi ditolak (Rejected).');
     }
 

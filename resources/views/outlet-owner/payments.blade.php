@@ -159,7 +159,21 @@
                 </div>
             </div>
 
-            
+
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.Echo) {
+                // Gunakan outlet_id dari owner yang sedang login
+                const OUTLET_ID = @json(Auth::user()->outlet_id);
+
+                window.Echo.channel(`outlet-channel.${OUTLET_ID}`)
+                    .listen('.transaction.created', (e) => {
+                        console.log('Ada pembayaran baru masuk!');
+                        location.reload();
+                    });
+            }
+        });
+    </script>
 @endsection

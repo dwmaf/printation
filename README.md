@@ -31,7 +31,7 @@ copy .env.example .env
 ```
 *Gunakan `cp` jika menggunakan terminal Git Bash/Linux.*
 
-### 4. Konfigurasi Jaringan & IP Lokal (Wajib jika ingin Testing via HP dan  Menguji fitur Real Time)
+### 4. Konfigurasi Jaringan & IP Lokal (Wajib jika ingin Testing via HP dan  Menguji fitur Real Time, yes brothers, kita ga pakai ngrok lagi, ngrok suckss, local IP is the best)
 Agar fitur scan QR Code berfungsi di HP, laptop dan HP Anda **wajib** berada dalam satu jaringan Wi-Fi yang sama.
 
 1. Cari IP Lokal (IPv4) laptop Anda:

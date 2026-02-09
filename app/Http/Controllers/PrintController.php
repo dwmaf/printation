@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Printfile;
+use App\Events\FileUploaded;
 
 class PrintController extends Controller
 {
@@ -32,7 +33,7 @@ class PrintController extends Controller
             ]);
         }
 
-        event(new \App\Events\FileUploaded($request->station_id));
+        event(new FileUploaded($request->station_id));
 
         return back()->with('success', 'Thanks for uploading your files!');
     }

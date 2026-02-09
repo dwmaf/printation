@@ -546,6 +546,10 @@
                     
                     // Atau jika ingin lebih smooth, Anda bisa memanggil fungsi 
                     // AJAX untuk mengambil ulang data <tbody> saja.
+                })
+                .listen('.transaction.updated', (e) => {
+                    console.log('Status transaksi diperbarui oleh admin...');
+                    location.reload();
                 });
         }
     });

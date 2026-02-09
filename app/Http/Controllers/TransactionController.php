@@ -6,6 +6,7 @@ use App\Models\Transaction;
 use App\Models\Printfile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Events\NewTransactionCreated;
 
 class TransactionController extends Controller
 {
@@ -47,7 +48,8 @@ class TransactionController extends Controller
             'print_config' => $printConfig,       // WAJIB (NOT NULL)
             'filename_snapshot' => $filenameSnapshot 
         ]);
-
+        $outletId = $file->station->outlet_id;
+        event(new NewTransactionCreated($outletId));
         return response()->json([
             'status'   => 'success',
             'order_id' => $tx->order_id,
