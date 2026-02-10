@@ -3,34 +3,31 @@
 
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
-<div class="h-screen py-8 flex flex-col">
+<div class="h-screen py-8 flex flex-col bg-[#FAFAFA] items-center justify-center">
     {{-- HEADER (UI versi bawah) --}}
-    <div class="h-30 flex justify-center items-center gap-4 mb-12">
-        <img src="{{ asset('images/placeholder_logo.png') }}" class="h-10 w-10 object-contain">
-        <h1 class="text-4xl font-black text-center">Print Station</h1>
-        <button onclick="location.reload()"
-                class="ml-6 px-4 py-2 rounded-xl bg-white border border-gray-200 shadow-sm hover:bg-gray-50 font-bold text-sm">
-            Refresh
-        </button>
+    <div class="h-30 flex justify-center items-center mb-8">
+        <img src="{{ asset('images/logo.png') }}" class="w-18">
+        <h1 class="text-5xl font-koulen">Print Station</h1>
     </div>
 
-    <div class="flex-1 w-full px-8">
-        @if($files->isEmpty())
-            {{-- EMPTY STATE (UI versi bawah) --}}
-            <div class="w-full h-96 flex flex-col items-center justify-center">
-                <h2 class="text-2xl font-bold mb-4">{{ Auth::user()->name }}</h2>
-                <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
+    <h2 class="uppercase font-medium text-gray-400 mb-4 font-roboto">{{ Auth::user()->name }}</h2>
 
-                <div class="relative w-80% bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full">
-                    {!! $qrCode !!}
-                </div>
+    @if($files->isEmpty())
+        {{-- EMPTY STATE (UI versi bawah) --}}
+        <div class="w-full h-96 flex flex-col items-center justify-center">
+            <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
 
-                <div class="flex items-center space-x-3 bg-[#ECECEC] px-6 py-3 rounded-full">
-                    <div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
-                    <span class="text-sm font-medium">Menunggu upload file...</span>
-                </div>
+            <div class="relative w-80% bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full">
+                {!! $qrCode !!}
             </div>
+
+            <div class="flex items-center space-x-3 bg-[#ECECEC] px-6 py-3 rounded-full">
+                <div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
+                <span class="text-sm font-medium">Menunggu upload file...</span>
+            </div>
+        </div>
         @else
+        <div class="flex px-8 bg-white w-full rounded-xl shadow-lg py-6">
             {{-- LIST FILES (UI versi bawah) --}}
             <h2 class="text-2xl font-bold mb-4">{{ Auth::user()->name }}</h2>
             <div class="w-full overflow-y-auto custom-scrollbar">
