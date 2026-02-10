@@ -44,7 +44,7 @@
                     </button>
                 </div>
             {{-- LIST FILES (UI versi bawah) --}}
-            <div class="w-full max-h-[65vh] overflow-y-auto custom-scrollbar">
+            <div id="filesList" class="w-full max-h-[65vh] overflow-y-auto custom-scrollbar">
 
                 <table class="w-full border-collapse">
                     <thead class="bg-gray-100 sticky top-0 z-50">
@@ -277,7 +277,7 @@
      class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity opacity-0"
      style="transition: opacity 0.25s ease-out;">
     <div id="modalContent"
-         class="bg-white rounded-2xl overflow-hidden w-full max-w-6xl h-[85vh] flex shadow-2xl scale-95 transition-transform"
+         class="bg-white rounded-2xl w-full max-w-6xl h-[85vh] flex shadow-2xl scale-95 transition-transform"
          style="transition: transform 0.25s ease-out;">
 
         {{-- LEFT: PREVIEW --}}
@@ -346,7 +346,7 @@
 
                         <div id="customPageInputDiv" class="hidden">
                             <input id="printPageRange" type="text" placeholder="Contoh: 1-5, 8, 11-13"
-                                   class="w-full text-sm font-bold border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+                                   class="w-full text-sm font-bold border-gray-300 rounded-lg focus:border-blue-500 p-2.5">
                             <p class="text-[10px] text-gray-400 mt-1 font-semibold">
                                 Gunakan tanda hubung ( - ) untuk rentang dan koma ( , ) untuk halaman acak.
                             </p>

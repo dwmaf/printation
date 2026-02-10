@@ -138,7 +138,6 @@ npm run build
 | **Dashboard** | outlet-owner/dashboard.blade.php | `/outlet/dashboard` | Ringkasan pendapatan dan statistik outlet. |
 | **Antrian Bayar** | outlet-owner/payments.blade.php | `/outlet/payments` | List bukti pembayaran masuk. |
 | **Manajemen File** | outlet-owner/files.blade.php | `/outlet/files` | Monitoring & pembersihan file di semua station milik outlet. |
-| **Kelola QRIS** | outlet-owner/qris.blade.php | `/outlet/qris` | Upload/Update gambar QRIS pembayaran mandiri. |
 | **Kelola Station** | outlet-owner/stations.blade.php | `/outlet/stations` | Menambah/menghapus akun station di bawah outlet. |
 
 #### D. Fitur Super Admin (Global)
