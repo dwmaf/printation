@@ -252,6 +252,23 @@
                 </div>
             </div>
         </div>
+
+        {{-- QR MODAL (untuk memperbesar QR) --}}
+        <div id="qrModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[100] backdrop-blur-sm" onclick="closeQrModal()">
+            <div class="relative bg-white rounded-2xl p-6 max-w-md shadow-2xl" onclick="event.stopPropagation()">
+                <!-- Tombol X Merah Menonjol -->
+                <button onclick="closeQrModal()" class="absolute top-20 left-115 bg-red-600 hover:bg-red-700 text-white font-bold text-2xl w-12 h-12 rounded-full shadow-2xl transition-all hover:scale-125 z-50 flex items-center justify-center">
+                    ✕
+                </button>
+                <h3 class="text-xl font-bold text-center mb-4">QRIS Pembayaran</h3>
+                <div class="bg-white p-4 border-2 border-gray-200 rounded-2xl">
+                    <img src="{{ $outletQr }}" class="w-full h-auto object-contain" alt="QRIS">
+                </div>
+                <p class="text-sm text-gray-500 text-center mt-4">
+                    Scan QRIS menggunakan aplikasi pembayaran Anda
+                </p>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -406,11 +423,14 @@
 
                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm text-center">
                         <div class="text-xs font-bold text-gray-500 uppercase mb-3">QRIS Pembayaran</div>
-                        <div class="inline-block bg-white p-2 border-2 border-gray-200 rounded-2xl shadow-sm">
+                        <div class="inline-block bg-white p-2 border-2 border-gray-200 rounded-2xl shadow-sm cursor-pointer hover:shadow-md transition-shadow" onclick="openQrModal()">
                             <img id="payQrImage" src="{{ $outletQr }}" class="w-56 h-56 object-contain" alt="QRIS">
                         </div>
                         <p class="text-xs text-gray-400 mt-3 font-semibold">
                             Scan QRIS di atas menggunakan GoPay / OVO / Dana / Mobile Banking.
+                        </p>
+                        <p class="text-xs text-blue-600 mt-1 font-semibold">
+                            Klik gambar untuk memperbesar
                         </p>
                     </div>
 
@@ -981,6 +1001,19 @@
 
     function confirmDelete() {
         if (selectedDeleteForm) selectedDeleteForm.submit();
+    }
+
+    // ========= QR MODAL =========
+    function openQrModal() {
+        const m = document.getElementById('qrModal');
+        m.classList.remove('hidden');
+        m.classList.add('flex');
+    }
+
+    function closeQrModal() {
+        const m = document.getElementById('qrModal');
+        m.classList.add('hidden');
+        m.classList.remove('flex');
     }
 
     // ========= MULTI SELECT DELETE (UI bawah) =========
