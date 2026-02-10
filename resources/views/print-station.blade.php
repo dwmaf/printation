@@ -257,7 +257,7 @@
         <div id="qrModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[100] backdrop-blur-sm" onclick="closeQrModal()">
             <div class="relative bg-white rounded-2xl p-6 max-w-md shadow-2xl" onclick="event.stopPropagation()">
                 <!-- Tombol X Merah Menonjol -->
-                <button onclick="closeQrModal()" class="absolute top-20 left-115 bg-red-600 hover:bg-red-700 text-white font-bold text-2xl w-12 h-12 rounded-full shadow-2xl transition-all hover:scale-125 z-50 flex items-center justify-center">
+                <button onclick="closeQrModal()" class="absolute top-30 left-115 text-white font-bold text-2xl w-12 h-12 rounded-full shadow-2xl transition-all hover:scale-125 z-50 flex items-center justify-center">
                     ✕
                 </button>
                 <h3 class="text-xl font-bold text-center mb-4">QRIS Pembayaran</h3>
