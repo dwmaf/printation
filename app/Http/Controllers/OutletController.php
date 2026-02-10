@@ -26,7 +26,7 @@ class OutletController extends Controller
             $q->where('outlet_id', $outlet->id);
         })->where('status', 'paid')->sum('amount');
 
-        return view('outlet-owner.dashboard', compact('outlet', 'pendingCount', 'totalRevenue'));
+        return view('outlet-owner.dashboard', compact('outlet', 'pendingCount', 'totalRevenue', 'user'));
     }
 
     public function payments()

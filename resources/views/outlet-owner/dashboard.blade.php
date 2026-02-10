@@ -25,20 +25,31 @@
             </div>
         </div>
 
-        <div class="h-full flex-1 bg-gray-100 p-8">
-    
+        <div class="h-full flex flex-col flex-1">
             {{-- HEADER --}}
-            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 bg-[#FAFAFA] p-6 rounded-xl">
                 <div>
-                    <h1 class="text-3xl font-black text-gray-900">Dashboard {{ $outlet->name }}</h1>
-                    <p class="text-gray-500">Selamat datang, {{ Auth::user()->name }}</p>
+                    <h1 class="text-4xl text-gray-900 font-koulen">Dashboard </h1>
+                    {{-- <h1 class="text-gray-500">Selamat datang, {{ Auth::user()->name }}</h1> --}}
                 </div>
                 <div class="flex items-center gap-3">
-                    <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full border border-blue-200">
+                    <div class="p-3 bg-gray-100 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24"><path fill="#6155F5" fill-rule="evenodd" d="M8 7a4 4 0 1 1 8 0a4 4 0 0 1-8 0m0 6a5 5 0 0 0-5 5a3 3 0 0 0 3 3h12a3 3 0 0 0 3-3a5 5 0 0 0-5-5z" clip-rule="evenodd"/></svg>
+                    </div>
+                    <div class="flex flex-col">
+                        <p class="font-bold text-lg">
+                            {{ $outlet->name }}
+                        </p>
+                        <p class="text-md text-[#B1B0AB]">
+                            {{ $user->email }}
+                        </p>
+                    </div>
+                    {{-- <span class="bg-blue-100 text-blue-800 text-xs font-bold px-3 py-1 rounded-full border border-blue-200">
                         Paket: {{ $outlet->max_stations }} Station
-                    </span>
+                    </span> --}}
                 </div>
             </div>
+    
     
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
     

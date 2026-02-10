@@ -55,7 +55,7 @@ class DatabaseSeeder extends Seeder
         $owner1 = User::updateOrCreate(
             ['email' => 'budi@berkahjaya.com'],
             [
-                'name' => 'Pak Budi (Owner Berkah)',
+                'name' => 'Pak Budi',
                 'password' => Hash::make('password'),
                 'outlet_id' => $outlet1->id,
                 'email_verified_at' => now(),
