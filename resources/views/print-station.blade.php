@@ -34,9 +34,7 @@
                 <h1 class="text-5xl font-koulen">Printation</h1>
             </div>
 
-            {{-- LIST FILES (UI versi bawah) --}}
-            <div class="w-full max-h-[80vh] overflow-y-auto custom-scrollbar">
-                <h2 class="uppercase font-medium text-gray-400 font-roboto">{{ Auth::user()->name }}</h2>
+            <h2 class="uppercase font-medium text-gray-400 font-roboto">{{ Auth::user()->name }}</h2>
             <div class="mb-8 flex items-center gap-3 h-10">
                     {{-- <h2 class="text-2xl font-bold mb-4">{{ Auth::user()->name }}</h2> --}}
                     <p id="fileCounter" class="text-lg font-semibold text-gray-700">0 file dipilih</p>
@@ -45,6 +43,8 @@
                         Hapus semua
                     </button>
                 </div>
+            {{-- LIST FILES (UI versi bawah) --}}
+            <div class="w-full max-h-[65vh] overflow-y-auto custom-scrollbar">
 
                 <table class="w-full border-collapse">
                     <thead class="bg-gray-100 sticky top-0 z-50">
@@ -277,7 +277,7 @@
      class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity opacity-0"
      style="transition: opacity 0.25s ease-out;">
     <div id="modalContent"
-         class="bg-white rounded-2xl w-full max-w-6xl h-[85vh] flex shadow-2xl scale-95 transition-transform"
+         class="bg-white rounded-2xl overflow-hidden w-full max-w-6xl h-[85vh] flex shadow-2xl scale-95 transition-transform"
          style="transition: transform 0.25s ease-out;">
 
         {{-- LEFT: PREVIEW --}}
@@ -334,12 +334,12 @@
                         <div class="flex items-center mb-3 space-x-4">
                             <label class="flex items-center cursor-pointer">
                                 <input type="radio" name="pageOption" value="all" checked
-                                       class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                    class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer">
                                 <span class="ml-2 text-sm font-medium text-gray-900">Semua</span>
                             </label>
                             <label class="flex items-center cursor-pointer">
                                 <input type="radio" name="pageOption" value="custom"
-                                       class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                    class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer">
                                 <span class="ml-2 text-sm font-medium text-gray-900">Custom</span>
                             </label>
                         </div>
