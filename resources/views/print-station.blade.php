@@ -44,7 +44,7 @@
                     </button>
                 </div>
             {{-- LIST FILES (UI versi bawah) --}}
-            <div class="w-full max-h-[65vh] overflow-y-auto custom-scrollbar">
+            <div class="w-full max-h-[60vh] overflow-y-auto custom-scrollbar">
 
                 <table class="w-full border-collapse">
                     <thead class="bg-gray-100 sticky top-0 z-50">
@@ -78,16 +78,7 @@
 
                                 // hitung halaman (simple) - default 1
                                 $isPdf = strtoupper($file->type ?? '') === 'PDF' || str_ends_with(strtolower($file->filename), '.pdf');
-                                $filePath = storage_path('app/public/' . $file->filename);
                                 $pageCount = 1;
-
-                                if ($isPdf && file_exists($filePath)) {
-                                    $content = @file_get_contents($filePath);
-                                    if ($content) {
-                                        $count = preg_match_all("/\/Type\s*\/Page[^s]/", $content, $matches);
-                                        if ($count > 0) $pageCount = $count;
-                                    }
-                                }
 
                                 // status badge
                                 $badgeText = 'BELUM BAYAR';
@@ -651,14 +642,15 @@
     }
 
     // ========= OPEN / CLOSE MODAL =========
-    function openPrintModal(opts) {
-        // Set state
+    async function openPrintModal(opts) {
+        // 1. Set State Awal
         current.fileId     = opts.file_id;
         current.fileUrl    = opts.url;
         current.fileName   = opts.original_name || 'FILE';
         current.fileType   = opts.type || 'FILE';
-        current.pages      = parseInt(opts.pages || 1);
+        current.pages      = 1; // Default sementara
 
+        // Data Transaksi
         current.txId       = opts.tx_id || null;
         current.txStatus   = opts.tx_status || null;
         current.orderId    = opts.order_id || null;
@@ -666,45 +658,21 @@
         current.paidConfig = opts.paid_config || null;
         current.mode       = opts.mode || 'pay';
 
-        // Reset preview
-        previewFrame.src = '';
-        spinner.style.display = 'flex';
-        previewFrame.onload = () => { spinner.style.display = 'none'; };
-
-        // Load preview (PDF toolbar hidden)
-        previewFrame.src = current.fileUrl + "#toolbar=0&navpanes=0&scrollbar=0&view=FitH";
-
-        // Decide mode from txStatus (lebih aman dari server)
-        // Jika status selesai (completed), kita paksa mode 'pay' agar bisa bayar lagi
+        // Logic penentuan mode 
         if (!current.txStatus || current.txStatus === 'rejected' || current.txStatus === 'completed') {
             current.mode = 'pay';
         } else if (current.txStatus === 'pending') {
             current.mode = 'pending';
         } else if (current.txStatus === 'paid') {
             current.mode = 'paid';
-        } else {
-            current.mode = 'pending';
         }
 
-        // Render right panel
-        if (current.mode === 'pay') {
-            panelTitle.innerText = 'Konfigurasi';
-            panelSubTitle.innerText = 'Atur cetak & lanjut pembayaran';
-            renderConfigPanel();
-            showOnly(panelConfig);
-        } else if (current.mode === 'pending') {
-            panelTitle.innerText = 'Status Transaksi';
-            panelSubTitle.innerText = 'Menunggu konfirmasi admin';
-            document.getElementById('waitingOrderId').innerText = current.orderId || '-';
-            showOnly(panelWaiting);
-        } else if (current.mode === 'paid') {
-            panelTitle.innerText = 'Siap Cetak';
-            panelSubTitle.innerText = 'Konfigurasi terkunci sesuai pembayaran';
-            renderPaidPanel();
-            showOnly(panelPaid);
-        }
+        // 2. Reset UI Preview
+        previewFrame.src = '';
+        spinner.style.display = 'flex';
+        previewFrame.onload = () => { spinner.style.display = 'none'; };
 
-        // Open modal animation
+        // 3. Tampilkan Modal Dulu 
         modal.classList.remove('hidden');
         modal.classList.add('flex');
         setTimeout(() => {
@@ -712,6 +680,59 @@
             modalContent.classList.remove('scale-95');
             modalContent.classList.add('scale-100');
         }, 10);
+
+        // 4. Render Panel Awal
+        if (current.mode === 'pay') {
+            panelTitle.innerText = 'Konfigurasi';
+            panelSubTitle.innerText = 'Atur cetak & lanjut pembayaran';
+            
+            // Tampilkan state "Menghitung..."
+            showOnly(panelConfig);
+            document.getElementById('fileNameConfig').innerText = current.fileName;
+            document.getElementById('fileMetaConfig').innerText = "Menganalisis file...";
+            document.getElementById('displayCalculation').innerHTML = '<span class="animate-pulse text-blue-600">Menghitung halaman...</span>';
+            
+            // Matikan tombol print sementara
+            const btnPay = document.querySelector('button[onclick="goToPayment()"]');
+            if(btnPay) btnPay.disabled = true;
+
+            // --- LOGIKA HITUNG HALAMAN ---
+            const isImage = ['JPG','JPEG','PNG','WEBP'].includes(current.fileType.toUpperCase());
+            
+            if (!isImage) {
+                try {
+                    // Download header PDF & baca halaman
+                    const existingPdfBytes = await fetch(current.fileUrl).then(res => res.arrayBuffer());
+                    const pdfDoc = await PDFLib.PDFDocument.load(existingPdfBytes);
+                    current.pages = pdfDoc.getPageCount();
+                } catch (e) {
+                    console.error("Gagal baca PDF:", e);
+                    current.pages = 1; // Fallback
+                }
+            } else {
+                current.pages = 1;
+            }
+            // -------------------------------------------
+
+            // Hidupkan tombol & Render ulang panel
+            if(btnPay) btnPay.disabled = false;
+            renderConfigPanel();
+
+        } else if (current.mode === 'pending') {
+            panelTitle.innerText = 'Status Transaksi';
+            panelSubTitle.innerText = 'Menunggu konfirmasi admin';
+            document.getElementById('waitingOrderId').innerText = current.orderId || '-';
+            showOnly(panelWaiting);
+
+        } else if (current.mode === 'paid') {
+            panelTitle.innerText = 'Siap Cetak';
+            panelSubTitle.innerText = 'Konfigurasi terkunci sesuai pembayaran';
+            renderPaidPanel();
+            showOnly(panelPaid);
+        }
+
+        // 5. Load Preview (PDF toolbar hidden)
+        previewFrame.src = current.fileUrl + "#toolbar=0&navpanes=0&scrollbar=0&view=FitH";
     }
 
     function closePrintModal(forceReload = false) {
