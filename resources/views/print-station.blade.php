@@ -9,7 +9,7 @@
     {{-- HEADER (UI versi bawah) --}}
     <div class="h-30 flex mb-8">
         <img src="{{ asset('images/logo.png') }}" class="w-18">
-        <h1 class="text-5xl font-koulen">Print Station</h1>
+        <h1 class="text-5xl font-koulen">Printation</h1>
     </div>
 
     <h2 class="uppercase font-medium text-gray-400 mb-4 font-roboto">{{ Auth::user()->name }}</h2>
@@ -31,11 +31,11 @@
             {{-- HEADER (UI versi bawah) --}}
             <div class="h-30 flex items-center">
                 <img src="{{ asset('images/logo.png') }}" class="w-18">
-                <h1 class="text-5xl font-koulen">Print Station</h1>
+                <h1 class="text-5xl font-koulen">Printation</h1>
             </div>
 
             {{-- LIST FILES (UI versi bawah) --}}
-            <div class="w-full overflow-y-auto custom-scrollbar">
+            <div class="w-full max-h-[80vh] overflow-y-auto custom-scrollbar">
                 <h2 class="uppercase font-medium text-gray-400 font-roboto">{{ Auth::user()->name }}</h2>
             <div class="mb-8 flex items-center gap-3 h-10">
                     {{-- <h2 class="text-2xl font-bold mb-4">{{ Auth::user()->name }}</h2> --}}
@@ -47,7 +47,7 @@
                 </div>
 
                 <table class="w-full border-collapse">
-                    <thead class="bg-gray-100 sticky top-0">
+                    <thead class="bg-gray-100 sticky top-0 z-50">
                         <tr class="text-left text-sm font-semibold text-gray-700">
                             <th class="p-3 text-center">
                                 <input type="checkbox" id="checkAll" class="w-4 h-4 accent-blue-600 rounded cursor-pointer">
@@ -111,21 +111,22 @@
 
                                 // tombol utama (label)
                                 $mainLabel = 'BAYAR';
-                                $mainBtnClass = 'bg-yellow-500 hover:bg-yellow-400 text-white';
+                                $mainBtnClass = 'bg-[#6155F5] hover:bg-[#6155F5] text-white cursor-pointer';
+                                $iconFill = '#fff'; // default putih
                                 $mainMode = 'pay';
 
                                 if ($tx) {
                                     if ($status === 'pending') {
                                         $mainLabel = 'DETAIL';
-                                        $mainBtnClass = 'bg-gray-900 hover:bg-gray-800 text-white';
+                                        $mainBtnClass = 'bg-[#6155F5] cursor-pointer';
                                         $mainMode = 'pending';
                                     } elseif ($status === 'paid') {
                                         $mainLabel = 'PRINT';
-                                        $mainBtnClass = 'bg-blue-600 hover:bg-blue-500 text-white';
+                                        $mainBtnClass = 'bg-[#6155F5] cursor-pointer';
                                         $mainMode = 'paid';
                                     } elseif ($status === 'rejected') {
                                         $mainLabel = 'BAYAR ULANG';
-                                        $mainBtnClass = 'bg-red-600 hover:bg-red-500 text-white';
+                                        $mainBtnClass = 'bg-[#6155F5] cursor-pointer';
                                         $mainMode = 'pay';
                                     } 
                                     // elseif ($status === 'completed') {
@@ -174,8 +175,8 @@
                                 <td class="p-3 truncate max-w-[300px] text-left">
                                     {{ $file->original_name ?? $file->filename }}
                                     @if($tx && !empty($tx->order_id))
-                                        <div class="text-xs text-gray-400 font-semibold mt-1">
-                                            ORDER: <span class="text-gray-600">{{ $tx->order_id }}</span>
+                                        <div class="text-xs text-yellow-950 font-semibold mt-1 bg-yellow-100 w-fit p-1 rounded-sm">
+                                            ORDER: <span class="text-yellow-800">{{ $tx->order_id }}</span>
                                         </div>
                                     @endif
                                 </td>
@@ -193,22 +194,36 @@
                                 <td class="p-3">
                                     <div class="flex justify-center gap-2">
                                         {{-- tombol utama: BAYAR/DETAIL/PRINT sesuai status --}}
-                                        <button type="button"
-                                                onclick='openPrintModal(@json($openPayload))'
-                                                data-tooltip="{{ $mainLabel }}"
-                                                class="px-4 py-2 rounded-lg font-bold shadow-sm {{ $mainBtnClass }}">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 32 32"><path fill="#fff" d="M24 6.5V8h1a5 5 0 0 1 5 5v7.5a3.5 3.5 0 0 1-3.5 3.5H25v1.5a3.5 3.5 0 0 1-3.5 3.5h-11A3.5 3.5 0 0 1 7 25.5V24H5.5A3.5 3.5 0 0 1 2 20.5V13a5 5 0 0 1 5-5h1V6.5A3.5 3.5 0 0 1 11.5 3h9A3.5 3.5 0 0 1 24 6.5m-14 0V8h12V6.5A1.5 1.5 0 0 0 20.5 5h-9A1.5 1.5 0 0 0 10 6.5m-1 19a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5v-6a1.5 1.5 0 0 0-1.5-1.5h-11A1.5 1.5 0 0 0 9 19.5zM25 22h1.5a1.5 1.5 0 0 0 1.5-1.5V13a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7.5A1.5 1.5 0 0 0 5.5 22H7v-2.5a3.5 3.5 0 0 1 3.5-3.5h11a3.5 3.5 0 0 1 3.5 3.5z"/></svg>
-                                        </button>
+                                        <div class="relative group">
+                                            <button type="button"
+                                                    onclick='openPrintModal(@json($openPayload))'
+                                                    data-tooltip="{{ $mainLabel }}"
+                                                    class="p-2 rounded-lg font-bold shadow-sm {{ $mainBtnClass }}">
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 48 48"><path fill="{{ $iconFill }}" d="M16.25 8h15.5a3.25 3.25 0 0 1 3.245 3.066l.005.184v2.749l1.75.001c2.9 0 5.25 2.35 5.25 5.25v13.5A3.25 3.25 0 0 1 38.75 36L35 35.999v1.751A3.25 3.25 0 0 1 31.75 41h-15.5A3.25 3.25 0 0 1 13 37.75v-1.751L9.25 36A3.25 3.25 0 0 1 6 32.75v-13.5C6 16.35 8.35 14 11.25 14l1.75-.001V11.25a3.25 3.25 0 0 1 3.066-3.245zm15.5 20.5h-15.5a.75.75 0 0 0-.75.75v8.5c0 .414.336.75.75.75h15.5a.75.75 0 0 0 .75-.75v-8.5a.75.75 0 0 0-.75-.75m5-12h-25.5a2.75 2.75 0 0 0-2.75 2.75v13.5c0 .414.336.75.75.75l3.75-.001V29.25A3.25 3.25 0 0 1 16.25 26h15.5A3.25 3.25 0 0 1 35 29.25v4.249l3.75.001a.75.75 0 0 0 .75-.75v-13.5a2.75 2.75 0 0 0-2.75-2.75m-5-6h-15.5a.75.75 0 0 0-.743.648l-.007.102v2.749h17V11.25a.75.75 0 0 0-.648-.743z"/></svg>
+                                            </button>
+                                            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2
+                                                hidden group-hover:block
+                                                bg-white text-xs font-medium px-2 py-1 rounded shadow
+                                                whitespace-nowrap z-50">
+                                            Print</span>
+                                        </div>
 
                                         {{-- delete --}}
                                         <form action="{{ route('station.destroy', $file->id) }}" method="POST" class="delete-file">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="button"
-                                                    class="hover:bg-red-600 bg-gray-100 text-gray-800 hover:text-white px-4 py-2 rounded-lg font-bold transition-colors cursor-pointer"
-                                                    onclick="openDeleteModal(this)">
-                                                Hapus
-                                            </button>
+                                            <div class="relative group">
+                                                <button type="button"
+                                                        class="bg-red-600 text-gray-800 hover:text-white p-2 rounded-lg font-bold transition-colors cursor-pointer"
+                                                        onclick="openDeleteModal(this)">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24"><path fill="#fff" d="M7 21q-.825 0-1.412-.587T5 19V6q-.425 0-.712-.288T4 5t.288-.712T5 4h4q0-.425.288-.712T10 3h4q.425 0 .713.288T15 4h4q.425 0 .713.288T20 5t-.288.713T19 6v13q0 .825-.587 1.413T17 21zM17 6H7v13h10zm-7 11q.425 0 .713-.288T11 16V9q0-.425-.288-.712T10 8t-.712.288T9 9v7q0 .425.288.713T10 17m4 0q.425 0 .713-.288T15 16V9q0-.425-.288-.712T14 8t-.712.288T13 9v7q0 .425.288.713T14 17M7 6v13z"/></svg>
+                                                </button>
+                                                <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2
+                                                hidden group-hover:block
+                                                bg-white text-xs font-medium px-2 py-1 rounded shadow
+                                                whitespace-nowrap z-50">
+                                            Hapus</span>
+                                            </div>
                                         </form>
                                     </div>
                                 </td>
@@ -693,7 +708,7 @@
     // ========= CONFIG PANEL LOGIC =========
     function renderConfigPanel() {
         document.getElementById('fileNameConfig').innerText = current.fileName;
-        document.getElementById('fileMetaConfig').innerText = `Tipe: ${current.fileType} • Total halaman file: ${current.pages}`;
+        document.getElementById('fileMetaConfig').innerText = `${current.fileType} • ${current.pages} halaman`;
 
         // reset inputs
         document.getElementById('printPaperSize').value = 'A4';
