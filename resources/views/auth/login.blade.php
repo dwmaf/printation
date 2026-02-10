@@ -5,10 +5,10 @@
     <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col md:flex-row border border-gray-200">
         
         <div class="w-full md:w-1/2 p-8 md:p-12">
-            <div class="flex items-center justify-center gap-2 mb-6">
+            <div class="flex items-center justify-center gap-1 mb-6">
                 <img src="{{ asset('images/logo.png') }}" alt="Logo Print App" class="w-10 h-10 object-contain">
                 
-                <span class="text-xl font-bold text-gray-800 tracking-wider">PRINT</span>
+                <span class="text-xl font-bold text-gray-800 tracking-wider">PRINTATION</span>
             </div>
 
             <h1 class="text-2xl font-black text-center text-gray-800 mb-8 uppercase tracking-wide">SELAMAT DATANG!</h1>
