@@ -3,21 +3,21 @@
 
 <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
-<div class="h-screen py-8 flex flex-col bg-[#FAFAFA] items-center justify-center">
+<div class="h-screen p-4 flex flex-col bg-[#FAFAFA] items-center justify-center">
+    
+    @if($files->isEmpty())
     {{-- HEADER (UI versi bawah) --}}
-    <div class="h-30 flex justify-center items-center mb-8">
+    <div class="h-30 flex mb-8">
         <img src="{{ asset('images/logo.png') }}" class="w-18">
         <h1 class="text-5xl font-koulen">Print Station</h1>
     </div>
 
     <h2 class="uppercase font-medium text-gray-400 mb-4 font-roboto">{{ Auth::user()->name }}</h2>
-
-    @if($files->isEmpty())
         {{-- EMPTY STATE (UI versi bawah) --}}
-        <div class="w-full h-96 flex flex-col items-center justify-center">
+        <div class="w-fit h-96 flex flex-col items-center justify-center bg-white p-6 rounded-xl shadow-lg">
             <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
 
-            <div class="relative w-80% bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full">
+            <div class="relative w-full bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full">
                 {!! $qrCode !!}
             </div>
 
@@ -27,11 +27,18 @@
             </div>
         </div>
         @else
-        <div class="flex px-8 bg-white w-full rounded-xl shadow-lg py-6">
+        <div class="bg-white w-full h-full rounded-xl shadow-lg px-8">
+            {{-- HEADER (UI versi bawah) --}}
+            <div class="h-30 flex items-center">
+                <img src="{{ asset('images/logo.png') }}" class="w-18">
+                <h1 class="text-5xl font-koulen">Print Station</h1>
+            </div>
+
             {{-- LIST FILES (UI versi bawah) --}}
-            <h2 class="text-2xl font-bold mb-4">{{ Auth::user()->name }}</h2>
             <div class="w-full overflow-y-auto custom-scrollbar">
-                <div class="mb-8 flex items-center gap-8 h-10">
+                <h2 class="uppercase font-medium text-gray-400 font-roboto">{{ Auth::user()->name }}</h2>
+            <div class="mb-8 flex items-center gap-3 h-10">
+                    {{-- <h2 class="text-2xl font-bold mb-4">{{ Auth::user()->name }}</h2> --}}
                     <p id="fileCounter" class="text-lg font-semibold text-gray-700">0 file dipilih</p>
                     <button id="deleteAllBtn" onclick="deleteSelectedFiles()"
                             class="hidden bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition-all cursor-pointer">
@@ -188,8 +195,9 @@
                                         {{-- tombol utama: BAYAR/DETAIL/PRINT sesuai status --}}
                                         <button type="button"
                                                 onclick='openPrintModal(@json($openPayload))'
+                                                data-tooltip="{{ $mainLabel }}"
                                                 class="px-4 py-2 rounded-lg font-bold shadow-sm {{ $mainBtnClass }}">
-                                            {{ $mainLabel }}
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="30px" height="30px" viewBox="0 0 32 32"><path fill="#fff" d="M24 6.5V8h1a5 5 0 0 1 5 5v7.5a3.5 3.5 0 0 1-3.5 3.5H25v1.5a3.5 3.5 0 0 1-3.5 3.5h-11A3.5 3.5 0 0 1 7 25.5V24H5.5A3.5 3.5 0 0 1 2 20.5V13a5 5 0 0 1 5-5h1V6.5A3.5 3.5 0 0 1 11.5 3h9A3.5 3.5 0 0 1 24 6.5m-14 0V8h12V6.5A1.5 1.5 0 0 0 20.5 5h-9A1.5 1.5 0 0 0 10 6.5m-1 19a1.5 1.5 0 0 0 1.5 1.5h11a1.5 1.5 0 0 0 1.5-1.5v-6a1.5 1.5 0 0 0-1.5-1.5h-11A1.5 1.5 0 0 0 9 19.5zM25 22h1.5a1.5 1.5 0 0 0 1.5-1.5V13a3 3 0 0 0-3-3H7a3 3 0 0 0-3 3v7.5A1.5 1.5 0 0 0 5.5 22H7v-2.5a3.5 3.5 0 0 1 3.5-3.5h11a3.5 3.5 0 0 1 3.5 3.5z"/></svg>
                                         </button>
 
                                         {{-- delete --}}
