@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
@@ -7,25 +8,25 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class FileUploaded implements ShouldBroadcastNow
+class NewTransactionCreated implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $stationId;
+    public $outletId;
 
-    public function __construct($stationId)
+    public function __construct($outletId)
     {
-        $this->stationId = $stationId;
+        $this->outletId = $outletId;
     }
 
     public function broadcastOn(): array
     {
-        // Broadcast ke channel spesifik station
-        return [new Channel('printing-channel.' . $this->stationId)];
+        // Broadcast ke channel outlet agar owner bisa terima
+        return [new Channel('outlet-channel.' . $this->outletId)];
     }
 
     public function broadcastAs()
     {
-        return 'file.uploaded';
+        return 'transaction.created';
     }
 }

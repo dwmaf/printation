@@ -11,6 +11,11 @@ use Illuminate\Support\Facades\Hash;
 
 class DashboardAdminController extends Controller
 {
+
+    public function indexDashboard()
+    {
+        return view('admin.dashboard-admin');
+    }
     public function indexOutlet()
     {
         $outlets = Outlet::with(['owner'])->latest()->get();

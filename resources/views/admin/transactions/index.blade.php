@@ -41,7 +41,7 @@
                     <th class="p-4 text-sm font-semibold text-gray-600">Status</th>
                     <th class="p-4 text-sm font-semibold text-gray-600">Created</th>
                     {{-- header action akan dicomment --}}
-                    <th class="p-4 text-sm font-semibold text-gray-600 text-right">Action</th>
+                    {{-- <th class="p-4 text-sm font-semibold text-gray-600 text-right">Action</th> --}}
                 </tr>
             </thead>
 
@@ -98,7 +98,7 @@
                         </td>
 
                         {{-- td berikut akan dicomment --}}
-                        <td class="p-4 text-right">
+                        {{-- <td class="p-4 text-right">
                             @if($tx->status === 'pending')
                                 <div class="flex justify-end gap-2">
                                     <form action="{{ route('admin.transactions.approve', $tx->id) }}" method="POST">
@@ -118,7 +118,7 @@
                             @else
                                 <span class="text-xs text-gray-400 font-bold">No action</span>
                             @endif
-                        </td>
+                        </td> --}}
                     </tr>
                 @empty
                     <tr>
