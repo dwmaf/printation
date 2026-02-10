@@ -38,6 +38,23 @@
                     <p class="text-sm text-gray-600 mt-2">
                         Please check your computer
                     </p>
+                @elseif ($errors->any())
+                    <div id="upload-form" class="w-full h-full border-2 border-dashed border-[#6155F5] bg-[#F7F8FF] rounded-[20px] flex flex-col justify-center items-center p-6 mb-4">
+                        <img src="{{ asset('images/upload.png') }}" class="w-32 mb-4" />
+                        <p class="text-lg font-medium">
+                            Klik disini untuk <br> mengunggah file.
+                        </p>
+                        <span class="block text-[12px] mt-3 text-[#777]">
+                            Format PDF, PNG, JPG, dan JPEG <br>
+                            max. 10MB hingga 10 file
+                        </span>
+                    </div>
+                    <p class="text-red-600 font-semibold text-md">
+                        ❌ {{ $errors->first() }}
+                    </p>
+                    <p class="text-sm text-gray-600 mt-2">
+                        Silakan coba lagi
+                    </p>
                 @else
                     <div id="upload-form" class="w-full h-full border-2 border-dashed border-[#6155F5] bg-[#F7F8FF] rounded-[20px] flex flex-col justify-center items-center p-6">
                         <img src="{{ asset('images/upload.png') }}" class="w-32 mb-4" />
@@ -51,14 +68,6 @@
                     </div>
                 @endif
         </label>
-
-        @error('file')
-            <small class="error">{{ $message }}</small>
-        @enderror
-
-        @error('file.*')
-            <small class="error">{{ $message }}</small>
-        @enderror
     </form>
 
     <script>

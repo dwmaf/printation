@@ -21,6 +21,10 @@ class PrintController extends Controller
             'station_id' => 'required|exists:users,id',
             'file'   => 'required|array|min:1',
             'file.*' => 'file|mimes:pdf,jpg,jpeg,png,docx|max:10240',
+        ], [
+            'file.*.max' => 'Ukuran file melebihi 10MB',
+            'file.*.mimes' => 'Format file tidak didukung. Gunakan PDF, PNG, JPG, atau JPEG',
+            'file.required' => 'Silakan pilih file untuk diunggah',
         ]);
 
         foreach ($request->file('file') as $uploadedFile) {
