@@ -260,7 +260,7 @@
      class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50 backdrop-blur-sm transition-opacity opacity-0"
      style="transition: opacity 0.25s ease-out;">
     <div id="modalContent"
-         class="bg-white rounded-2xl overflow-hidden w-full max-w-6xl h-[85vh] flex shadow-2xl scale-95 transition-transform"
+         class="bg-white rounded-2xl w-full max-w-6xl h-[85vh] flex shadow-2xl scale-95 transition-transform"
          style="transition: transform 0.25s ease-out;">
 
         {{-- LEFT: PREVIEW --}}
@@ -275,7 +275,7 @@
         </div>
 
         {{-- RIGHT: PANEL --}}
-        <div class="w-1/3 bg-gray-50 flex flex-col h-full overflow-hidden relative">
+        <div class="w-1/3 bg-gray-50 flex flex-col h-full">
 
             {{-- HEADER --}}
             <div class="flex justify-between items-start p-6 pb-3 shrink-0 bg-gray-50 z-10 border-b border-gray-200">
@@ -331,7 +331,7 @@
                             <input id="printPageRange" type="text" placeholder="Contoh: 1-5, 8, 11-13"
                                    class="w-full text-sm font-bold border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
                             <p class="text-[10px] text-gray-400 mt-1 font-semibold">
-                                Gunakan tanda hubung (-) untuk rentang dan koma (,) untuk halaman acak.
+                                Gunakan tanda hubung ( - ) untuk rentang dan koma ( , ) untuk halaman acak.
                             </p>
                         </div>
                     </div>
@@ -378,15 +378,16 @@
                         </div>
 
                         <div class="border-t border-blue-200 pt-3 flex justify-between items-center">
-                            <span class="font-bold text-blue-900 text-lg">TOTAL BAYAR</span>
+                            <span class="font-extrabold text-blue-900 text-lg">TOTAL BAYAR</span>
                             <span id="displayTotalPrice" class="font-black text-2xl text-blue-600">Rp 500</span>
                         </div>
                     </div>
 
                     <div class="pt-2 space-y-3">
                         <button type="button" onclick="goToPayment()"
-                                class="w-full py-4 bg-yellow-500 hover:bg-yellow-400 text-white rounded-xl font-black text-lg shadow-lg transition-all">
+                                class="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-lg shadow-lg transition-all cursor-pointer flex justify-center gap-4">
                             LANJUT PEMBAYARAN
+                            <svg xmlns="http://www.w3.org/2000/svg" width="23px" height="23px" viewBox="0 0 512 512"><path fill="#fff" d="M95.5 104h320a88 88 0 0 1 11.18.71a66 66 0 0 0-77.51-55.56L86 94.08h-.3a66 66 0 0 0-41.07 26.13A87.57 87.57 0 0 1 95.5 104m320 24h-320a64.07 64.07 0 0 0-64 64v192a64.07 64.07 0 0 0 64 64h320a64.07 64.07 0 0 0 64-64V192a64.07 64.07 0 0 0-64-64M368 320a32 32 0 1 1 32-32a32 32 0 0 1-32 32"/><path fill="#fff" d="M32 259.5V160c0-21.67 12-58 53.65-65.87C121 87.5 156 87.5 156 87.5s23 16 4 16s-18.5 24.5 0 24.5s0 23.5 0 23.5L85.5 236Z"/></svg>
                         </button>
                         <button type="button" onclick="closePrintModal()"
                                 class="w-full py-3 text-gray-500 hover:text-gray-800 font-bold transition-colors cursor-pointer">
@@ -416,8 +417,9 @@
 
                     <div class="space-y-2">
                         <button id="btnAlreadyTransfer" type="button" onclick="submitManualTransaction(event)"
-                                class="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-xl font-black text-lg shadow-lg transition-all">
+                                class="w-full py-4 bg-green-600 hover:bg-green-500 text-white rounded-xl font-black text-lg shadow-lg transition-all cursor-pointer flex justify-center items-center gap-4">
                             SAYA SUDAH TRANSFER
+                            <svg xmlns="http://www.w3.org/2000/svg" width="23px" height="23px" viewBox="0 0 24 24"><path fill="#fff" d="m9.55 15.15l8.475-8.475q.3-.3.7-.3t.7.3t.3.713t-.3.712l-9.175 9.2q-.3.3-.7.3t-.7-.3L4.55 13q-.3-.3-.288-.712t.313-.713t.713-.3t.712.3z"/></svg>
                         </button>
 
                         <button type="button" onclick="backToConfig()"
@@ -735,7 +737,7 @@
 
         if (isCustom) {
             div.classList.remove('hidden');
-            customInput.focus();
+            customInput.focus({ preventScroll: true });
         } else {
             div.classList.add('hidden');
             customInput.value = '';
