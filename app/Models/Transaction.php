@@ -31,6 +31,12 @@ class Transaction extends Model
         return $this->belongsTo(Printfile::class);
     }
 
+    public function file()
+    {
+        // Mengarahkan ke model Printfile menggunakan kolom 'file_id' yang ada di database
+        return $this->belongsTo(Printfile::class, 'file_id');
+    }
+
     /**
      * Station yang bikin transaksi (ngikut dari printfile->station)
      * NOTE: ini butuh relasi station() di Printfile model.

@@ -147,16 +147,37 @@ class OutletController extends Controller
         ));
     }
 
-    public function payments()
+    public function payments(Request $request)
     {
         $user = Auth::user();
         $outlet = $user->outlet;
 
         $transactions = Transaction::whereHas('station', function ($q) use ($outlet) {
             $q->where('outlet_id', $outlet->id);
-        })->latest()->get();
+        });
 
-        return view('outlet-owner.payments', compact('outlet', 'transactions'));
+        if ($request->has('search') && $request->search != '') {
+            $search = $request->search;
+            
+            $transactions->where(function($q) use ($search) {
+                // Cari berdasarkan Order ID
+                $q->where('order_id', 'like', '%' . $search . '%')
+                  // Cari berdasarkan Nama File (Relasi ke tabel files)
+                ->orWhereHas('file', function($f) use ($search) {
+                    $f->where('original_name', 'like', '%' . $search . '%')
+                        ->orWhere('filename', 'like', '%' . $search . '%');
+                })
+                  // Cari berdasarkan Nama Station
+                ->orWhereHas('station', function($s) use ($search) {
+                    $s->where('name', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        // 3. Eksekusi Query
+        $transactions = $transactions->latest()->get();
+
+        return view('outlet-owner.payments', compact('outlet', 'transactions', 'user'));
     }
 
     public function indexStation()
@@ -168,7 +189,7 @@ class OutletController extends Controller
             ->where('outlet_id', $outlet->id)
             ->get();
 
-        return view('outlet-owner.stations', compact('outlet', 'stations'));
+        return view('outlet-owner.stations', compact('outlet', 'stations', 'user'));
     }
 
     public function indexFiles()
