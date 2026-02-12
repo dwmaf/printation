@@ -19,14 +19,132 @@ class OutletController extends Controller
         $outlet = $user->outlet; // Pastikan relasi di User model ada method 'outlet()'
 
         if (!$outlet) return redirect('/')->with('error', 'Anda tidak memiliki outlet.');
-        $pendingCount = Transaction::whereHas('station', function($q) use ($outlet) {
+        $pendingCount = Transaction::whereHas('station', function ($q) use ($outlet) {
             $q->where('outlet_id', $outlet->id);
         })->where('status', 'pending')->count();
-        $totalRevenue = Transaction::whereHas('station', function($q) use ($outlet) {
-            $q->where('outlet_id', $outlet->id);
-        })->where('status', 'paid')->sum('amount');
 
-        return view('outlet-owner.dashboard', compact('outlet', 'pendingCount', 'totalRevenue', 'user'));
+        // 2. Pendapatan Hari Ini
+        $revenueToday = Transaction::whereHas('station', function ($q) use ($outlet) {
+            $q->where('outlet_id', $outlet->id);
+        })->where('status', 'completed')->whereDate('created_at', now())->sum('amount');
+
+        // 3. Pendapatan Hari Kemarin (untuk perbandingan)
+        $revenueYesterday = Transaction::whereHas('station', function ($q) use ($outlet) {
+            $q->where('outlet_id', $outlet->id);
+        })->where('status', 'completed')->whereDate('created_at', now()->subDay())->sum('amount');
+
+        // 4. Hitung Persentase Kenaikan/Penurunan
+        $percentageChange = 0;
+        if ($revenueYesterday > 0) {
+            $percentageChange = (($revenueToday - $revenueYesterday) / $revenueYesterday) * 100;
+        } elseif ($revenueToday > 0) {
+            $percentageChange = 100; // Jika kemarin 0 dan hari ini ada, anggap naik 100%
+        }
+
+        // 5. Total Pendapatan Keseluruhan (opsional tetap ditampilkan)
+        $totalRevenue = Transaction::whereHas('station', function ($q) use ($outlet) {
+            $q->where('outlet_id', $outlet->id);
+        })->where('status', 'completed')->sum('amount');
+
+        $pagesToday = Transaction::whereHas('station', function ($q) use ($outlet) {
+            $q->where('outlet_id', $outlet->id);
+        })
+        ->where('status', 'completed')
+        ->whereDate('created_at', now())
+        ->get()
+        ->sum(function($trx) {
+            $config = is_array($trx->print_config) ? $trx->print_config : json_decode($trx->print_config, true);
+            return $config['page_count'] ?? 0;
+        });
+
+        // 7. Lembar Dicetak Hari Kemarin
+        $pagesYesterday = Transaction::whereHas('station', function ($q) use ($outlet) {
+            $q->where('outlet_id', $outlet->id);
+        })
+        ->where('status', 'completed')
+        ->whereDate('created_at', now()->subDay())
+        ->get()
+        ->sum(function($trx) {
+            $config = is_array($trx->print_config) ? $trx->print_config : json_decode($trx->print_config, true);
+            return $config['page_count'] ?? 0;
+        });
+
+        // 8. Hitung Persentase Lembar
+        $pagesPercentageChange = 0;
+        if ($pagesYesterday > 0) {
+            $pagesPercentageChange = (($pagesToday - $pagesYesterday) / $pagesYesterday) * 100;
+        } elseif ($pagesToday > 0) {
+            $pagesPercentageChange = 100;
+        }
+
+        // 9. Total Lembar Keseluruhan
+        $totalPages = Transaction::whereHas('station', function ($q) use ($outlet) {
+            $q->where('outlet_id', $outlet->id);
+        })
+        ->where('status', 'completed')
+        ->get()
+        ->sum(function($trx) {
+            $config = is_array($trx->print_config) ? $trx->print_config : json_decode($trx->print_config, true);
+            return $config['page_count'] ?? 0;
+        });
+
+        // 10. Ambil 2 Transaksi/File Terbaru
+        $recentTransactions = Transaction::whereHas('station', function ($q) use ($outlet) {
+            $q->where('outlet_id', $outlet->id);
+        })
+        ->latest()
+        ->take(2)
+        ->get();
+
+        // 11. Statistik Mingguan (7 Hari Terakhir)
+        $chartDates = [];
+        $chartRevenue = [];
+        $chartPages = [];
+
+        for ($i = 6; $i >= 0; $i--) {
+            $date = now()->subDays($i);
+            $dateString = $date->toDateString();
+            
+            // Format untuk label chart (misal: 12 Feb)
+            $chartDates[] = $date->translatedFormat('j M');
+
+            // Hitung Pendapatan per hari
+            $dayRevenue = Transaction::whereHas('station', function ($q) use ($outlet) {
+                $q->where('outlet_id', $outlet->id);
+            })
+            ->where('status', 'completed')
+            ->whereDate('created_at', $dateString)
+            ->sum('amount');
+            $chartRevenue[] = (int) $dayRevenue;
+
+            // Hitung Lembar per hari
+            $dayPages = Transaction::whereHas('station', function ($q) use ($outlet) {
+                $q->where('outlet_id', $outlet->id);
+            })
+            ->where('status', 'completed')
+            ->whereDate('created_at', $dateString)
+            ->get()
+            ->sum(function($trx) {
+                $config = is_array($trx->print_config) ? $trx->print_config : json_decode($trx->print_config, true);
+                return $config['page_count'] ?? 0;
+            });
+            $chartPages[] = (int) $dayPages;
+        }
+        return view('outlet-owner.dashboard', compact(
+            'outlet',
+            'pendingCount',
+            'revenueToday',
+            'percentageChange',
+            'totalRevenue',
+            'pagesToday',
+            'pagesPercentageChange',
+            'totalPages',
+            'user',
+            'recentTransactions',
+            'chartDates',   
+            'chartRevenue', 
+            'chartPages'    
+        ));
     }
 
     public function payments()
@@ -34,7 +152,7 @@ class OutletController extends Controller
         $user = Auth::user();
         $outlet = $user->outlet;
 
-        $transactions = Transaction::whereHas('station', function($q) use ($outlet) {
+        $transactions = Transaction::whereHas('station', function ($q) use ($outlet) {
             $q->where('outlet_id', $outlet->id);
         })->latest()->get();
 
@@ -47,8 +165,8 @@ class OutletController extends Controller
         $outlet = $user->outlet;
 
         $stations = User::role('station')
-                    ->where('outlet_id', $outlet->id)
-                    ->get();
+            ->where('outlet_id', $outlet->id)
+            ->get();
 
         return view('outlet-owner.stations', compact('outlet', 'stations'));
     }
@@ -56,11 +174,11 @@ class OutletController extends Controller
     public function indexFiles()
     {
         $outlet = Auth::user()->outlet;
-        
+
         // Ambil station milik outlet ini beserta file-filenya
         $stations = User::role('station')
             ->where('outlet_id', $outlet->id)
-            ->with(['printFiles' => function($q) {
+            ->with(['printFiles' => function ($q) {
                 $q->latest();
             }])
             ->get();
@@ -102,7 +220,7 @@ class OutletController extends Controller
     public function clearAllFiles()
     {
         $outletId = Auth::user()->outlet_id;
-        $files = PrintFile::whereHas('station', function($q) use ($outletId) {
+        $files = PrintFile::whereHas('station', function ($q) use ($outletId) {
             $q->where('outlet_id', $outletId);
         })->get();
 
@@ -121,7 +239,7 @@ class OutletController extends Controller
     {
         $trx = Transaction::findOrFail($id);
         // Validasi kepemilikan
-        if($trx->station && $trx->station->outlet_id != Auth::user()->outlet_id) abort(403);
+        if ($trx->station && $trx->station->outlet_id != Auth::user()->outlet_id) abort(403);
 
         $trx->update(['status' => 'paid']); // Trigger ke printer station
         event(new TransactionUpdated($trx->station_id));
@@ -133,7 +251,7 @@ class OutletController extends Controller
         $trx = Transaction::findOrFail($id);
 
         // Cek kepemilikan
-        if($trx->station && $trx->station->outlet_id != Auth::user()->outlet_id) abort(403);
+        if ($trx->station && $trx->station->outlet_id != Auth::user()->outlet_id) abort(403);
 
         $trx->update(['status' => 'rejected']);
         event(new TransactionUpdated($trx->station_id));
@@ -144,7 +262,7 @@ class OutletController extends Controller
     public function storeStation(Request $request)
     {
         $outlet = Auth::user()->outlet;
-        
+
         // Cek Batas Kuota
         $count = User::role('station')->where('outlet_id', $outlet->id)->count();
         if ($count >= $outlet->max_stations) {
@@ -158,7 +276,7 @@ class OutletController extends Controller
         ]);
 
         $u = User::create([
-            'name' => $request->name, 
+            'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'outlet_id' => $outlet->id
@@ -168,9 +286,10 @@ class OutletController extends Controller
         return back()->with('success', 'Station baru dibuat.');
     }
 
-    public function destroyStation($id) {
+    public function destroyStation($id)
+    {
         $u = User::findOrFail($id);
-        if($u->outlet_id != Auth::user()->outlet_id) abort(403);
+        if ($u->outlet_id != Auth::user()->outlet_id) abort(403);
         $u->delete();
         return back()->with('success', 'Dihapus.');
     }
@@ -194,4 +313,5 @@ class OutletController extends Controller
         }
 
         return back()->with('success', 'QRIS Outlet berhasil diperbarui.');
-    }}
+    }
+}
