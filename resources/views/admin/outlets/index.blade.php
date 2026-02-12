@@ -1,6 +1,7 @@
-@extends('layouts.app')
+@extends('layouts.app-admin-dashboard')
 @section('child')
-<div class="min-h-screen bg-gray-100 p-8">
+
+<div>
     
     {{-- Header --}}
     {{-- <div class="flex justify-between items-center mb-8">
@@ -27,9 +28,9 @@
     </div>
     @endif
 
-    <div class="flex gap-8">
+    <div class="flex gap-4">
         {{-- TABEL DAFTAR OUTLET --}}
-        <div class="w-[80%]">
+        <div class="w-[75%]">
             <div class="bg-white rounded-xl shadow-lg overflow-hidden h-full flex flex-col justify-between">
                 <table class="w-full text-left border-collapse">
                     <thead class="bg-gray-50">
@@ -70,7 +71,7 @@
                                 </button>
                                 {{-- Modal Edit Outlet --}}
                                 <div id="editModal" class="hidden inset-0 fixed flex items-center justify-center z-50">
-                                    <div class="bg-white rounded-xl shadow-lg p-8 w-[500px]">
+                                    <div class="bg-white rounded-xl shadow-lg p-8 w-125">
                                         <div class="flex justify-between items-center mb-6">
                                             <h3 class="text-2xl font-bold text-gray-800">Edit Outlet</h3>
                                         </div>
@@ -140,44 +141,44 @@
         {{-- FORM TAMBAH OUTLET --}}
         <div class="w-[25%]">
             <div class="bg-white p-6 rounded-xl shadow-lg">
-                <h3 class="font-koulen text-4xl mb-2">Registrasi Mitra Baru</h3>
-                <form action="{{ route('admin.outlets.store') }}" method="POST" class="space-y-4">
+                <h3 class="font-koulen text-3xl">Registrasi Mitra Baru</h3>
+                <form action="{{ route('admin.outlets.store') }}" method="POST" class="space-y-2">
                     @csrf
                     <div>
                         <label class="block text-sm font-semibold">Nama Outlet / Toko</label>
-                        <input type="text" name="outlet_name" class="w-full border-2 border-gray-400 rounded-md py-2 px-4 focus:outline-none" required placeholder="Berkah Print">
+                        <input type="text" name="outlet_name" class="w-full border-2 border-gray-400 rounded-md py-2 px-4 focus:outline-none text-sm" required placeholder="Berkah Print">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold">Alamat</label>
-                        <input type="text" name="address" class="w-full border-2 border-gray-400 rounded-md py-2 px-4 focus:outline-none" placeholder="Jl. Mawar No. 10">
+                        <input type="text" name="address" class="w-full border-2 border-gray-400 rounded-md py-2 px-4 focus:outline-none text-sm" placeholder="Jl. Mawar No. 10">
                     </div>
                     <div>
                         <label class="block text-sm font-semibold">Jatah Station (Laptop)</label>
-                        <input type="number" name="max_stations" class="w-full border-2 border-gray-400 rounded-md py-2 px-4 focus:outline-none" required value="1" min="1">
-                        <small class="text-gray-400">Berapa laptop yang boleh login.</small>
+                        <input type="number" name="max_stations" class="w-full border-2 border-gray-400 rounded-md py-2 px-4 focus:outline-none text-sm" required value="1" min="1">
+                        <p class="text-gray-400 text-sm">Berapa laptop yang boleh login.</p>
                     </div>
 
                     <div>
-                        <p class="font-koulen text-4xl mb-2">Data Akun Owner</p>
+                        <p class="font-koulen text-3xl">Data Akun Owner</p>
                         <div class="space-y-3">
                             <div>
                                 <label class="block text-sm font-semibold">Nama Pemilik</label>
-                                <input type="text" name="owner_name" class="w-full border-2 border-gray-400 rounded-md py-2 px-4 focus:outline-none" required placeholder="Nama Owner">
+                                <input type="text" name="owner_name" class="w-full border-2 border-gray-400 rounded-md py-2 px-4 focus:outline-indigo-500 text-sm" required placeholder="Nama Owner">
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold">Email Login</label>
-                                <input type="email" name="owner_email" class="w-full border-2 border-gray-400 rounded-md py-2 px-4 focus:outline-none" required placeholder="email@owner.com">
+                                <input type="email" name="owner_email" class="w-full border-2 border-gray-400 rounded-md py-2 px-4 focus:outline-indigo-500 text-sm" required placeholder="email@owner.com">
                             </div>
                             <div>
                                 <label class="block text-sm font-semibold">Password Login</label>
                                 <div class="relative">
-                                    <input type="password" name="owner_password" class="w-full border-2 border-gray-400 rounded-md py-2 px-4 focus:outline-none" required placeholder="Buat password untuk owner">
+                                    <input type="password" name="owner_password" class="w-full border-2 border-gray-400 rounded-md py-2 px-4 focus:outline-indigo-500 text-sm" required placeholder="Buat password untuk owner">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg mt-4 hover:bg-indigo-700 transition cursor-pointer">
+                    <button type="submit" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition cursor-pointer">
                         Simpan
                     </button>
                 </form>
