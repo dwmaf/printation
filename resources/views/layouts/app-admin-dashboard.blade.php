@@ -71,7 +71,7 @@
                                 UPA PKK UNTAN
                             </p>
                             <p class="text-md text-[#B1B0AB]">
-                              Super admin
+                              Super administrator
                                 {{-- {{ $user->email }} --}}
                             </p>
                         </div>

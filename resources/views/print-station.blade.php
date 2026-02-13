@@ -7,8 +7,8 @@
     
     @if($files->isEmpty())
     {{-- HEADER (UI versi bawah) --}}
-    <div class="h-30 flex mb-8">
-        <img src="{{ asset('images/logo.png') }}" class="w-18">
+    <div class="h-30 flex mb-8 items-center">
+        <img src="{{ asset('images/logo.png') }}" class="w-18 h-18">
         <h1 class="text-5xl font-koulen">Printation</h1>
     </div>
 
@@ -102,38 +102,24 @@
 
                                 // tombol utama (label)
                                 $mainLabel = 'BAYAR';
-                                $mainBtnClass = 'bg-[#6155F5] hover:bg-[#6155F5] text-white cursor-pointer';
-                                $iconFill = '#fff'; // default putih
+                                $mainBtnClass = 'bg-indigo-100 hover:bg-indigo-300 text-white cursor-pointer';
+                                $iconFill = 'oklch(51.1% 0.262 276.966)'; // default putih
                                 $mainMode = 'pay';
 
                                 if ($tx) {
                                     if ($status === 'pending') {
                                         $mainLabel = 'DETAIL';
-                                        $mainBtnClass = 'bg-[#6155F5] cursor-pointer';
+                                        $mainBtnClass = 'bg-indigo-100 cursor-pointer';
                                         $mainMode = 'pending';
                                     } elseif ($status === 'paid') {
                                         $mainLabel = 'PRINT';
-                                        $mainBtnClass = 'bg-[#6155F5] cursor-pointer';
+                                        $mainBtnClass = 'bg-indigo-100 cursor-pointer';
                                         $mainMode = 'paid';
                                     } elseif ($status === 'rejected') {
                                         $mainLabel = 'BAYAR ULANG';
-                                        $mainBtnClass = 'bg-[#6155F5] cursor-pointer';
+                                        $mainBtnClass = 'bg-indigo-100 cursor-pointer';
                                         $mainMode = 'pay';
-                                    } 
-                                    // elseif ($status === 'completed') {
-                                    //     $badgeText = 'SELESAI DICETAK';
-                                    //     $badgeClass = 'bg-blue-100 text-blue-800';
-                                        
-                                    //     // Opsional 1: Kalau mau bisa bayar lagi buat print copy baru
-                                    //     $mainLabel = 'BAYAR LAGI';
-                                    //     $mainBtnClass = 'bg-gray-200 hover:bg-gray-300 text-gray-800';
-                                    //     $mainMode = 'pay'; // Reset ke mode bayar
-                                        
-                                    //     // Opsional 2: Kalau mau menonaktifkan tombol
-                                    //     // $mainLabel = 'SELESAI';
-                                    //     // $mainBtnClass = 'bg-gray-100 text-gray-400 cursor-not-allowed';
-                                    //     // $mainMode = 'completed'; 
-                                    // }
+                                    }
                                 }
 
                                 // payload untuk LOGIKA (jangan diubah)
@@ -154,16 +140,14 @@
 
                             <tr class="hover:bg-gray-50 transition text-center">
                                 <td class="p-3">
-                                    <input type="checkbox"
-                                           class="row-check w-4 h-4 accent-blue-600 rounded cursor-pointer"
-                                           data-file-id="{{ $file->id }}">
+                                    <input type="checkbox" class="row-check w-4 h-4 accent-blue-600 rounded cursor-pointer" data-file-id="{{ $file->id }}">
                                 </td>
 
                                 <td class="p-3 font-bold {{ $isPdf ? 'text-red-600' : 'text-blue-600' }}">
                                     {{ strtoupper($file->type ?? 'FILE') }}
                                 </td>
 
-                                <td class="p-3 truncate max-w-[300px] text-left">
+                                <td class="p-3 truncate max-w-75 text-left">
                                     {{ $file->original_name ?? $file->filename }}
                                     @if($tx && !empty($tx->order_id))
                                         <div class="text-xs text-yellow-950 font-semibold mt-1 bg-yellow-100 w-fit p-1 rounded-sm">
@@ -190,7 +174,7 @@
                                                     onclick='openPrintModal(@json($openPayload))'
                                                     data-tooltip="{{ $mainLabel }}"
                                                     class="p-2 rounded-lg font-bold shadow-sm {{ $mainBtnClass }}">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 48 48"><path fill="{{ $iconFill }}" d="M16.25 8h15.5a3.25 3.25 0 0 1 3.245 3.066l.005.184v2.749l1.75.001c2.9 0 5.25 2.35 5.25 5.25v13.5A3.25 3.25 0 0 1 38.75 36L35 35.999v1.751A3.25 3.25 0 0 1 31.75 41h-15.5A3.25 3.25 0 0 1 13 37.75v-1.751L9.25 36A3.25 3.25 0 0 1 6 32.75v-13.5C6 16.35 8.35 14 11.25 14l1.75-.001V11.25a3.25 3.25 0 0 1 3.066-3.245zm15.5 20.5h-15.5a.75.75 0 0 0-.75.75v8.5c0 .414.336.75.75.75h15.5a.75.75 0 0 0 .75-.75v-8.5a.75.75 0 0 0-.75-.75m5-12h-25.5a2.75 2.75 0 0 0-2.75 2.75v13.5c0 .414.336.75.75.75l3.75-.001V29.25A3.25 3.25 0 0 1 16.25 26h15.5A3.25 3.25 0 0 1 35 29.25v4.249l3.75.001a.75.75 0 0 0 .75-.75v-13.5a2.75 2.75 0 0 0-2.75-2.75m-5-6h-15.5a.75.75 0 0 0-.743.648l-.007.102v2.749h17V11.25a.75.75 0 0 0-.648-.743z"/></svg>
+                                                <svg xmlns="http://www.w3.org/2000/svg" width="23px" height="23px" viewBox="0 0 16 16"><path fill="{{ $iconFill }}" d="M4 3.5A1.5 1.5 0 0 1 5.5 2h5A1.5 1.5 0 0 1 12 3.5V4h1a2 2 0 0 1 2 2v4.5a1.5 1.5 0 0 1-1.5 1.5H12v.5a1.5 1.5 0 0 1-1.5 1.5h-5A1.5 1.5 0 0 1 4 12.5V12H2.5A1.5 1.5 0 0 1 1 10.5V6a2 2 0 0 1 2-2h1zm7 0a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0-.5.5V4h6zm-6 7v2a.5.5 0 0 0 .5.5h5a.5.5 0 0 0 .5-.5v-2a.5.5 0 0 0-.5-.5h-5a.5.5 0 0 0-.5.5"/></svg>
                                             </button>
                                             <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2
                                                 hidden group-hover:block
@@ -205,9 +189,9 @@
                                             @method('DELETE')
                                             <div class="relative group">
                                                 <button type="button"
-                                                        class="bg-red-600 text-gray-800 hover:text-white p-2 rounded-lg font-bold transition-colors cursor-pointer"
+                                                        class="bg-red-100 hover:bg-red-300 p-2 rounded-lg font-bold transition-colors cursor-pointer"
                                                         onclick="openDeleteModal(this)">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24"><path fill="#fff" d="M7 21q-.825 0-1.412-.587T5 19V6q-.425 0-.712-.288T4 5t.288-.712T5 4h4q0-.425.288-.712T10 3h4q.425 0 .713.288T15 4h4q.425 0 .713.288T20 5t-.288.713T19 6v13q0 .825-.587 1.413T17 21zM17 6H7v13h10zm-7 11q.425 0 .713-.288T11 16V9q0-.425-.288-.712T10 8t-.712.288T9 9v7q0 .425.288.713T10 17m4 0q.425 0 .713-.288T15 16V9q0-.425-.288-.712T14 8t-.712.288T13 9v7q0 .425.288.713T14 17M7 6v13z"/></svg>
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="25px" height="25px" viewBox="0 0 24 24"><path fill="oklch(57.7% 0.245 27.325)" d="M7 21q-.825 0-1.412-.587T5 19V6q-.425 0-.712-.288T4 5t.288-.712T5 4h4q0-.425.288-.712T10 3h4q.425 0 .713.288T15 4h4q.425 0 .713.288T20 5t-.288.713T19 6v13q0 .825-.587 1.413T17 21zM17 6H7v13h10zm-7 11q.425 0 .713-.288T11 16V9q0-.425-.288-.712T10 8t-.712.288T9 9v7q0 .425.288.713T10 17m4 0q.425 0 .713-.288T15 16V9q0-.425-.288-.712T14 8t-.712.288T13 9v7q0 .425.288.713T14 17M7 6v13z"/></svg>
                                                 </button>
                                                 <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2
                                                 hidden group-hover:block
@@ -248,7 +232,7 @@
         <div id="qrModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-[100] backdrop-blur-sm" onclick="closeQrModal()">
             <div class="relative bg-white rounded-2xl p-6 max-w-md shadow-2xl" onclick="event.stopPropagation()">
                 <!-- Tombol X Merah Menonjol -->
-                <button onclick="closeQrModal()" class="absolute top-30 left-115 text-white font-bold text-2xl w-12 h-12 rounded-full shadow-2xl transition-all hover:scale-125 z-50 flex items-center justify-center">
+                <button onclick="closeQrModal()" class="absolute top-10 -right-15 text-white font-bold text-2xl w-12 h-12 rounded-full shadow-2xl transition-all hover:scale-125 z-50 flex items-center justify-center cursor-pointer">
                     ✕
                 </button>
                 <h3 class="text-xl font-bold text-center mb-4">QRIS Pembayaran</h3>
@@ -313,7 +297,7 @@
                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                         <label class="block text-xs font-bold text-gray-500 uppercase mb-2">Ukuran Kertas</label>
                         <select id="printPaperSize"
-                                class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5 font-bold">
+                                class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:outline-blue-500 p-2.5 font-bold">
                             <option value="A4" selected>A4</option>
                             <option value="Legal">Legal / F4</option>
                         </select>
@@ -325,19 +309,18 @@
                         <div class="flex items-center mb-3 space-x-4">
                             <label class="flex items-center cursor-pointer">
                                 <input type="radio" name="pageOption" value="all" checked
-                                    class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                    class="w-4 h-4 accent-indigo-600 cursor-pointer">
                                 <span class="ml-2 text-sm font-medium text-gray-900">Semua</span>
                             </label>
                             <label class="flex items-center cursor-pointer">
                                 <input type="radio" name="pageOption" value="custom"
-                                    class="w-4 h-4 text-blue-600 focus:ring-blue-500 cursor-pointer">
+                                    class="w-4 h-4 text-indigo-600 focus:outline-indigo-600 accent-indigo-600 cursor-pointer">
                                 <span class="ml-2 text-sm font-medium text-gray-900">Custom</span>
                             </label>
                         </div>
 
                         <div id="customPageInputDiv" class="hidden">
-                            <input id="printPageRange" type="text" placeholder="Contoh: 1-5, 8, 11-13"
-                                   class="w-full text-sm font-bold border-gray-300 rounded-lg focus:border-blue-500 p-2.5">
+                            <input id="printPageRange" type="text" placeholder="Contoh: 1-5, 8, 11-13" class="w-full text-sm font-bold border-gray-300 rounded-lg focus:outline-indigo-500 p-2.5">
                             <p class="text-[10px] text-gray-400 mt-1 font-semibold">
                                 Gunakan tanda hubung ( - ) untuk rentang dan koma ( , ) untuk halaman acak.
                             </p>

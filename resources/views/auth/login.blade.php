@@ -6,26 +6,26 @@
         
         <div class="w-full md:w-1/2 p-8 md:p-12">
             <div class="flex items-center justify-center gap-1 mb-6">
-                <img src="{{ asset('images/logo.png') }}" alt="Logo Print App" class="w-10 h-10 object-contain">
+                <img src="{{ asset('images/logo.png') }}" alt="Logo Print App" class="w-20 h-20 object-contain">
                 
-                <span class="text-xl font-bold text-gray-800 tracking-wider">PRINTATION</span>
+                <span class="text-5xl font-koulen">PRINTATION</span>
             </div>
 
-            <h1 class="text-2xl font-black text-center text-gray-800 mb-8 uppercase tracking-wide">SELAMAT DATANG!</h1>
+            <h1 class="text-3xl font-koulen text-center text-gray-800 mb-8 uppercase tracking-wide">SELAMAT DATANG!</h1>
 
             <form action="{{ route('login') }}" method="POST" class="space-y-5">
                 @csrf
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2 ml-1">Email</label>
                     <input type="email" name="email" placeholder="Masukkan email" 
-                        class="w-full bg-gray-50 text-gray-800 rounded-xl p-3 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" required>
+                        class="w-full bg-gray-50 text-gray-800 rounded-lg p-3 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" required>
                 </div>
                 
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-2 ml-1">Password</label>
                     <div class="relative">
                         <input type="password" name="password" id="password" placeholder="Masukkan password" 
-                            class="w-full bg-gray-50 text-gray-800 rounded-xl p-3 pr-12 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" required>
+                            class="w-full bg-gray-50 text-gray-800 rounded-lg p-3 pr-12 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all" required>
                         
                         <button type="button" onclick="togglePassword()" 
                             class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer">
@@ -36,7 +36,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-500/30 mt-4 cursor-pointer">
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-xl transition-all shadow-lg shadow-blue-500/30 mt-4 cursor-pointer">
                     Masuk
                 </button>
             </form>
