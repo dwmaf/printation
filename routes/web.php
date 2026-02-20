@@ -11,6 +11,10 @@ use App\Http\Controllers\TransactionController;
 use App\Http\Controllers\AdminTransactionController;
 use App\Http\Controllers\TransactionStatusController;
 use App\Http\Controllers\OutletController;
+use App\Http\Controllers\InertiaControllers\InertiaAuthController;
+use App\Http\Controllers\InertiaControllers\InertiaVerifyPrintController;
+use App\Http\Controllers\InertiaControllers\InertiaPrintStationController;
+use App\Http\Controllers\InertiaControllers\InertiaUploadController;
 
 // CREATE TX (sudah ada di kamu)
 Route::post('/transaction', [TransactionController::class, 'store'])
@@ -66,7 +70,7 @@ Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
 | Kalau kamu belum siap lock station, biarkan tanpa middleware dulu.
 | Kalau sudah siap, ubah jadi:
 */
-Route::group(['middleware' => ['auth','role:station']], function () { 
+Route::group(['middleware' => ['auth', 'role:station']], function () {
     Route::get('/station', [PrintStationController::class, 'index'])->name('station.index');
     Route::delete('/station/destroy-multiple', [PrintStationController::class, 'destroyMultiple'])->name('station.destroy-multiple');
     Route::get('/station/{printfile}', [PrintStationController::class, 'show'])->name('station.show');
@@ -78,7 +82,7 @@ Route::group(['middleware' => ['auth','role:station']], function () {
     // PRINT JOB VIA LARAVEL PROXY (BARU) -> NO CTRL+P
     Route::post('/station/print/{orderId}', [PrintStationController::class, 'printJob'])
         ->name('station.print');
- });
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -117,3 +121,35 @@ Route::group(['middleware' => ['auth', 'role:outlet-owner']], function () {
     Route::delete('/outlet/station/{id}', [OutletController::class, 'destroyStation'])->name('outlet.destroyStation');
     Route::post('/outlet/update-qris', [OutletController::class, 'updateQRIS'])->name('outlet.updateQRIS');
 });
+
+
+/*
+|--------------------------------------------------------------------------
+| ROUTE KHUSUS BUAT KP
+|--------------------------------------------------------------------------
+*/
+// INERTIA AUTH
+Route::get('/loginadmin', [InertiaAuthController::class, 'showLoginForm'])->name('login.admin');
+Route::post('/loginadmin', [InertiaAuthController::class, 'login'])->name('login.admin.post');
+
+// INERTIA AUTH (SUPER ADMIN)
+Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
+    Route::get('/admin/upa/dashboard', [InertiaAuthController::class, 'dashboard'])->name('admin.upa.dashboard');
+    Route::get('/admin/upa/verify-print', [InertiaVerifyPrintController::class, 'index'])->name('admin.upa.verify-print.index');
+    Route::post('/admin/upa/verify-print/{id}/verify', [InertiaVerifyPrintController::class, 'verify'])->name('admin.upa.verify-print.verify');
+    Route::post('/admin/upa/verify-print/{id}/reject', [InertiaVerifyPrintController::class, 'reject'])->name('admin.upa.verify-print.reject');
+});
+
+Route::group(['middleware' => ['auth', 'role:station-upa-pkk']], function () {
+    Route::get('/upa/station', [InertiaPrintStationController::class, 'index'])->name('upa.station.index');
+    Route::post('/upa/station/verify-request', [InertiaPrintStationController::class, 'submitRequest'])->name('upa.station.verify-request');
+    Route::delete('/upa/station/file/{printfile}', [InertiaPrintStationController::class, 'destroy'])->name('upa.station.file.destroy');
+    Route::delete('/upa/station/destroy-multiple', [InertiaPrintStationController::class, 'destroyMultiple'])->name('upa.station.destroy-multiple');
+    Route::delete('/upa/station/destroy/{filetoprint}', [InertiaPrintStationController::class, 'destroy'])->name('upa.station.destroy');
+    Route::post('/upa/station/print', [InertiaPrintStationController::class, 'print'])->name('upa.station.print');
+});
+
+// INERTIA UPLOAD (USER)
+// buat kyu r nya dinamis berubah" setiap 5 menit
+Route::get('/upa/upload/{id}', [InertiaUploadController::class, 'index'])->name('upa.upload.index');
+Route::post('/upa/upload/{id}', [InertiaUploadController::class, 'store'])->name('upa.upload.store');

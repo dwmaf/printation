@@ -7,12 +7,14 @@
     "license": "MIT",
     "require": {
         "php": "^8.2",
+        "inertiajs/inertia-laravel": "^2.0",
         "laravel/framework": "^12.0",
         "laravel/reverb": "^1.0",
         "laravel/tinker": "^2.10.1",
         "simplesoftwareio/simple-qrcode": "^4.2",
         "smalot/pdfparser": "^2.12",
-        "spatie/laravel-permission": "^6.24"
+        "spatie/laravel-permission": "^6.24",
+        "tightenco/ziggy": "^2.6"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -46,19 +48,15 @@
         ],
         "dev": [
             "Composer\\Config::disableProcessTimeout",
-            "set FORCE_COLOR=1 && npx concurrently -c \"cyan,yellow,magenta,orange\" \"php artisan serve\" \"php artisan reverb:start --port=8081\"  \"npm run dev\" \"php artisan ngrok:start\" --names=server,reverb,vite,ngrok --kill-others"
+            "set FORCE_COLOR=1 && npx concurrently -c \"cyan,yellow,magenta,orange\" \"php artisan serve --host=0.0.0.0\" \"php artisan reverb:start --host=0.0.0.0 --port=8081\" \"npm run dev -- --host\" --names=server,reverb,vite --kill-others"
         ],
         "prod": [
             "Composer\\Config::disableProcessTimeout",
-            "set FORCE_COLOR=1 && npx concurrently -c \"cyan,yellow,magenta\" \"php artisan serve\" \"php artisan reverb:start --port=8081\" \"php artisan ngrok:start\" --names=server,reverb,ngrok --kill-others"
+            "set FORCE_COLOR=1 && npx concurrently -c \"cyan,yellow\" \"php artisan serve --host=0.0.0.0\" \"php artisan reverb:start --host=0.0.0.0 --port=8081\" --names=server,reverb --kill-others"
         ],
         "laindev": [
             "Composer\\Config::disableProcessTimeout",
             "set FORCE_COLOR=1 && npx concurrently -c \"cyan,magenta\" \"php artisan serve\" \"npm run dev\" --names=server,vite --kill-others"
-        ],
-        "lainprod": [
-            "Composer\\Config::disableProcessTimeout",
-            "set FORCE_COLOR=1 && npx concurrently -c \"cyan,yellow\" \"php artisan serve --host=0.0.0.0\" \"php artisan reverb:start --host=0.0.0.0 --port=8081\" --names=server,reverb --kill-others"
         ],
         "test": [
             "@php artisan config:clear --ansi",

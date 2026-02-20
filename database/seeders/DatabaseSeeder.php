@@ -16,19 +16,20 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         /**
-         * 1) Roles (Spatie)
+         * 1 Roles (Spatie)
          */
-        $roleAdmin   = Role::firstOrCreate(['name' => 'super-admin']);
-        $roleOwner   = Role::firstOrCreate(['name' => 'outlet-owner']);
+        $roleAdmin = Role::firstOrCreate(['name' => 'super-admin']);
+        $roleOwner = Role::firstOrCreate(['name' => 'outlet-owner']);
         $roleStation = Role::firstOrCreate(['name' => 'station']);
+        $roleStationUPAPKK = Role::firstOrCreate(['name' => 'station-upa-pkk']);
 
-        /**
-         * 2) Super Admin
-         * Email & password default:
-         * admin@printapp.com / password
-         */
+        /*
+        |--------------------------------------------------------------------------
+        | SEEDER KHUSUS KP
+        |--------------------------------------------------------------------------
+        */
         $admin = User::updateOrCreate(
-            ['email' => 'admin@printapp.com'],
+            ['email' => 'admin@upa.printation'],
             [
                 'name' => 'Super Administrator',
                 'password' => Hash::make('password'),
@@ -39,10 +40,27 @@ class DatabaseSeeder extends Seeder
             $admin->assignRole($roleAdmin);
         }
 
-        $this->command?->info('✅ Super Admin: admin@printapp.com / password');
+        $this->command?->info('✅ Super Admin UPA: admin@upa.printation / password');
+        $stationupapkk = User::updateOrCreate(
+            ['email' => 'kiosk@upa.printation'],
+            [
+                'name' => 'Kiosk UPA PKK',
+                'password' => Hash::make('password'),
+                'email_verified_at' => now(),
+            ]
+        );
+        if (!$stationupapkk->hasRole('station-upa-pkk')) {
+            $stationupapkk->assignRole($roleStationUPAPKK);
+        }
+        $this->command?->info('✅ Station Kiosk UPA: kiosk@upa.printation / password');
 
+        /*
+        |--------------------------------------------------------------------------
+        | SEEDER KHUSUS P2MW   
+        |--------------------------------------------------------------------------
+        */
         /**
-         * 3) Outlet contoh + Owner + 2 Station
+         * 3 Outlet contoh + Owner + 2 Station
          */
         $outlet1 = Outlet::updateOrCreate(
             ['name' => 'Berkah Jaya Print'],
@@ -94,7 +112,7 @@ class DatabaseSeeder extends Seeder
         $this->command?->info('✅ Outlet 1: Owner + 2 Station created');
 
         /**
-         * 4) Outlet contoh 2 + Owner + 1 Station
+         * 4 Outlet contoh 2 + Owner + 1 Station
          */
         $outlet2 = Outlet::updateOrCreate(
             ['name' => 'Mahameru Photocopy'],
@@ -133,7 +151,7 @@ class DatabaseSeeder extends Seeder
         $this->command?->info('✅ Outlet 2: Owner + 1 Station created');
 
         /**
-         * 5) (Opsional) Dummy Printfile
+         * 5 (Opsional) Dummy Printfile
          * Aman: cuma create kalau belum ada filename itu.
          */
         $dummy = [
