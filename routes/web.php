@@ -142,7 +142,7 @@ Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
 
 Route::group(['middleware' => ['auth', 'role:station-upa-pkk']], function () {
     Route::get('/upa/station', [InertiaPrintStationController::class, 'index'])->name('upa.station.index');
-    Route::post('/upa/station/verify-request', [InertiaPrintStationController::class, 'submitRequest'])->name('upa.station.verify-request');
+    Route::post('/upa/station/request-print', [InertiaPrintStationController::class, 'submitRequest'])->name('upa.station.request-print');
     Route::delete('/upa/station/file/{printfile}', [InertiaPrintStationController::class, 'destroy'])->name('upa.station.file.destroy');
     Route::delete('/upa/station/destroy-multiple', [InertiaPrintStationController::class, 'destroyMultiple'])->name('upa.station.destroy-multiple');
     Route::delete('/upa/station/destroy/{filetoprint}', [InertiaPrintStationController::class, 'destroy'])->name('upa.station.destroy');

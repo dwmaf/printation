@@ -1,12 +1,21 @@
 <script setup>
-import { Head, useForm } from '@inertiajs/vue3';
+import { Head, useForm, router } from '@inertiajs/vue3';
 import { onMounted } from 'vue';
 import { Search, Check, X, File, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
-// PROPS
 const props = defineProps({
     printrequests: Array,
+});
+
+onMounted(() => {
+    if (window.Echo) {
+        window.Echo.channel('outlet-channel.' + 1)
+            .listen('.transaction.created', (e) => {
+                console.log('New transaction created, refreshing...');
+                router.reload({ preserveScroll: true });
+            });
+    }
 });
 
 const getStatusStyle = (status) => {
@@ -86,7 +95,8 @@ const reject = (id) => {
                         </tr>
                     </thead>
                     <tbody class="text-sm text-gray-600 divide-y divide-gray-50">
-                        <tr v-for="printrequest in printrequests" :key="printrequest.id" class="group hover:bg-gray-50 transition-colors">
+                        <tr v-for="printrequest in printrequests" :key="printrequest.id"
+                            class="group hover:bg-gray-50 transition-colors">
                             <!-- ID -->
                             <td class="py-5 pr-4 font-semibold text-gray-900">
                                 {{ printrequest.request_id }}

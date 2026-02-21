@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\InertiaControllers;
 
+use App\Events\NewTransactionCreated;
 use App\Http\Controllers\Controller;
 use App\Models\Filetoprint;
 use App\Models\PrintRequest;
@@ -27,7 +28,7 @@ class InertiaPrintStationController extends Controller
         // Generate QR Code as SVG string
         $qrCode = QrCode::size(300)->margin(2)->generate($uploadUrl);
 
-        return Inertia::render('PrintStation', [
+        return Inertia::render('PrintStation/index', [
             'filetoprints' => $filetoprints,
             'stationId' => $station_id,
             'qrCode' => (string) $qrCode,
@@ -88,6 +89,9 @@ class InertiaPrintStationController extends Controller
             'calculated_pages' => $actualPages,
         ]);
 
+        // Dispatch event agar halaman admin teresfresh
+        event(new NewTransactionCreated($request->station_id));
+
         return redirect()->back();
     }
 
@@ -95,7 +99,7 @@ class InertiaPrintStationController extends Controller
     {
         // 1. Validasi Input
         $request->validate([
-            'request_id' => 'required|exists:print_verification_requests,id',
+            'request_id' => 'required|exists:print_requests,id',
         ]);
 
         $verification = PrintRequest::findOrFail($request->request_id);
