@@ -94,8 +94,8 @@ const totalPageCount = computed(() => {
                         </div>
                     </div>
 
-                    <!-- Configs (ONLY SHOW FOR NEW/REJECTED) -->
-                    <div v-if="!currentFile.status || ['new', 'rejected', 'new_upload'].includes(currentFile.status)"
+                    <!-- Configs (ONLY SHOW FOR NEW/REJECTED/COMPLETED) -->
+                    <div v-if="!currentFile.status || ['new', 'rejected', 'new_upload', 'completed'].includes(currentFile.status)"
                         class="space-y-4">
                         <!-- Paper Size -->
                         <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
@@ -238,7 +238,7 @@ const totalPageCount = computed(() => {
                     <!-- Footer Buttons -->
                     <div class="pt-2 space-y-3">
                         <div
-                            v-if="!currentFile.status || ['new', 'rejected', 'new_upload'].includes(currentFile.status)">
+                            v-if="!currentFile.status || ['new', 'rejected', 'new_upload', 'completed'].includes(currentFile.status)">
                             <button @click="$emit('submit')"
                                 class="w-full items-center py-4 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl font-black text-lg shadow-lg transition-all cursor-pointer flex justify-center gap-4">
                                 <span>SUBMIT REQUEST</span>
@@ -261,16 +261,7 @@ const totalPageCount = computed(() => {
                             </button>
                         </div>
 
-                        <div v-else-if="currentFile.status === 'completed'"
-                            class="bg-blue-50 p-4 rounded-xl border border-blue-100 flex items-center gap-4">
-                            <div class="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center">
-                                <CheckCircle class="w-6 h-6" />
-                            </div>
-                            <div>
-                                <h3 class="text-blue-800 font-black text-sm uppercase">Cetak Selesai</h3>
-                                <p class="text-blue-600 text-[10px] font-bold">Terima kasih telah mencetak!</p>
-                            </div>
-                        </div>
+
 
                         <button @click="$emit('close')"
                             class="w-full py-3 text-gray-500 hover:text-gray-800 font-bold transition-colors cursor-pointer">Tutup</button>

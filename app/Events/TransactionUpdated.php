@@ -21,7 +21,10 @@ class TransactionUpdated implements ShouldBroadcastNow
 
     public function broadcastOn(): array
     {
-        return [new Channel('printing-channel.' . $this->stationId)];
+        return [
+            new Channel('printing-channel.' . $this->stationId),
+            new Channel('admin-upa-channel')
+        ];
     }
 
     public function broadcastAs()

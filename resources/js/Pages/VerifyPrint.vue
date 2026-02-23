@@ -10,9 +10,14 @@ const props = defineProps({
 
 onMounted(() => {
     if (window.Echo) {
-        window.Echo.channel('outlet-channel.' + 1)
+        // Listen ke channel khusus admin agar semua update dari semua station ketarik
+        window.Echo.channel('admin-upa-channel')
             .listen('.transaction.created', (e) => {
                 console.log('New transaction created, refreshing...');
+                router.reload({ preserveScroll: true });
+            })
+            .listen('.transaction.updated', (e) => {
+                console.log('Transaction updated, refreshing...');
                 router.reload({ preserveScroll: true });
             });
     }

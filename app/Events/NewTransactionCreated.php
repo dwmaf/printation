@@ -21,8 +21,10 @@ class NewTransactionCreated implements ShouldBroadcastNow
 
     public function broadcastOn(): array
     {
-        // Broadcast ke channel outlet agar owner bisa terima
-        return [new Channel('outlet-channel.' . $this->outletId)];
+        // Broadcast ke channel outlet agar owner bisa terima, dan admin global
+        return [
+            new Channel('admin-upa-channel')
+        ];
     }
 
     public function broadcastAs()

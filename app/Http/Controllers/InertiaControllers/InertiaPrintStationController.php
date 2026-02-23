@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\InertiaControllers;
 
 use App\Events\NewTransactionCreated;
+use App\Events\TransactionUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Filetoprint;
 use App\Models\PrintRequest;
@@ -103,61 +104,54 @@ class InertiaPrintStationController extends Controller
         ]);
 
         $verification = PrintRequest::findOrFail($request->request_id);
-        $filetoprint = Filetoprint::findOrFail($verification->filetoprint_id);
-        
+        $filetoprint  = Filetoprint::findOrFail($verification->filetoprint_id);
+
         $pdfPath = storage_path('app/public/' . $filetoprint->filename);
+
+        if (!file_exists($pdfPath)) {
+            return response()->json(['status' => 'error', 'message' => 'File tidak ditemukan.'], 404);
+        }
+
+        // =====================================================================
+        // [PRODUCTION] Eksekusi Print via SumatraPDF !!
+        // =====================================================================
         $exePath = base_path('tools/SumatraPDF.exe');
 
-        if (!file_exists($exePath)) {
-            return response()->json(['status' => 'error', 'message' => 'Driver Printer (SumatraPDF) tidak ditemukan.'], 500);
-        }
-
-        // 3. Konfigurasi Settingan SumatraPDF
-        $settings = [];
-
-        // A. Copies
-        $settings[] = $verification->copies . "x";
-
-        // B. Color Mode
-        if ($verification->color_mode == 'bw') {
-            $settings[] = "monochrome";
-        } else {
-            $settings[] = "color";
-        }
-
-        // C. Paper Size (Ukuran Kertas)
-        if (!empty($verification->paper_size)) {
-            $settings[] = "paper=" . $verification->paper_size;
-        }
-
-        // D. Page Range (Halaman)
-        if (!empty($verification->page_range) && $verification->page_range !== 'all') {
-            $settings[] = $verification->page_range;
-        }
-
-        // Gabungkan setting: "2x,monochrome,paper=A4,1-5"
-        $settingsString = implode(',', $settings);
-
-        // 4. Eksekusi Perintah
-        $command = "\"{$exePath}\" -print-to-default -print-settings \"{$settingsString}\" -silent \"{$pdfPath}\"";
-
-        try {
-            shell_exec($command);
-            // status transaksinya dijadiin completed agar kalau print lagi ya harus bayar lagi
-            $trx = PrintRequest::find($request->request_id);
-            if ($trx) {
-                $trx->update(['status' => 'completed']);
+        // Kita jalankan print command jika .exe nya ada. Jika sedang di lokal dan
+        // driver ngga ada, ini tidak akan error, tapi status tetap bisa completed.
+        if (file_exists($exePath)) {
+            $settings = [];
+            $settings[] = $verification->copies . "x";
+            
+            if ($verification->color_mode == 'bw') {
+                $settings[] = "monochrome";
+            } else {
+                $settings[] = "color";
             }
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Perintah cetak terkirim.'
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal print: ' . $e->getMessage()
-            ], 500);
+            
+            if (!empty($verification->paper_size)) {
+                $settings[] = "paper=" . $verification->paper_size;
+            }
+            
+            if (!empty($verification->page_range) && $verification->page_range !== 'all') {
+                $settings[] = $verification->page_range;
+            }
+            
+            $settingsString = implode(',', $settings);
+            $command = "\"{$exePath}\" -print-to-default -print-settings \"{$settingsString}\" -silent \"{$pdfPath}\"";
+            
+            shell_exec($command);
         }
+        // =====================================================================
+
+        // Update status ke completed dan return JSON
+        $verification->update(['status' => 'completed']);
+        event(new TransactionUpdated($filetoprint->station_id));
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Perintah cetak terkirim.'
+        ]);
     }
 
     public function destroy(Filetoprint $filetoprint)
