@@ -113,68 +113,68 @@ const executePrint = async () => {
             // Comment kode dari sini sampai penutup "END DOWNLOAD PDF FILE" jika
             // aplikasi mau masuk production dan tidak perlu aksi auto download.
             // =====================================================================
-            let fileBytesToDownload;
-            let mimeType = 'application/octet-stream';
+            // let fileBytesToDownload;
+            // let mimeType = 'application/octet-stream';
 
-            if (currentFile.value.type === 'PDF') {
-                mimeType = 'application/pdf';
-                const existingPdfBytes = await fetch(currentFile.value.url).then(res => res.arrayBuffer());
+            // if (currentFile.value.type === 'PDF') {
+            //     mimeType = 'application/pdf';
+            //     const existingPdfBytes = await fetch(currentFile.value.url).then(res => res.arrayBuffer());
 
-                if (config.value.pageOption === 'custom') {
-                    const pdfDoc = await PDFDocument.load(existingPdfBytes);
-                    const totalPages = pdfDoc.getPageCount();
-                    const pagesToKeep = new Set();
-                    const rangeStr = config.value.customPages;
+            //     if (config.value.pageOption === 'custom') {
+            //         const pdfDoc = await PDFDocument.load(existingPdfBytes);
+            //         const totalPages = pdfDoc.getPageCount();
+            //         const pagesToKeep = new Set();
+            //         const rangeStr = config.value.customPages;
 
-                    if (rangeStr && rangeStr.trim()) {
-                        const parts = rangeStr.replace(/\s+/g, '').split(',');
-                        parts.forEach(part => {
-                            if (part.includes('-')) {
-                                const [start, end] = part.split('-').map(Number);
-                                if (!isNaN(start) && !isNaN(end)) {
-                                    for (let i = Math.max(1, start); i <= Math.min(totalPages, end); i++) {
-                                        pagesToKeep.add(i - 1); // PDF-lib page index is 0-based
-                                    }
-                                }
-                            } else {
-                                const num = Number(part);
-                                if (!isNaN(num) && num >= 1 && num <= totalPages) {
-                                    pagesToKeep.add(num - 1);
-                                }
-                            }
-                        });
-                    }
+            //         if (rangeStr && rangeStr.trim()) {
+            //             const parts = rangeStr.replace(/\s+/g, '').split(',');
+            //             parts.forEach(part => {
+            //                 if (part.includes('-')) {
+            //                     const [start, end] = part.split('-').map(Number);
+            //                     if (!isNaN(start) && !isNaN(end)) {
+            //                         for (let i = Math.max(1, start); i <= Math.min(totalPages, end); i++) {
+            //                             pagesToKeep.add(i - 1); // PDF-lib page index is 0-based
+            //                         }
+            //                     }
+            //                 } else {
+            //                     const num = Number(part);
+            //                     if (!isNaN(num) && num >= 1 && num <= totalPages) {
+            //                         pagesToKeep.add(num - 1);
+            //                     }
+            //                 }
+            //             });
+            //         }
 
-                    const pageIndices = Array.from(pagesToKeep).sort((a, b) => a - b);
+            //         const pageIndices = Array.from(pagesToKeep).sort((a, b) => a - b);
 
-                    if (pageIndices.length > 0) {
-                        const newPdf = await PDFDocument.create();
-                        const copiedPages = await newPdf.copyPages(pdfDoc, pageIndices);
-                        copiedPages.forEach(page => newPdf.addPage(page));
-                        fileBytesToDownload = await newPdf.save();
-                    } else {
-                        // fallback if parsing failed/empty
-                        fileBytesToDownload = existingPdfBytes;
-                    }
-                } else {
-                    fileBytesToDownload = existingPdfBytes;
-                }
-            } else {
-                // Not a PDF, just download original
-                fileBytesToDownload = await fetch(currentFile.value.url).then(res => res.arrayBuffer());
-                if (currentFile.value.original_name.endsWith('.png')) mimeType = 'image/png';
-                if (currentFile.value.original_name.endsWith('.jpg') || currentFile.value.original_name.endsWith('.jpeg')) mimeType = 'image/jpeg';
-            }
+            //         if (pageIndices.length > 0) {
+            //             const newPdf = await PDFDocument.create();
+            //             const copiedPages = await newPdf.copyPages(pdfDoc, pageIndices);
+            //             copiedPages.forEach(page => newPdf.addPage(page));
+            //             fileBytesToDownload = await newPdf.save();
+            //         } else {
+            //             // fallback if parsing failed/empty
+            //             fileBytesToDownload = existingPdfBytes;
+            //         }
+            //     } else {
+            //         fileBytesToDownload = existingPdfBytes;
+            //     }
+            // } else {
+            //     // Not a PDF, just download original
+            //     fileBytesToDownload = await fetch(currentFile.value.url).then(res => res.arrayBuffer());
+            //     if (currentFile.value.original_name.endsWith('.png')) mimeType = 'image/png';
+            //     if (currentFile.value.original_name.endsWith('.jpg') || currentFile.value.original_name.endsWith('.jpeg')) mimeType = 'image/jpeg';
+            // }
 
-            // Trigger otomatis download
-            const url = window.URL.createObjectURL(new Blob([fileBytesToDownload], { type: mimeType }));
-            const link = document.createElement('a');
-            link.href = url;
-            link.download = currentFile.value.original_name || 'print_cropped.pdf';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+            // // Trigger otomatis download
+            // const url = window.URL.createObjectURL(new Blob([fileBytesToDownload], { type: mimeType }));
+            // const link = document.createElement('a');
+            // link.href = url;
+            // link.download = currentFile.value.original_name || 'print_cropped.pdf';
+            // document.body.appendChild(link);
+            // link.click();
+            // document.body.removeChild(link);
+            // setTimeout(() => window.URL.revokeObjectURL(url), 1000);
             // =====================================================================
             // [END DOWNLOAD PDF FILE]
             // =====================================================================
