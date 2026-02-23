@@ -7,7 +7,7 @@ cd c:\laragon\www\print-app
 start "Printation Web Server" php artisan serve --host=0.0.0.0 --port=8000
 
 :: Start Reverb WebSocket di background
-start "Printation WebSocket" php artisan reverb:start --host=0.0.0.0 --port=8080
+start "Printation WebSocket" php artisan reverb:start --host=0.0.0.0 --port=8081
 
 :: (Opsional) Langsung buka Google Chrome Kiosk Mode ke halaman print station
 :: start chrome --kiosk "http://localhost:8000/station"
