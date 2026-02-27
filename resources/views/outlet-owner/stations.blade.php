@@ -1,5 +1,5 @@
 @extends('layouts.app-dashboard')
-@section('title', 'Dashboard')
+@section('title', 'Stations')
 @section('child')
 
             {{-- FLASH MESSAGES --}}

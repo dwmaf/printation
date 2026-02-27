@@ -62,17 +62,17 @@ const reject = (id) => {
 
     <AdminLayout>
         <template #header>
-            <h1 class="text-3xl text-gray-800 font-koulen uppercase tracking-wide">
+            <h1 class="text-xl sm:text-2xl md:text-3xl text-gray-800 font-koulen uppercase tracking-wide">
                 Verifikasi Print
             </h1>
         </template>
 
         <!-- KARTU UTAMA -->
-        <div class="bg-white rounded-[20px] shadow-sm border border-gray-100 flex-1 flex flex-col p-8 h-full">
+        <div class="bg-white rounded-xl sm:rounded-[20px] shadow-sm border border-gray-100 flex-1 flex flex-col p-3 sm:p-6 md:p-8 h-full">
 
             <!-- Judul & Search -->
-            <div class="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                <h2 class="text-2xl font-bold text-black">Daftar File</h2>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 gap-3 md:gap-4">
+                <h2 class="text-2xl sm:text-2xl font-bold text-black">Daftar File</h2>
 
                 <!-- Search Input -->
                 <div class="relative w-full md:w-64">
@@ -85,8 +85,8 @@ const reject = (id) => {
                 </div>
             </div>
 
-            <!-- TABLE -->
-            <div class="overflow-x-auto">
+            <!-- TABLE - Desktop View (hidden on mobile) -->
+            <div class="hidden lg:block overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr class="text-[#8E8D8D] text-xs font-bold uppercase tracking-wider border-b border-gray-100">
@@ -141,11 +141,11 @@ const reject = (id) => {
                             <td class="py-5 px-4 text-right">
                                 <div v-if="printrequest.status === 'pending'" class="flex justify-end gap-2">
                                     <button @click="verify(printrequest.id)"
-                                        class="w-6 h-6 rounded bg-[#4ADE80] text-white flex items-center justify-center hover:bg-green-500 transition shadow-sm cursor-pointer">
+                                        class="w-8 h-8 rounded bg-[#4ADE80] text-white flex items-center justify-center hover:bg-green-500 transition shadow-sm cursor-pointer">
                                         <Check class="w-4 h-4" stroke-width="3" />
                                     </button>
                                     <button @click="reject(printrequest.id)"
-                                        class="w-6 h-6 rounded bg-[#FB7185] text-white flex items-center justify-center hover:bg-red-500 transition shadow-sm cursor-pointer">
+                                        class="w-8 h-8 rounded bg-[#FB7185] text-white flex items-center justify-center hover:bg-red-500 transition shadow-sm cursor-pointer">
                                         <X class="w-4 h-4" stroke-width="3" />
                                     </button>
                                 </div>
@@ -164,18 +164,90 @@ const reject = (id) => {
                 </table>
             </div>
 
+            <!-- MOBILE CARD VIEW (visible on mobile and tablet) -->
+            <div class="lg:hidden space-y-3">
+                <!-- Empty State -->
+                <div v-if="printrequests.length === 0" class="text-center py-10 text-gray-400">
+                    Tidak ada data.
+                </div>
+
+                <!-- Card for each print request -->
+                <div v-for="printrequest in printrequests" :key="printrequest.id"
+                    class="bg-white border-2 border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                    
+                    <!-- Header: ID & Status -->
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="font-bold text-gray-900 text-lg">{{ printrequest.request_id }}</div>
+                        <span class="px-3 py-1.5 rounded-lg text-xs font-bold"
+                            :class="getStatusStyle(printrequest.status)">
+                            {{ getStatusLabel(printrequest.status) }}
+                        </span>
+                    </div>
+
+                    <!-- Compact Info Row -->
+                    <div class="flex items-center justify-between text-sm text-gray-600 mb-3 pb-3 border-b border-gray-100">
+                        <div class="flex items-center gap-4">
+                            <span class="font-semibold text-gray-900">
+                                {{ printrequest.detected_pages }}/{{ printrequest.calculated_pages }} hal
+                            </span>
+                            <span class="text-gray-400">•</span>
+                            <span class="font-semibold text-gray-900">
+                                {{ printrequest.copies }} lembar
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Second Row: Color & Size -->
+                    <div class="flex items-center justify-between mb-3.5">
+                        <div class="flex items-center gap-2">
+                            <Check v-if="printrequest.color_mode === 'color'" 
+                                class="w-5 h-5 text-green-600"
+                                stroke-width="2.5" />
+                            <X v-else class="w-5 h-5 text-gray-400" stroke-width="2.5" />
+                            <span class="text-sm font-semibold text-gray-900">
+                                {{ printrequest.color_mode === 'color' ? 'Berwarna' : 'Hitam Putih' }}
+                            </span>
+                        </div>
+                        <div class="bg-gray-100 px-3 py-1.5 rounded-md">
+                            <span class="font-bold text-gray-900 text-sm">
+                                {{ printrequest.paper_size?.toUpperCase() }}
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div v-if="printrequest.status === 'pending'" class="flex gap-2.5">
+                        <button @click="verify(printrequest.id)"
+                            class="flex-1 bg-[#4ADE80] text-white py-3.5 px-4 rounded-lg font-bold text-base hover:bg-green-500 transition shadow-sm flex items-center justify-center gap-2 active:scale-95">
+                            <Check class="w-5 h-5" stroke-width="3" />
+                            Verifikasi
+                        </button>
+                        <button @click="reject(printrequest.id)"
+                            class="flex-1 bg-[#FB7185] text-white py-3.5 px-4 rounded-lg font-bold text-base hover:bg-red-500 transition shadow-sm flex items-center justify-center gap-2 active:scale-95">
+                            <X class="w-5 h-5" stroke-width="3" />
+                            Tolak
+                        </button>
+                    </div>
+                    <div v-else class="text-center text-gray-400 py-2 text-sm font-medium">
+                        Tidak ada aksi
+                    </div>
+                </div>
+            </div>
+
             <!-- Pagination -->
-            <div class="mt-auto pt-6 flex justify-between items-center text-xs text-gray-400">
-                <div>Showing 1 to {{ printrequests.length }} of {{ printrequests.length }} entries</div>
+            <div class="mt-auto pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-400 gap-3">
+                <div class="text-center sm:text-left">
+                    Showing 1 to {{ printrequests.length }} of {{ printrequests.length }} entries
+                </div>
                 <div class="flex gap-1">
                     <button
-                        class="w-6 h-6 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 cursor-pointer">
+                        class="w-8 h-8 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 cursor-pointer">
                         <ChevronLeft class="w-4 h-4" />
                     </button>
                     <button
-                        class="w-6 h-6 bg-white border rounded flex items-center justify-center font-bold text-black cursor-pointer">1</button>
+                        class="w-8 h-8 bg-white border rounded flex items-center justify-center font-bold text-black cursor-pointer">1</button>
                     <button
-                        class="w-6 h-6 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 cursor-pointer">
+                        class="w-8 h-8 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 cursor-pointer">
                         <ChevronRight class="w-4 h-4" />
                     </button>
                 </div>

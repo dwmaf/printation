@@ -1,6 +1,6 @@
 <!-- filepath: c:\laragon\www\print-app\resources\views\outlet-owner\dashboard.blade.php -->
 @extends('layouts.app-dashboard')
-@section('title', 'Dashboard')
+@section('title', 'Payments')
 @section('child')
 
             {{-- KARTU UTAMA (DAFTAR FILE) --}}
