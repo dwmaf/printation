@@ -2,13 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardAdminController;
 use App\Http\Controllers\PrintStationController;
 use App\Http\Controllers\PrintController;
 use App\Http\Controllers\PrinterController;
 use App\Http\Controllers\TransactionController;
-use App\Http\Controllers\AdminTransactionController;
 use App\Http\Controllers\TransactionStatusController;
 use App\Http\Controllers\OutletController;
 use App\Http\Controllers\InertiaControllers\InertiaAuthController;
@@ -38,15 +36,6 @@ Route::get('/', function () {
 
 /*
 |--------------------------------------------------------------------------
-| AUTH
-|--------------------------------------------------------------------------
-*/
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-
-/*
-|--------------------------------------------------------------------------
 | SUPER ADMIN (HARUS LOGIN + ROLE super-admin)
 |--------------------------------------------------------------------------
 */
@@ -56,7 +45,7 @@ Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
     Route::post('/admin/outlets', [DashboardAdminController::class, 'storeOutlet'])->name('admin.outlets.store');
 
     // ✅ TAMBAH INI
-    Route::get('/admin/transactions', [\App\Http\Controllers\AdminTransactionController::class, 'index'])->name('admin.transactions');
+    // Route::get('/admin/transactions', [\App\Http\Controllers\AdminTransactionController::class, 'index'])->name('admin.transactions');
     // kedua route ini akan dicomment
     // Route::post('/admin/transactions/{transaction}/approve', [\App\Http\Controllers\AdminTransactionController::class, 'approve'])->name('admin.transactions.approve');
     // Route::post('/admin/transactions/{transaction}/reject', [\App\Http\Controllers\AdminTransactionController::class, 'reject'])->name('admin.transactions.reject');
@@ -129,8 +118,9 @@ Route::group(['middleware' => ['auth', 'role:outlet-owner']], function () {
 |--------------------------------------------------------------------------
 */
 // INERTIA AUTH
-Route::get('/loginadmin', [InertiaAuthController::class, 'showLoginForm'])->name('login.admin');
-Route::post('/loginadmin', [InertiaAuthController::class, 'login'])->name('login.admin.post');
+Route::get('/login', [InertiaAuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [InertiaAuthController::class, 'login'])->name('login.post');
+Route::post('/logout', [InertiaAuthController::class, 'logout'])->name('logout');
 
 // INERTIA AUTH (SUPER ADMIN)
 Route::group(['middleware' => ['auth', 'role:super-admin']], function () {

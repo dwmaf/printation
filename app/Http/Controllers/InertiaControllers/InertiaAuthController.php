@@ -26,19 +26,33 @@ class InertiaAuthController extends Controller
 
             $user = Auth::user();
 
+            // Redirect berdasarkan Role
             if ($user->hasRole('super-admin')) {
                 return redirect()->route('admin.upa.dashboard');
             } elseif ($user->hasRole('station-upa-pkk')) {
                 return redirect()->route('upa.station.index');
+            } elseif ($user->hasRole('outlet-owner')) {
+                return redirect()->route('outlet.dashboard');
+            } elseif ($user->hasRole('station')) {
+                return redirect('/station');
             }
 
-            // Default fallback
-            return redirect()->route('welcome');
+            // Default fallback jika tidak ada role yang cocok
+            return redirect('/');
         }
 
         return back()->withErrors([
             'email' => 'Email atau password salah.',
         ]);
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('login');
     }
 
     public function dashboard()

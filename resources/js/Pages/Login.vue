@@ -11,7 +11,7 @@ const form = useForm({
 const showPassword = ref(false);
 
 const submit = () => {
-    form.post('/loginadmin', {
+    form.post('/login', {
         onFinish: () => form.reset('password'),
     });
 };
@@ -23,7 +23,7 @@ const togglePassword = () => {
 
 <template>
 
-    
+
     <div class="min-h-screen bg-gray-100 flex items-center justify-center p-4">
         <div
             class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col md:flex-row border border-gray-200">
