@@ -10,14 +10,23 @@ use Inertia\Inertia;
 
 class InertiaVerifyPrintController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        $search = $request->input('search');
         $printrequests = PrintRequest::with(['user', 'filetoprint'])
+            ->when($search, function ($query, $search) {
+                $query->where('request_id', 'like', "%{$search}%")
+                    ->orWhereHas('filetoprint', function ($q) use ($search) {
+                        $q->where('original_name', 'like', "%{$search}%");
+                    });
+            })
             ->latest()
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
         return Inertia::render('VerifyPrint', [
-            'printrequests' => $printrequests // Pass as 'requests'
+            'printrequests' => $printrequests,
+            'filters' => $request->only(['search']),
         ]);
     }
 

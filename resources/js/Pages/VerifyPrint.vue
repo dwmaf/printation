@@ -1,11 +1,22 @@
 <script setup>
-import { Head, useForm, router } from '@inertiajs/vue3';
-import { onMounted } from 'vue';
+import { Head, useForm, router, Link } from '@inertiajs/vue3';
+import { ref, watch, onMounted } from 'vue';
 import { Search, Check, X, File, ChevronLeft, ChevronRight } from 'lucide-vue-next';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
-    printrequests: Array,
+    printrequests: Object,
+    filters: Object,
+});
+
+const search = ref(props.filters.search);
+
+// Query Search (Debounce agar tidak terlalu berat)
+watch(search, (value) => {
+    router.get(route('admin.upa.verify-print.index'), { search: value }, {
+        preserveState: true,
+        replace: true
+    });
 });
 
 onMounted(() => {
@@ -68,10 +79,12 @@ const reject = (id) => {
         </template>
 
         <!-- KARTU UTAMA -->
-        <div class="bg-white rounded-xl sm:rounded-[20px] shadow-sm border border-gray-100 flex-1 flex flex-col p-3 sm:p-6 md:p-8 h-full">
+        <div
+            class="bg-white rounded-xl sm:rounded-[20px] shadow-sm border border-gray-100 flex-1 flex flex-col p-3 sm:p-6 md:p-8 h-full">
 
             <!-- Judul & Search -->
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 gap-3 md:gap-4">
+            <div
+                class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 md:mb-8 gap-3 md:gap-4">
                 <h2 class="text-2xl sm:text-2xl font-bold text-black">Daftar File</h2>
 
                 <!-- Search Input -->
@@ -80,7 +93,7 @@ const reject = (id) => {
                         <Search class="w-5 h-5" />
                     </span>
 
-                    <input type="text" placeholder="Cari Order ID / File..."
+                    <input v-model="search" type="text" placeholder="Cari Order ID / File..."
                         class="w-full bg-[#FAFAFA] text-gray-700 text-sm rounded-lg border-none focus:ring-2 focus:ring-indigo-200 focus:bg-white py-2.5 pl-10 pr-4 transition-all">
                 </div>
             </div>
@@ -93,14 +106,14 @@ const reject = (id) => {
                             <th class="py-4 pr-4">ID</th>
                             <th class="py-4 px-4">STATUS</th>
                             <th class="py-4 px-4">HALAMAN</th>
-                            <th class="py-4 px-4">JUMLAH</th>
+                            <th class="py-4 px-4">Copy</th>
                             <th class="py-4 px-4 text-center">WARNA</th>
                             <th class="py-4 px-4 text-center">UKURAN</th>
                             <th class="py-4 px-4 text-right">AKSI</th>
                         </tr>
                     </thead>
                     <tbody class="text-sm text-gray-600 divide-y divide-gray-50">
-                        <tr v-for="printrequest in printrequests" :key="printrequest.id"
+                        <tr v-for="printrequest in printrequests.data" :key="printrequest.id"
                             class="group hover:bg-gray-50 transition-colors">
                             <!-- ID -->
                             <td class="py-5 pr-4 font-semibold text-gray-900">
@@ -117,12 +130,12 @@ const reject = (id) => {
 
                             <!-- HALAMAN -->
                             <td class="py-5 px-4">
-                                {{ printrequest.detected_pages }} / {{ printrequest.calculated_pages }} Hal
+                                {{ printrequest.calculated_pages }} Hal
                             </td>
 
-                            <!-- JUMLAH -->
+                            <!-- Copies -->
                             <td class="py-5 px-4">
-                                {{ printrequest.copies }} lembar
+                                {{ printrequest.copies }} Copy
                             </td>
 
                             <!-- WARNA -->
@@ -167,14 +180,14 @@ const reject = (id) => {
             <!-- MOBILE CARD VIEW (visible on mobile and tablet) -->
             <div class="lg:hidden space-y-3">
                 <!-- Empty State -->
-                <div v-if="printrequests.length === 0" class="text-center py-10 text-gray-400">
+                <div v-if="printrequests.data.length === 0" class="text-center py-10 text-gray-400">
                     Tidak ada data.
                 </div>
 
                 <!-- Card for each print request -->
-                <div v-for="printrequest in printrequests" :key="printrequest.id"
+                <div v-for="printrequest in printrequests.data" :key="printrequest.id"
                     class="bg-white border-2 border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                    
+
                     <!-- Header: ID & Status -->
                     <div class="flex justify-between items-center mb-3">
                         <div class="font-bold text-gray-900 text-lg">{{ printrequest.request_id }}</div>
@@ -185,14 +198,15 @@ const reject = (id) => {
                     </div>
 
                     <!-- Compact Info Row -->
-                    <div class="flex items-center justify-between text-sm text-gray-600 mb-3 pb-3 border-b border-gray-100">
+                    <div
+                        class="flex items-center justify-between text-sm text-gray-600 mb-3 pb-3 border-b border-gray-100">
                         <div class="flex items-center gap-4">
                             <span class="font-semibold text-gray-900">
-                                {{ printrequest.detected_pages }}/{{ printrequest.calculated_pages }} hal
+                                {{ printrequest.calculated_pages }} hal
                             </span>
                             <span class="text-gray-400">•</span>
                             <span class="font-semibold text-gray-900">
-                                {{ printrequest.copies }} lembar
+                                {{ printrequest.copies }} Copy
                             </span>
                         </div>
                     </div>
@@ -200,8 +214,7 @@ const reject = (id) => {
                     <!-- Second Row: Color & Size -->
                     <div class="flex items-center justify-between mb-3.5">
                         <div class="flex items-center gap-2">
-                            <Check v-if="printrequest.color_mode === 'color'" 
-                                class="w-5 h-5 text-green-600"
+                            <Check v-if="printrequest.color_mode === 'color'" class="w-5 h-5 text-green-600"
                                 stroke-width="2.5" />
                             <X v-else class="w-5 h-5 text-gray-400" stroke-width="2.5" />
                             <span class="text-sm font-semibold text-gray-900">
@@ -235,12 +248,13 @@ const reject = (id) => {
             </div>
 
             <!-- Pagination -->
-            <div class="mt-auto pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-400 gap-3">
+            <div
+                class="mt-auto pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-400 gap-3">
                 <div class="text-center sm:text-left">
-                    Showing 1 to {{ printrequests.length }} of {{ printrequests.length }} entries
+                    Showing {{ printrequests.from }} to {{ printrequests.to }} of {{ printrequests.total }} entries
                 </div>
                 <div class="flex gap-1">
-                    <button
+                    <!-- <button
                         class="w-8 h-8 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 cursor-pointer">
                         <ChevronLeft class="w-4 h-4" />
                     </button>
@@ -249,7 +263,13 @@ const reject = (id) => {
                     <button
                         class="w-8 h-8 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 cursor-pointer">
                         <ChevronRight class="w-4 h-4" />
-                    </button>
+                    </button> -->
+                    <Link v-for="link in printrequests.links" :key="link.label" :href="link.url || '#'"
+                        v-html="link.label" class="w-8 h-8 rounded flex items-center justify-center transition-all"
+                        :class="[
+                            link.active ? 'bg-indigo-600 text-white font-bold' : 'bg-gray-100 hover:bg-gray-200 text-gray-600',
+                            !link.url ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                        ]" />
                 </div>
             </div>
 

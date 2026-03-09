@@ -1,11 +1,11 @@
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3';
 import { LayoutDashboard, BadgeCheck, LogOut, FileCheck, Menu, X } from 'lucide-vue-next';
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 
-// In a real app we might get the user info from shared props
 const page = usePage();
 const mobileMenuOpen = ref(false);
+const pendingCount = computed(() => page.props.pendingCount);
 </script>
 
 <template>
@@ -24,15 +24,15 @@ const mobileMenuOpen = ref(false);
 
         <!-- MOBILE MENU OVERLAY -->
         <div v-if="mobileMenuOpen" 
-            class="lg:hidden fixed inset-0 bg-black/50 z-40 top-[72px]"
+            class="lg:hidden fixed inset-0 bg-black/50 z-40 top-18"
             @click="mobileMenuOpen = false">
         </div>
 
         <!-- SIDEBAR -->
         <div class="bg-white rounded-xl flex flex-col shadow-sm shrink-0 transition-all duration-300"
             :class="[
-                mobileMenuOpen ? 'fixed top-[72px] left-3 right-3 z-40 max-h-[calc(100vh-90px)]' : 'hidden',
-                'lg:flex lg:static lg:w-[18%] lg:h-[calc(100vh-3rem)] lg:top-6 lg:sticky'
+                mobileMenuOpen ? 'fixed top-18 left-3 right-3 z-40 max-h-[calc(100vh-90px)]' : 'hidden',
+                'lg:flex lg:sticky lg:w-[18%] lg:h-[calc(100vh-3rem)] lg:top-6 '
             ]">
             
             <!-- Desktop Logo (hidden on mobile) -->
@@ -58,8 +58,8 @@ const mobileMenuOpen = ref(false);
                     :class="$page.url.startsWith('/admin/upa/verify-print') ? 'text-indigo-600 bg-indigo-50 border-indigo-600' : 'text-gray-400 border-transparent hover:bg-gray-50 hover:text-indigo-500'">
                     <FileCheck class="w-5 h-5" />
                     <span class="flex-1">Verify Print</span>
-                    <span
-                        class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mr-2 shadow-sm">3</span>
+                    <span v-if="pendingCount > 0"
+                        class="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mr-2 shadow-sm">{{ pendingCount }}</span>
                 </Link>
             </div>
 
@@ -103,7 +103,7 @@ const mobileMenuOpen = ref(false);
 
             <!-- DYNAMIC CONTENT -->
             <div class="h-full">
-                <slot />
+                <slot></slot>
             </div>
         </div>
     </div>

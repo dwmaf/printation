@@ -13,6 +13,7 @@ use App\Http\Controllers\InertiaControllers\InertiaAuthController;
 use App\Http\Controllers\InertiaControllers\InertiaVerifyPrintController;
 use App\Http\Controllers\InertiaControllers\InertiaPrintStationController;
 use App\Http\Controllers\InertiaControllers\InertiaUploadController;
+use App\Http\Controllers\P2MWControllers\OutletAdminController;
 
 // CREATE TX (sudah ada di kamu)
 Route::post('/transaction', [TransactionController::class, 'store'])
@@ -31,7 +32,23 @@ Route::post('/station/print/{orderId}', [PrintStationController::class, 'printBy
     ->name('station.printByOrder');
 
 Route::get('/', function () {
-    return view('welcome');
+    if (!auth()->check()) {
+        return redirect()->route('login');
+    }
+
+    $user = auth()->user();
+    
+    if ($user->hasRole('super-admin')) {
+        return redirect()->route('admin.dashboard');
+    } elseif ($user->hasRole('outlet-owner')) {
+        return redirect()->route('outlet.dashboard');
+    } elseif ($user->hasRole('station')) {
+        return redirect()->route('station.index');
+    } elseif ($user->hasRole('station-upa-pkk')) {
+        return redirect()->route('upa.station.index');
+    }
+
+    return redirect()->to('/login'); // Fallback jika role tidak dikenali
 });
 
 /*
@@ -41,14 +58,9 @@ Route::get('/', function () {
 */
 Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
     Route::get('/admin/dashboard', [DashboardAdminController::class, 'indexDashboard'])->name('admin.dashboard');
-    Route::get('/admin/outlets', [DashboardAdminController::class, 'indexOutlet'])->name('admin.outlets');
-    Route::post('/admin/outlets', [DashboardAdminController::class, 'storeOutlet'])->name('admin.outlets.store');
-
-    // ✅ TAMBAH INI
-    // Route::get('/admin/transactions', [\App\Http\Controllers\AdminTransactionController::class, 'index'])->name('admin.transactions');
-    // kedua route ini akan dicomment
-    // Route::post('/admin/transactions/{transaction}/approve', [\App\Http\Controllers\AdminTransactionController::class, 'approve'])->name('admin.transactions.approve');
-    // Route::post('/admin/transactions/{transaction}/reject', [\App\Http\Controllers\AdminTransactionController::class, 'reject'])->name('admin.transactions.reject');
+    Route::get('/admin/upa/outlets', [OutletAdminController::class, 'index'])->name('admin.upa.outlets');
+    Route::post('/admin/upa/outlets', [OutletAdminController::class, 'store'])->name('admin.upa.outlets.store');
+    Route::put('/admin/upa/outlets/{id}', [OutletAdminController::class, 'update'])->name('admin.upa.outlets.update');
 });
 
 
@@ -112,14 +124,18 @@ Route::group(['middleware' => ['auth', 'role:outlet-owner']], function () {
 });
 
 
+
+
 /*
 |--------------------------------------------------------------------------
 | ROUTE KHUSUS BUAT KP
 |--------------------------------------------------------------------------
 */
 // INERTIA AUTH
-Route::get('/login', [InertiaAuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [InertiaAuthController::class, 'login'])->name('login.post');
+Route::group(['middleware' => 'guest'], function () {
+    Route::get('/login', [InertiaAuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [InertiaAuthController::class, 'login'])->name('login.post');
+});
 Route::post('/logout', [InertiaAuthController::class, 'logout'])->name('logout');
 
 // INERTIA AUTH (SUPER ADMIN)
@@ -132,6 +148,7 @@ Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
 
 Route::group(['middleware' => ['auth', 'role:station-upa-pkk']], function () {
     Route::get('/upa/station', [InertiaPrintStationController::class, 'index'])->name('upa.station.index');
+    Route::get('/station/proxy-pdf/{id}', [InertiaPrintStationController::class, 'proxyPdf'])->name('upa.station.proxy-pdf');
     Route::post('/upa/station/request-print', [InertiaPrintStationController::class, 'submitRequest'])->name('upa.station.request-print');
     Route::delete('/upa/station/file/{printfile}', [InertiaPrintStationController::class, 'destroy'])->name('upa.station.file.destroy');
     Route::delete('/upa/station/destroy-multiple', [InertiaPrintStationController::class, 'destroyMultiple'])->name('upa.station.destroy-multiple');
