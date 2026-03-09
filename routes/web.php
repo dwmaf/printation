@@ -14,6 +14,7 @@ use App\Http\Controllers\InertiaControllers\InertiaVerifyPrintController;
 use App\Http\Controllers\InertiaControllers\InertiaPrintStationController;
 use App\Http\Controllers\InertiaControllers\InertiaUploadController;
 use App\Http\Controllers\P2MWControllers\OutletAdminController;
+use App\Http\Controllers\P2MWControllers\UserUploadController;
 
 // CREATE TX (sudah ada di kamu)
 Route::post('/transaction', [TransactionController::class, 'store'])
@@ -90,8 +91,8 @@ Route::group(['middleware' => ['auth', 'role:station']], function () {
 | USER UPLOAD (HP)
 |--------------------------------------------------------------------------
 */
-Route::get('/upload/{station_id}', [PrintController::class, 'uploadPage'])->name('upload.page');
-Route::post('/upload', [PrintController::class, 'store'])->name('upload.store');
+Route::get('/upload/{id}', [UserUploadController::class, 'index'])->name('upload.page');
+Route::post('/upload{id}', [UserUploadController::class, 'store'])->name('upload.store');
 
 /*
 |--------------------------------------------------------------------------
