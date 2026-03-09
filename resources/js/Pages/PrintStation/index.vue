@@ -64,7 +64,7 @@ const openPrintModal = async (file) => {
 
     if (file.type === 'PDF' && !file.latest_print_request) {
         try {
-            
+
             const proxyUrl = route('upa.station.proxy-pdf', file.id);
             const response = await fetch(proxyUrl);
 
@@ -74,14 +74,14 @@ const openPrintModal = async (file) => {
             // Verifikasi jika arrayBuffer kosong
             if (arrayBuffer.byteLength === 0) throw new Error("File PDF kosong atau corrupt.");
 
-            const pdfDoc = await PDFDocument.load(arrayBuffer, { 
+            const pdfDoc = await PDFDocument.load(arrayBuffer, {
                 ignoreEncryption: true // Tambahkan ini untuk PDF yang terproteksi ringan
             });
-            
+
             config.value.pages = pdfDoc.getPageCount();
             console.log("Success detect pages:", config.value.pages);
-        } catch (e) { 
-            console.error("Gagal menghitung halaman:", e); 
+        } catch (e) {
+            console.error("Gagal menghitung halaman:", e);
             config.value.pages = 1; // Fallback jika gagal
         }
     } else if (file.type !== 'PDF' && !file.latest_print_request) {
@@ -175,9 +175,6 @@ onMounted(() => {
 </script>
 
 <template>
-
-    <Head title="Stasiun Print" />
-
     <div class="min-h-screen flex flex-col bg-[#FAFAFA] font-roboto text-gray-800 p-4 md:p-8">
 
         <!-- EMPTY / QR STATE -->
@@ -185,10 +182,10 @@ onMounted(() => {
             :station-name="$page.props.auth.user.name" @toggle-qr="showQr = !showQr" />
 
         <!-- FILE TABLE STATE -->
-        <FileTable v-if="filetoprints.length > 0" :filetoprints="filetoprints" :selected-ids="selectedIds"
-            :station-name="$page.props.auth.user.name" @update-selected-ids="(ids) => selectedIds = ids"
-            @open-print-modal="openPrintModal" @open-delete-modal="openDeleteModal"
-            @delete-multiple="bulkDeleteModalOpen = true" />
+        <FileTable v-if="filetoprints.length > 0" :filetoprints="filetoprints" :qr-code="qrCode"
+             :selected-ids="selectedIds" :station-name="$page.props.auth.user.name"
+            @update-selected-ids="(ids) => selectedIds = ids" @open-print-modal="openPrintModal"
+            @open-delete-modal="openDeleteModal" @delete-multiple="bulkDeleteModalOpen = true" />
 
         <!-- MODALS -->
         <PrintConfig :show="modalOpen" :current-file="currentFile" :config="config" :loading="loading"

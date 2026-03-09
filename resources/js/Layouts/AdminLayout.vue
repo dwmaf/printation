@@ -1,11 +1,29 @@
 <script setup>
-import { Link, usePage } from '@inertiajs/vue3';
+import { Link, usePage, router } from '@inertiajs/vue3';
 import { LayoutDashboard, BadgeCheck, LogOut, FileCheck, Menu, X } from 'lucide-vue-next';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 const page = usePage();
 const mobileMenuOpen = ref(false);
 const pendingCount = computed(() => page.props.pendingCount);
+
+onMounted(() => {
+    if (window.Echo) {
+        window.Echo.channel('admin-upa-channel')
+            .listen('.transaction.created', (e) => {
+                router.reload({ 
+                    only: ['pendingCount'], 
+                    preserveScroll: true 
+                });
+            })
+            .listen('.transaction.updated', (e) => {
+                router.reload({ 
+                    only: ['pendingCount'], 
+                    preserveScroll: true 
+                });
+            });
+    }
+});
 </script>
 
 <template>

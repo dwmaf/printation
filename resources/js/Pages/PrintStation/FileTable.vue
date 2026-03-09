@@ -1,13 +1,17 @@
 <script setup>
-import { Trash2, Printer } from 'lucide-vue-next';
+import { ref } from 'vue';
+import { Trash2, Printer, QrCode as QrIcon, Eye, EyeOff } from 'lucide-vue-next';
 
 const props = defineProps({
     filetoprints: Array,
     selectedIds: Array,
     stationName: String,
+    qrCode: String,
 });
 
 const emit = defineEmits(['openPrintModal', 'openDeleteModal', 'deleteMultiple', 'updateSelectedIds']);
+
+const showLocalQr = ref(false);
 
 const toggleSelectAll = (checked) => {
     const ids = checked ? props.filetoprints.map(f => f.id) : [];
@@ -56,6 +60,12 @@ const formatTime = (dateStr) => {
 
 <template>
     <div class="bg-white w-full h-full rounded-xl shadow-lg px-8">
+        <div v-if="showLocalQr" class="flex justify-center animate-in zoom-in duration-300">
+            <div class="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center border border-indigo-50">
+                <div class="w-44 h-44" v-html="qrCode"></div>
+            </div>
+        </div>
+
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-4">
                 <img src="/images/logo.png" class="w-18" alt="Logo">
@@ -63,6 +73,13 @@ const formatTime = (dateStr) => {
                     <h1 class="text-5xl font-koulen">Printation</h1>
                     <p class="uppercase font-medium text-gray-400 font-roboto">{{ stationName }}</p>
                 </div>
+                <!-- Toggle Lokal: Tidak perlu emit -->
+                <button @click="showLocalQr = !showLocalQr"
+                    class="flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-full transition-all border shadow-sm ml-2"
+                    :class="showLocalQr ? 'bg-amber-500 text-white border-amber-600' : 'bg-white text-indigo-600 border-indigo-100 hover:bg-indigo-50'">
+                    <component :is="showLocalQr ? EyeOff : QrIcon" class="w-4 h-4" />
+                    {{ showLocalQr ? 'Tutup QR' : 'Tampilkan QR' }}
+                </button>
                 <button v-if="selectedIds.length > 0" @click="$emit('deleteMultiple')"
                     class="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-bold rounded-full transition-all shadow-lg shadow-red-100 animate-in fade-in slide-in-from-right-4 duration-200">
                     <Trash2 class="w-4 h-4" />

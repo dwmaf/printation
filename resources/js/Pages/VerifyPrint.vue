@@ -37,7 +37,7 @@ onMounted(() => {
 const getStatusStyle = (status) => {
     switch (status) {
         case 'pending': return 'bg-yellow-50 text-yellow-600';
-        case 'processing': return 'bg-green-50 text-green-600';
+        case 'completed': return 'bg-green-50 text-green-600';
         case 'rejected': return 'bg-red-50 text-red-600';
         case 'completed': return 'bg-blue-50 text-blue-600';
         default: return 'bg-gray-100 text-gray-600';
@@ -47,7 +47,6 @@ const getStatusStyle = (status) => {
 const getStatusLabel = (status) => {
     switch (status) {
         case 'pending': return 'PENDING';
-        case 'processing': return 'DITERIMA';
         case 'rejected': return 'DITOLAK';
         default: return status.toUpperCase();
     }
@@ -162,7 +161,12 @@ const reject = (id) => {
                                         <X class="w-4 h-4" stroke-width="3" />
                                     </button>
                                 </div>
-                                <span v-else class="text-gray-300 text-lg mx-auto block w-fit">-</span>
+                                <div v-else-if="printrequest.status === 'completed'" class="flex justify-end">
+                                    <span class="flex items-center gap-1 text-indigo-500 font-bold text-xs bg-indigo-50 px-2 py-1 rounded">
+                                        <Check class="w-3 h-3" stroke-width="4" /> TERPRINT
+                                    </span>
+                                </div>
+                                <span v-else class="text-gray-300 text-sm italic block w-fit ml-auto">No Action</span>
                             </td>
                         </tr>
 
