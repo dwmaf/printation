@@ -51,7 +51,7 @@ class InertiaPrintStationController extends Controller
         $copies = $config['copies'] ?? 1;
         $isColor = ($config['color'] ?? 'bw') === 'color';
         $detectedPages = $config['detected_pages'] ?? 1;
-        
+
         $actualPages = $detectedPages;
         if (isset($config['pages']) && $config['pages'] !== 'all') {
             // Count custom pages from string like "1,3,5-10"
@@ -122,24 +122,24 @@ class InertiaPrintStationController extends Controller
         if (file_exists($exePath)) {
             $settings = [];
             $settings[] = $verification->copies . "x";
-            
+
             if ($verification->color_mode == 'bw') {
                 $settings[] = "monochrome";
             } else {
                 $settings[] = "color";
             }
-            
+
             if (!empty($verification->paper_size)) {
                 $settings[] = "paper=" . $verification->paper_size;
             }
-            
+
             if (!empty($verification->page_range) && $verification->page_range !== 'all') {
                 $settings[] = $verification->page_range;
             }
-            
+
             $settingsString = implode(',', $settings);
             $command = "\"{$exePath}\" -print-to-default -print-settings \"{$settingsString}\" -silent \"{$pdfPath}\"";
-            
+
             shell_exec($command);
         }
         // =====================================================================
@@ -183,5 +183,25 @@ class InertiaPrintStationController extends Controller
         }
 
         return redirect()->back()->with('success', $count . ' file berhasil dihapus.');
+    }
+
+    public function proxyPdf($id)
+    {
+        $file = Filetoprint::findOrFail($id);
+        $path = storage_path('app/public/' . $file->filename);
+
+        if (!file_exists($path)) {
+            return response()->json(['error' => 'File not found'], 404);
+        }
+
+        // Membersihkan output buffer untuk mencegah file corrupt
+        if (ob_get_length()) ob_end_clean();
+
+        return response()->file($path, [
+            'Content-Type' => 'application/pdf',
+            'Access-Control-Allow-Origin' => '*',
+            'Content-Disposition' => 'inline; filename="' . $file->original_name . '"',
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+        ]);
     }
 }

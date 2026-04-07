@@ -11,7 +11,7 @@
                     <p class="font-medium text-sm text-[#C2C2C2]">{{ now()->translatedFormat('d M Y') }}</p>
                 </div>
                 <div class="p-2 bg-[#60FC99] rounded-3xl">
-                    @if ($percentageChange >= 0)
+                    {{-- if ($percentageChange >= 0) --}}
                         <svg xmlns="http://www.w3.org/2000/svg" width="40px" height="40px" viewBox="0 0 24 24">
                             <path fill="#0D7432" fill-rule="evenodd"
                                 d="M20.41 9.86a3 3 0 0 0-.175-.003H17.8c-1.992 0-3.698 1.581-3.698 3.643s1.706 3.643 3.699 3.643h2.433q.092.001.175-.004a1.7 1.7 0 0 0 1.586-1.581c.004-.059.004-.122.004-.18v-3.756c0-.058 0-.121-.004-.18a1.7 1.7 0 0 0-1.585-1.581m-2.823 4.611c.513 0 .93-.434.93-.971s-.417-.971-.93-.971s-.929.434-.929.971s.416.971.93.971"
@@ -22,12 +22,12 @@
                             <path fill="#0D7432"
                                 d="m7.777 4.024l1.958-1.443a2.97 2.97 0 0 1 3.53 0l1.969 1.451C14.41 4 13.49 4 12.483 4h-2.17c-.922 0-1.769 0-2.536.024" />
                         </svg>
-                    @else
-                        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
+                    {{-- @else --}}
+                        {{-- <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24">
                             <path fill="#D32F2F"
                                 d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10s10-4.48 10-10S17.52 2 12 2m5 11h-4v4h-2v-4H7v-2h4V7h2v4h4z" />
-                        </svg>
-                    @endif
+                        </svg> --}}
+                    {{-- @endif --}}
                 </div>
             </div>
             <p class="text-4xl font-bold mb-1">Rp {{ number_format($revenueToday, 0, ',', '.') }}</p>
