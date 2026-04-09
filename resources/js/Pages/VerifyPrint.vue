@@ -2,6 +2,7 @@
 import { Head, useForm, router, Link } from '@inertiajs/vue3';
 import { ref, watch, onMounted } from 'vue';
 import { Search, Check, X, File, ChevronLeft, ChevronRight } from 'lucide-vue-next';
+import Pagination from '@/Components/Pagination.vue';
 import AdminLayout from '@/Layouts/AdminLayout.vue';
 
 const props = defineProps({
@@ -257,8 +258,8 @@ const reject = (id) => {
                 <div class="text-center sm:text-left">
                     Showing {{ printrequests.from }} to {{ printrequests.to }} of {{ printrequests.total }} entries
                 </div>
-                <div class="flex gap-1">
-                    <!-- <button
+                <!-- <div class="flex gap-1">
+                    <button
                         class="w-8 h-8 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 cursor-pointer">
                         <ChevronLeft class="w-4 h-4" />
                     </button>
@@ -267,14 +268,15 @@ const reject = (id) => {
                     <button
                         class="w-8 h-8 bg-gray-100 rounded flex items-center justify-center hover:bg-gray-200 cursor-pointer">
                         <ChevronRight class="w-4 h-4" />
-                    </button> -->
+                    </button>
                     <Link v-for="link in printrequests.links" :key="link.label" :href="link.url || '#'"
                         v-html="link.label" class="w-8 h-8 rounded flex items-center justify-center transition-all"
                         :class="[
                             link.active ? 'bg-indigo-600 text-white font-bold' : 'bg-gray-100 hover:bg-gray-200 text-gray-600',
                             !link.url ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
                         ]" />
-                </div>
+                </div> -->
+                <Pagination :links="printrequests.links" />
             </div>
 
         </div>
