@@ -936,6 +936,12 @@
                 current.txStatus = 'pending';
                 current.orderId = data.order_id;
 
+                // ** UBAH BACKGROUND KE YELLOW **
+                panelBody.classList.remove('bg-gray-50', 'bg-green-50');
+                panelBody.classList.add('bg-yellow-50');
+                panelHeader.classList.remove('bg-gray-50', 'bg-green-50');
+                panelHeader.classList.add('bg-yellow-50');
+
                 panelTitle.innerText = '';
                 document.getElementById('waitingOrderId').innerText = current.orderId || '-';
 

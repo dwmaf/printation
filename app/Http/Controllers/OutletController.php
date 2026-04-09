@@ -194,7 +194,8 @@ class OutletController extends Controller
 
     public function indexFiles()
     {
-        $outlet = Auth::user()->outlet;
+        $user = Auth::user();
+        $outlet = $user->outlet;
 
         // Ambil station milik outlet ini beserta file-filenya
         $stations = User::role('station')
@@ -204,7 +205,7 @@ class OutletController extends Controller
             }])
             ->get();
 
-        return view('outlet-owner.files', compact('outlet', 'stations'));
+        return view('outlet-owner.files', compact('outlet', 'stations', 'user'));
     }
 
     public function destroyFile($id)
