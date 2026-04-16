@@ -3,31 +3,33 @@
 
     <script src="https://unpkg.com/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
 
-    <div class="h-screen p-4 flex flex-col bg-[#FAFAFA] items-center justify-center">
+    <div class="min-h-screen p-4 bg-[#FAFAFA]">
 
         @if ($files->isEmpty())
-            {{-- HEADER (UI versi bawah) --}}
-            <div class="h-30 flex mb-8 items-center">
-                <img src="{{ asset('images/logo.png') }}" class="w-18 h-18">
-                <h1 class="text-5xl font-koulen">Printation</h1>
-            </div>
-
-            <h2 class="uppercase font-medium text-gray-400 mb-4 font-roboto">{{ Auth::user()->name }}</h2>
-            {{-- EMPTY STATE (UI versi bawah) --}}
-            <div class="w-fit h-96 flex flex-col items-center justify-center bg-white p-6 rounded-xl shadow-lg">
-                <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
-
-                <div class="relative w-full bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full">
-                    {!! $qrCode !!}
+            <div class="min-h-[calc(100vh-2rem)] flex flex-col items-center justify-center">
+                {{-- HEADER (UI versi bawah) --}}
+                <div class="h-30 flex mb-8 items-center">
+                    <img src="{{ asset('images/logo.png') }}" class="w-18 h-18">
+                    <h1 class="text-5xl font-koulen">Printation</h1>
                 </div>
 
-                <div class="flex items-center space-x-3 bg-[#ECECEC] px-6 py-3 rounded-full">
-                    <div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
-                    <span class="text-sm font-medium">Menunggu upload file...</span>
+                <h2 class="uppercase font-medium text-gray-400 mb-4 font-roboto">{{ Auth::user()->name }}</h2>
+                {{-- EMPTY STATE (UI versi bawah) --}}
+                <div class="w-fit h-96 flex flex-col items-center justify-center bg-white p-6 rounded-xl shadow-lg">
+                    <p class="text-gray-400 mb-8">Scan QR di bawah ini untuk mulai upload file.</p>
+
+                    <div class="relative w-full bg-white mb-8 overflow-hidden [&>svg]:w-full [&>svg]:h-full">
+                        {!! $qrCode !!}
+                    </div>
+
+                    <div class="flex items-center space-x-3 bg-[#ECECEC] px-6 py-3 rounded-full">
+                        <div class="w-3 h-3 bg-green-500 rounded-full animate-ping"></div>
+                        <span class="text-sm font-medium">Menunggu upload file...</span>
+                    </div>
                 </div>
             </div>
         @else
-            <div class="bg-white w-full h-full rounded-xl shadow-lg px-8">
+            <div class="bg-white w-full rounded-xl shadow-lg px-8 h-[calc(100vh-2rem)] flex flex-col overflow-hidden">
                 {{-- HEADER (UI versi bawah) --}}
                 <div class="h-30 flex items-center">
                     <img src="{{ asset('images/logo.png') }}" class="w-18">
@@ -35,7 +37,7 @@
                 </div>
 
                 <h2 class="uppercase font-medium text-gray-400 font-roboto">{{ Auth::user()->name }}</h2>
-                <div class="mb-8 flex items-center gap-3 h-10">
+                <div class="mb-8 flex items-center gap-3 h-10 shrink-0">
                     {{-- <h2 class="text-2xl font-bold mb-4">{{ Auth::user()->name }}</h2> --}}
                     <p id="fileCounter" class="text-lg font-semibold text-gray-700">0 file dipilih</p>
                     <button id="deleteAllBtn" onclick="deleteSelectedFiles()"
@@ -44,7 +46,7 @@
                     </button>
                 </div>
                 {{-- LIST FILES (UI versi bawah) --}}
-                <div class="w-full max-h-[65vh] overflow-y-auto custom-scrollbar">
+                <div class="w-full flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-4">
 
                     <table class="w-full border-collapse">
                         <thead class="bg-gray-100 sticky top-0 z-50">
@@ -224,6 +226,7 @@
                         </tbody>
                     </table>
                 </div>
+                    </div>
         @endif
 
         {{-- DELETE MODAL (UI versi bawah) --}}
@@ -263,7 +266,6 @@
                 </p>
             </div>
         </div>
-    </div>
     </div>
 
     {{-- PRINT MODAL (UI “bawah” tapi panelnya tetap lengkap utk logika “atas”) --}}

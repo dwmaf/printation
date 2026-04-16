@@ -59,14 +59,9 @@ const formatTime = (dateStr) => {
 </script>
 
 <template>
-    <div class="bg-white w-full h-full rounded-xl shadow-lg px-8">
-        <div v-if="showLocalQr" class="flex justify-center animate-in zoom-in duration-300">
-            <div class="bg-white p-6 rounded-2xl shadow-xl flex flex-col items-center border border-indigo-50">
-                <div class="w-44 h-44" v-html="qrCode"></div>
-            </div>
-        </div>
+    <div class="bg-white w-full rounded-xl shadow-lg px-8 h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)] flex flex-col overflow-hidden">
 
-        <div class="flex items-center justify-between mb-6">
+        <div class="flex items-center justify-between mb-6 shrink-0">
             <div class="flex items-center gap-4">
                 <img src="/images/logo.png" class="w-18" alt="Logo">
                 <div>
@@ -91,8 +86,21 @@ const formatTime = (dateStr) => {
             </div>
         </div>
 
-        <div class="w-full max-h-[65vh] overflow-y-auto">
-            <table class="w-full border-collapse">
+        <transition enter-active-class="transition duration-250 ease-out" enter-from-class="opacity-0 -translate-y-1"
+            enter-to-class="opacity-100 translate-y-0" leave-active-class="transition duration-200 ease-in"
+            leave-from-class="opacity-100 translate-y-0" leave-to-class="opacity-0 -translate-y-1">
+            <div v-if="showLocalQr" class="mb-6 shrink-0 flex justify-center">
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 md:p-5 shadow-sm">
+                    <div class="bg-white border border-slate-100 rounded-xl p-3 shadow-inner">
+                        <div class="[&>svg]:block [&>svg]:w-52 [&>svg]:h-52 md:[&>svg]:w-60 md:[&>svg]:h-60"
+                            v-html="qrCode"></div>
+                    </div>
+                </div>
+            </div>
+        </transition>
+
+        <div class="w-full flex-1 min-h-0 overflow-y-auto custom-scrollbar pb-4">
+                <table class="w-full border-collapse">
                 <thead class="bg-gray-100 sticky top-0 z-10">
                     <tr class="text-left text-sm font-semibold text-gray-700">
                         <th class="p-3 text-center">
