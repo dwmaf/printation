@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\SuperAdmin\DashboardAdminController;
 
 
 Route::get('/', function () {
@@ -28,6 +29,14 @@ Route::group(['middleware' => 'guest'], function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
+    Route::get('/admin/dashboard', [DashboardAdminController::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/outlets', [DashboardAdminController::class, 'indexOutlet'])->name('admin.outlets.index');
+    Route::post('/admin/outlets', [DashboardAdminController::class, 'storeOutlet'])->name('admin.outlets.store');
+    Route::put('/admin/outlets/{id}', [DashboardAdminController::class, 'updateOutlet'])->name('admin.outlets.update');
+    Route::delete('/admin/outlets/{id}', [DashboardAdminController::class, 'destroyOutlet'])->name('admin.outlets.destroy');
+});
 
 /*
 |--------------------------------------------------------------------------
@@ -99,18 +108,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 //     Route::post('/outlet/update-qris', [OutletController::class, 'updateQRIS'])->name('outlet.updateQRIS');
 // });
 
-
-
-
-
-
-// INERTIA AUTH (SUPER ADMIN)
-// Route::group(['middleware' => ['auth', 'role:super-admin']], function () {
-//     Route::get('/admin/upa/dashboard', [InertiaAuthController::class, 'dashboard'])->name('admin.upa.dashboard');
-//     Route::get('/admin/upa/verify-print', [InertiaVerifyPrintController::class, 'index'])->name('admin.upa.verify-print.index');
-//     Route::post('/admin/upa/verify-print/{id}/verify', [InertiaVerifyPrintController::class, 'verify'])->name('admin.upa.verify-print.verify');
-//     Route::post('/admin/upa/verify-print/{id}/reject', [InertiaVerifyPrintController::class, 'reject'])->name('admin.upa.verify-print.reject');
-// });
 
 // Route::group(['middleware' => ['auth', 'role:station-upa-pkk']], function () {
 //     Route::get('/upa/station', [InertiaPrintStationController::class, 'index'])->name('upa.station.index');

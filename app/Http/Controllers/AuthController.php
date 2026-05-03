@@ -32,10 +32,6 @@ class InertiaAuthController extends Controller
             // Redirect berdasarkan Role
             if ($user->hasRole('super-admin')) {
                 return redirect()->route('admin.dashboard');
-            } elseif ($user->hasRole('outlet-owner')) {
-                return redirect()->route('outlet.dashboard');
-            } elseif ($user->hasRole('station')) {
-                return redirect()->route('station');
             }
 
             // Default fallback jika tidak ada role yang cocok
