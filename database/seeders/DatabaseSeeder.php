@@ -21,8 +21,6 @@ class DatabaseSeeder extends Seeder
         $roleAdmin = Role::firstOrCreate(['name' => 'super-admin']);
         $roleOwner = Role::firstOrCreate(['name' => 'outlet-owner']);
         $roleStation = Role::firstOrCreate(['name' => 'station']);
-        $roleStationUPAPKK = Role::firstOrCreate(['name' => 'station-upa-pkk']);
-
         /*
         |--------------------------------------------------------------------------
         | SEEDER KHUSUS KP
@@ -49,10 +47,6 @@ class DatabaseSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        if (!$stationupapkk->hasRole('station-upa-pkk')) {
-            $stationupapkk->assignRole($roleStationUPAPKK);
-        }
-        $this->command?->info('✅ Station Kiosk UPA: kiosk@upa.printation / password');
 
         /*
         |--------------------------------------------------------------------------
