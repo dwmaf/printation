@@ -14,7 +14,7 @@ class AuthController extends Controller
 {
     public function showLoginForm()
     {
-        return Inertia::render('Login');
+        return Inertia::render('Auth/Login');
     }
 
     public function login(Request $request)
@@ -26,7 +26,7 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
-
+            /** @var \App\Models\User $user */
             $user = Auth::user();
 
             // Redirect berdasarkan Role

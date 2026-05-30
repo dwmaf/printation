@@ -13,6 +13,12 @@ createInertiaApp({
     setup({ el, App, props }) {
         const root = createRoot(el);
         root.render(<App {...props} />);
+        
+        // Menghapus loading screen bawaan HTML setelah React siap melakukan render
+        const loader = document.getElementById('initial-loader');
+        if (loader) {
+            loader.remove();
+        }
     },
     progress: {
         color: '#4B5563',

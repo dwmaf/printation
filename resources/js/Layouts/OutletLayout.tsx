@@ -1,41 +1,21 @@
-import React, { useState, useEffect, ReactNode } from 'react';
-import { Link, usePage, router } from '@inertiajs/react';
-import { LayoutDashboard, LogOut, FileCheck, Menu, X } from 'lucide-react';
+import React, { useState, ReactNode } from 'react';
+import { Link, usePage } from '@inertiajs/react';
+import { LayoutDashboard, LogOut, MonitorPlay, FileCheck, Menu, X } from 'lucide-react';
 
 interface SharedProps {
     pendingCount?: number;
     [key: string]: any;
 }
 
-interface AdminLayoutProps {
+interface OutletLayoutProps {
     children: ReactNode;
     header?: ReactNode;
 }
 
-export default function AdminLayout({ children, header }: AdminLayoutProps) {
+export default function OutletLayout({ children, header }: OutletLayoutProps) {
     const { url, props } = usePage<{ props: SharedProps }>();
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-    
-    // Explicitly cast or access safely
     const pendingCount = (props as SharedProps).pendingCount || 0;
-
-    // useEffect(() => {
-    //     if ((window as any).Echo) {
-    //         (window as any).Echo.channel('admin-upa-channel')
-    //             .listen('.transaction.created', (e: any) => {
-    //                 router.reload({ 
-    //                     only: ['pendingCount'], 
-    //                     preserveScroll: true 
-    //                 });
-    //             })
-    //             .listen('.transaction.updated', (e: any) => {
-    //                 router.reload({ 
-    //                     only: ['pendingCount'], 
-    //                     preserveScroll: true 
-    //                 });
-    //             });
-    //     }
-    // }, []);
 
     return (
         <div className="flex flex-col lg:flex-row p-3 sm:p-6 gap-3 sm:gap-4 min-h-screen bg-gray-100 font-roboto">
@@ -74,37 +54,36 @@ export default function AdminLayout({ children, header }: AdminLayoutProps) {
                     <h1 className="font-koulen text-3xl text-gray-800 tracking-wide">Printation</h1>
                 </div>
 
-                <h2 className="font-bold text-gray-400 mb-2 ml-6 mt-4 lg:mt-0 text-sm uppercase tracking-wider">Menu</h2>
+                <h2 className="font-bold text-gray-400 mb-2 ml-6 mt-4 lg:mt-0 text-sm uppercase tracking-wider">Menu Outlet</h2>
 
                 <div className="flex flex-col">
-                    <Link href="/admin/dashboard"
+                    <Link href="/outlet/dashboard"
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex gap-3 items-center cursor-pointer p-3 pl-6 w-full transition-colors font-medium border-r-4 ${
-                            url.startsWith('/admin/dashboard') ? 'text-indigo-600 bg-indigo-50 border-indigo-600' : 'text-gray-400 border-transparent hover:bg-gray-50 hover:text-indigo-500'
+                            url.startsWith('/outlet/dashboard') ? 'text-emerald-600 bg-emerald-50 border-emerald-600' : 'text-gray-400 border-transparent hover:bg-gray-50 hover:text-emerald-500'
                         }`}>
                         <LayoutDashboard className="w-5 h-5" />
-                        Dashboard
+                        Dashboard Outlet
                     </Link>
-                    <Link href="/admin/outlets"
+                    <Link href="/outlet/stations"
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex gap-3 items-center cursor-pointer p-3 pl-6 w-full transition-colors font-medium border-r-4 ${
-                            url.startsWith('/admin/outlets') ? 'text-indigo-600 bg-indigo-50 border-indigo-600' : 'text-gray-400 border-transparent hover:bg-gray-50 hover:text-indigo-500'
+                            url.startsWith('/outlet/stations') ? 'text-emerald-600 bg-emerald-50 border-emerald-600' : 'text-gray-400 border-transparent hover:bg-gray-50 hover:text-emerald-500'
                         }`}>
-                        <LayoutDashboard className="w-5 h-5" />
-                        Dashboard
+                        <MonitorPlay className="w-5 h-5" />
+                        Daftar Station
                     </Link>
-
-                    {/* <Link href="/verify-print"
+                    <Link href="/outlet/verify-print"
                         onClick={() => setMobileMenuOpen(false)}
                         className={`flex gap-3 items-center cursor-pointer p-3 pl-6 w-full transition-colors font-medium border-r-4 ${
-                            url.startsWith('/verify-print') ? 'text-indigo-600 bg-indigo-50 border-indigo-600' : 'text-gray-400 border-transparent hover:bg-gray-50 hover:text-indigo-500'
+                            url.startsWith('/outlet/verify-print') ? 'text-emerald-600 bg-emerald-50 border-emerald-600' : 'text-gray-400 border-transparent hover:bg-gray-50 hover:text-emerald-500'
                         }`}>
                         <FileCheck className="w-5 h-5" />
                         <span className="flex-1">Verify Print</span>
                         {pendingCount > 0 && (
                             <span className="bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full mr-2 shadow-sm">{pendingCount}</span>
                         )}
-                    </Link> */}
+                    </Link>
                 </div>
 
                 <Link href="/logout" method="post" as="button"
@@ -121,15 +100,15 @@ export default function AdminLayout({ children, header }: AdminLayoutProps) {
                     className="hidden lg:flex flex-col md:flex-row justify-between items-center mb-4 gap-4 bg-white p-6 rounded-xl shadow-sm shrink-0">
                     <div>
                         {header || (
-                            <h1 className="text-3xl text-gray-800 font-koulen uppercase tracking-wide">Dashboard</h1>
+                            <h1 className="text-3xl text-gray-800 font-koulen uppercase tracking-wide">Dashboard Outlet</h1>
                         )}
                     </div>
                     <div className="flex items-center gap-3">
                         <img src="/images/upa-pkk-logo.jpg" alt="logo_upa_pkk"
                             className="w-12 h-12 rounded-full border border-gray-100" />
                         <div className="flex flex-col">
-                            <p className="font-bold text-gray-800">UPA PKK UNTAN</p>
-                            <p className="text-sm text-gray-400">Super administrator</p>
+                            <p className="font-bold text-gray-800">Printation Outlet</p>
+                            <p className="text-sm text-gray-400">Outlet owner</p>
                         </div>
                     </div>
                 </div>
@@ -138,7 +117,7 @@ export default function AdminLayout({ children, header }: AdminLayoutProps) {
                 <div className="lg:hidden bg-white p-4 rounded-xl shadow-sm mb-3 flex items-center justify-between">
                     <div>
                         {header || (
-                            <h1 className="text-xl text-gray-800 font-koulen uppercase tracking-wide">Dashboard</h1>
+                            <h1 className="text-xl text-gray-800 font-koulen uppercase tracking-wide">Dashboard Outlet</h1>
                         )}
                     </div>
                     <img src="/images/upa-pkk-logo.jpg" alt="logo_upa_pkk"

@@ -33,16 +33,6 @@ class DatabaseSeeder extends Seeder
             $admin->assignRole($roleAdmin);
         }
 
-        $this->command?->info('✅ Super Admin UPA: admin@upa.printation / password');
-        $stationupapkk = User::updateOrCreate(
-            ['email' => 'kiosk@upa.printation'],
-            [
-                'name' => 'Kiosk UPA PKK',
-                'password' => Hash::make('password'),
-                'email_verified_at' => now(),
-            ]
-        );
-
         /**
          * 3 Outlet contoh + Owner + 2 Station
          */

@@ -16,7 +16,22 @@ class DashboardAdminController extends Controller
 
     public function index()
     {
-        return Inertia::render('SuperAdmin/DashboardAdmin');
+        // TODO: Ganti dengan data asli dari database (Transaction / Printfile dll)
+        return Inertia::render('SuperAdmin/DashboardAdmin', [
+            'stats' => [
+                'chartData' => [
+                    ['month' => 'Jan', 'total' => 150],
+                    ['month' => 'Feb', 'total' => 220],
+                    ['month' => 'Mar', 'total' => 180],
+                    ['month' => 'Apr', 'total' => 250],
+                    ['month' => 'May', 'total' => 300],
+                    ['month' => 'Jun', 'total' => 280],
+                ],
+                'sheetsThisMonth' => 280,
+                'trendPercentage' => '12.5',
+                'sheetsAllTime' => 1380,
+            ]
+        ]);
     }
 
     // buat ke halaman daftar outlet
@@ -31,7 +46,7 @@ class DashboardAdminController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'location' => 'required|string',
+            'address' => 'required|string',
             'owner_name' => 'required|string',
             'owner_email' => 'required|email|unique:users,email',
             'owner_password' => 'required|min:8',
@@ -40,7 +55,7 @@ class DashboardAdminController extends Controller
         DB::transaction(function () use ($request) {
             $outlet = Outlet::create([
                 'name' => $request->name,
-                'location' => $request->location,
+                'address' => $request->address,
             ]);
 
             $user = User::create([
@@ -56,20 +71,20 @@ class DashboardAdminController extends Controller
         return redirect()->back()->with('success', 'Outlet dan Owner berhasil dibuat');
     }
 
-    public function updateOutlet(Request $request, $id)
+    public function updateOutlet(Request $request, int $id)
     {
         $outlet = Outlet::findOrFail($id);
         
         $request->validate([
             'name' => 'required|string',
-            'location' => 'required|string',
+            'address' => 'required|string',
         ]);
 
-        $outlet->update($request->only('name', 'location'));
+        $outlet->update($request->only('name', 'address'));
 
         return redirect()->back()->with('success', 'Outlet berhasil diupdate');
     }
-    public function destroyOutlet($id)
+    public function destroyOutlet(int $id)
     {
         $outlet = Outlet::findOrFail($id);
         // User terkait biasanya ikut terhapus jika di set cascade di DB, 

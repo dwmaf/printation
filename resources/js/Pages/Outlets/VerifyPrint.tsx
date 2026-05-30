@@ -1,22 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Head, useForm, router, Link } from '@inertiajs/react';
-import { Search, Check, X, File, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Head, useForm, router } from '@inertiajs/react';
+import { Search, Check, X } from 'lucide-react';
 import { route } from 'ziggy-js';
 import Pagination from '@/Components/Pagination';
-import AdminLayout from '@/Layouts/AdminLayout';
+import OutletLayout from '@/Layouts/OutletLayout';
 
-interface PrintRequestData {
+interface TransactionData {
     id: number;
-    request_id: string;
+    order_id: string;
     status: string;
-    calculated_pages: number;
-    copies: number;
-    color_mode: string;
-    paper_size: string | null;
+    amount: number;
+    filename_snapshot: string | null;
+    print_config: {
+        copies?: number;
+        color_mode?: string;
+        paper_size?: string | null;
+        page_count?: number;
+    };
 }
 
-interface PrintRequestsPaginated {
-    data: PrintRequestData[];
+interface TransactionsPaginated {
+    data: TransactionData[];
     from: number;
     to: number;
     total: number;
@@ -28,18 +32,18 @@ interface Filters {
 }
 
 interface VerifyPrintProps {
-    printrequests: PrintRequestsPaginated;
+    transactions: TransactionsPaginated;
     filters: Filters;
 }
 
-export default function VerifyPrint({ printrequests, filters }: VerifyPrintProps) {
+export default function VerifyPrint({ transactions, filters }: VerifyPrintProps) {
     const [search, setSearch] = useState(filters.search || '');
     const { post } = useForm();
 
     // Query Search (Debounce agar tidak terlalu berat)
     useEffect(() => {
         const timeoutId = setTimeout(() => {
-            router.get(route('admin.upa.verify-print.index'), { search }, {
+            router.get(route('outlet.verify-print.index'), { search }, {
                 preserveState: true,
                 replace: true
             });
@@ -81,18 +85,18 @@ export default function VerifyPrint({ printrequests, filters }: VerifyPrintProps
 
     const verify = (id: number) => {
         if (confirm('Verifikasi order ini?')) {
-            post(route('admin.upa.verify-print.verify', id));
+            post(route('outlet.verify-print.verify', id));
         }
     };
 
     const reject = (id: number) => {
         if (confirm('Tolak order ini?')) {
-            post(route('admin.upa.verify-print.reject', id));
+            post(route('outlet.verify-print.reject', id));
         }
     };
 
     return (
-        <AdminLayout
+        <OutletLayout
             header={
                 <h1 className="text-xl sm:text-2xl md:text-3xl text-gray-800 font-koulen uppercase tracking-wide">
                     Verifikasi Print
@@ -138,33 +142,33 @@ export default function VerifyPrint({ printrequests, filters }: VerifyPrintProps
                             </tr>
                         </thead>
                         <tbody className="text-sm text-gray-600 divide-y divide-gray-50">
-                            {printrequests.data.map((printrequest) => (
-                                <tr key={printrequest.id} className="group hover:bg-gray-50 transition-colors">
+                            {transactions.data.map((transaction) => (
+                                <tr key={transaction.id} className="group hover:bg-gray-50 transition-colors">
                                     {/* ID */}
                                     <td className="py-5 pr-4 font-semibold text-gray-900">
-                                        {printrequest.request_id}
+                                        {transaction.order_id}
                                     </td>
 
                                     {/* STATUS */}
                                     <td className="py-5 px-4">
-                                        <span className={`px-3 py-1 rounded-md text-[10px] font-bold ${getStatusStyle(printrequest.status)}`}>
-                                            {getStatusLabel(printrequest.status)}
+                                        <span className={`px-3 py-1 rounded-md text-[10px] font-bold ${getStatusStyle(transaction.status)}`}>
+                                            {getStatusLabel(transaction.status)}
                                         </span>
                                     </td>
 
                                     {/* HALAMAN */}
                                     <td className="py-5 px-4">
-                                        {printrequest.calculated_pages} Hal
+                                        {transaction.print_config.page_count ?? '-'} Hal
                                     </td>
 
                                     {/* Copies */}
                                     <td className="py-5 px-4">
-                                        {printrequest.copies} Copy
+                                        {transaction.print_config.copies ?? '-'} Copy
                                     </td>
 
                                     {/* WARNA */}
                                     <td className="py-5 px-4 text-center">
-                                        {printrequest.color_mode === 'color' ? (
+                                        {transaction.print_config.color_mode === 'color' ? (
                                             <Check className="w-5 h-5 text-gray-500 mx-auto" strokeWidth="2" />
                                         ) : (
                                             <X className="w-5 h-5 text-gray-300 mx-auto" strokeWidth="2" />
@@ -173,23 +177,23 @@ export default function VerifyPrint({ printrequests, filters }: VerifyPrintProps
 
                                     {/* UKURAN */}
                                     <td className="py-5 px-4 text-center font-medium">
-                                        {printrequest.paper_size?.toUpperCase()}
+                                        {transaction.print_config.paper_size?.toUpperCase()}
                                     </td>
 
                                     {/* AKSI */}
                                     <td className="py-5 px-4 text-right">
-                                        {printrequest.status === 'pending' ? (
+                                        {transaction.status === 'pending' ? (
                                             <div className="flex justify-end gap-2">
-                                                <button onClick={() => verify(printrequest.id)}
+                                                <button onClick={() => verify(transaction.id)}
                                                     className="w-8 h-8 rounded bg-[#4ADE80] text-white flex items-center justify-center hover:bg-green-500 transition shadow-sm cursor-pointer">
                                                     <Check className="w-4 h-4" strokeWidth="3" />
                                                 </button>
-                                                <button onClick={() => reject(printrequest.id)}
+                                                <button onClick={() => reject(transaction.id)}
                                                     className="w-8 h-8 rounded bg-[#FB7185] text-white flex items-center justify-center hover:bg-red-500 transition shadow-sm cursor-pointer">
                                                     <X className="w-4 h-4" strokeWidth="3" />
                                                 </button>
                                             </div>
-                                        ) : printrequest.status === 'completed' ? (
+                                        ) : transaction.status === 'completed' ? (
                                             <div className="flex justify-end">
                                                 <span className="flex items-center gap-1 text-indigo-500 font-bold text-xs bg-indigo-50 px-2 py-1 rounded">
                                                     <Check className="w-3 h-3" strokeWidth="4" /> TERPRINT
@@ -203,7 +207,7 @@ export default function VerifyPrint({ printrequests, filters }: VerifyPrintProps
                             ))}
 
                             {/* Empty State Example */}
-                            {printrequests.data.length === 0 && (
+                            {transactions.data.length === 0 && (
                                 <tr>
                                     <td colSpan={7} className="text-center py-10 text-gray-400">
                                         Tidak ada data.
@@ -217,21 +221,21 @@ export default function VerifyPrint({ printrequests, filters }: VerifyPrintProps
                 {/* MOBILE CARD VIEW */}
                 <div className="lg:hidden space-y-3">
                     {/* Empty State */}
-                    {printrequests.data.length === 0 && (
+                    {transactions.data.length === 0 && (
                         <div className="text-center py-10 text-gray-400">
                             Tidak ada data.
                         </div>
                     )}
 
                     {/* Card for each print request */}
-                    {printrequests.data.map((printrequest) => (
-                        <div key={printrequest.id} className="bg-white border-2 border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
+                    {transactions.data.map((transaction) => (
+                        <div key={transaction.id} className="bg-white border-2 border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
 
                             {/* Header: ID & Status */}
                             <div className="flex justify-between items-center mb-3">
-                                <div className="font-bold text-gray-900 text-lg">{printrequest.request_id}</div>
-                                <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${getStatusStyle(printrequest.status)}`}>
-                                    {getStatusLabel(printrequest.status)}
+                                <div className="font-bold text-gray-900 text-lg">{transaction.order_id}</div>
+                                <span className={`px-3 py-1.5 rounded-lg text-xs font-bold ${getStatusStyle(transaction.status)}`}>
+                                    {getStatusLabel(transaction.status)}
                                 </span>
                             </div>
 
@@ -239,11 +243,11 @@ export default function VerifyPrint({ printrequests, filters }: VerifyPrintProps
                             <div className="flex items-center justify-between text-sm text-gray-600 mb-3 pb-3 border-b border-gray-100">
                                 <div className="flex items-center gap-4">
                                     <span className="font-semibold text-gray-900">
-                                        {printrequest.calculated_pages} hal
+                                        {transaction.print_config.page_count ?? '-'} hal
                                     </span>
                                     <span className="text-gray-400">•</span>
                                     <span className="font-semibold text-gray-900">
-                                        {printrequest.copies} Copy
+                                        {transaction.print_config.copies ?? '-'} Copy
                                     </span>
                                 </div>
                             </div>
@@ -251,31 +255,31 @@ export default function VerifyPrint({ printrequests, filters }: VerifyPrintProps
                             {/* Second Row: Color & Size */}
                             <div className="flex items-center justify-between mb-3.5">
                                 <div className="flex items-center gap-2">
-                                    {printrequest.color_mode === 'color' ? (
+                                    {transaction.print_config.color_mode === 'color' ? (
                                         <Check className="w-5 h-5 text-green-600" strokeWidth="2.5" />
                                     ) : (
                                         <X className="w-5 h-5 text-gray-400" strokeWidth="2.5" />
                                     )}
                                     <span className="text-sm font-semibold text-gray-900">
-                                        {printrequest.color_mode === 'color' ? 'Berwarna' : 'Hitam Putih'}
+                                        {transaction.print_config.color_mode === 'color' ? 'Berwarna' : 'Hitam Putih'}
                                     </span>
                                 </div>
                                 <div className="bg-gray-100 px-3 py-1.5 rounded-md">
                                     <span className="font-bold text-gray-900 text-sm">
-                                        {printrequest.paper_size?.toUpperCase()}
+                                        {transaction.print_config.paper_size?.toUpperCase()}
                                     </span>
                                 </div>
                             </div>
 
                             {/* Action Buttons */}
-                            {printrequest.status === 'pending' ? (
+                            {transaction.status === 'pending' ? (
                                 <div className="flex gap-2.5">
-                                    <button onClick={() => verify(printrequest.id)}
+                                    <button onClick={() => verify(transaction.id)}
                                         className="flex-1 bg-[#4ADE80] text-white py-3.5 px-4 rounded-lg font-bold text-base hover:bg-green-500 transition shadow-sm flex items-center justify-center gap-2 active:scale-95">
                                         <Check className="w-5 h-5" strokeWidth="3" />
                                         Verifikasi
                                     </button>
-                                    <button onClick={() => reject(printrequest.id)}
+                                    <button onClick={() => reject(transaction.id)}
                                         className="flex-1 bg-[#FB7185] text-white py-3.5 px-4 rounded-lg font-bold text-base hover:bg-red-500 transition shadow-sm flex items-center justify-center gap-2 active:scale-95">
                                         <X className="w-5 h-5" strokeWidth="3" />
                                         Tolak
@@ -293,12 +297,12 @@ export default function VerifyPrint({ printrequests, filters }: VerifyPrintProps
                 {/* Pagination */}
                 <div className="mt-auto pt-6 flex flex-col sm:flex-row justify-between items-center text-xs text-gray-400 gap-3">
                     <div className="text-center sm:text-left">
-                        Showing {printrequests.from} to {printrequests.to} of {printrequests.total} entries
+                        Showing {transactions.from} to {transactions.to} of {transactions.total} entries
                     </div>
-                    <Pagination links={printrequests.links} />
+                    <Pagination links={transactions.links} />
                 </div>
 
             </div>
-        </AdminLayout>
+        </OutletLayout>
     );
 }

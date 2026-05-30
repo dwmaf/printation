@@ -15,6 +15,20 @@
 </head>
 
 <body>
+    <!-- Initial Loader (Hanya muncul saat pertama kali buka web) -->
+    <div id="initial-loader" style="position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background-color: #f9fafb;">
+        <style>
+            .spinner {
+                width: 40px; height: 40px;
+                border: 4px solid #e5e7eb; border-top: 4px solid #3b82f6;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+            }
+            @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        </style>
+        <div class="spinner"></div>
+    </div>
+
     @inertia
 </body>
 

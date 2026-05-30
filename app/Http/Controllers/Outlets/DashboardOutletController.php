@@ -1,19 +1,26 @@
 <?php
 
-namespace App\Http\Controllers\SuperAdmin;
+namespace App\Http\Controllers\Outlets;
 
 use App\Http\Controllers\Controller;
-use App\Models\Outlet;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+use Inertia\Inertia;
 
-class DashboardAdminController extends Controller
+class DashboardOutletController extends Controller
 {
 
     public function index()
     {
-        return view('admin.dashboard-admin');
+        return Inertia::render('Outlets/DashboardOutlet', [
+            'stats' => [
+                'chartData' => [
+                    ['month' => 'Jan', 'total' => 50],
+                    ['month' => 'Feb', 'total' => 120],
+                    ['month' => 'Mar', 'total' => 80],
+                ],
+                'sheetsThisMonth' => 120,
+                'trendPercentage' => '15.5',
+                'sheetsAllTime' => 850,
+            ]
+        ]);
     }
 }

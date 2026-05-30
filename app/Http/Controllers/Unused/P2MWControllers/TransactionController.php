@@ -43,6 +43,7 @@ class TransactionController extends Controller
             'order_id'     => $orderId,
             'file_id'      => $file->id,          // WAJIB (NOT NULL)
             'station_id'   => $file->station_id, 
+            'outlet_id'    => $file->station?->outlet_id,
             'amount'       => (int) $data['amount'],
             'status'       => 'pending',
             'print_config' => $printConfig,       // WAJIB (NOT NULL)
