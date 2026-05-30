@@ -1,26 +1,53 @@
-import './bootstrap';
-import '../css/app.css';
+import "./bootstrap";
+import "../css/app.css";
 
-import { createRoot } from 'react-dom/client';
-import { createInertiaApp } from '@inertiajs/react';
-import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
+import React from "react";
+import { createRoot, Root } from "react-dom/client";
+import { createInertiaApp } from "@inertiajs/react";
+import { resolvePageComponent } from "laravel-vite-plugin/inertia-helpers";
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+interface ImportMetaEnv {
+    readonly VITE_APP_NAME?: string;
+}
+
+interface ImportMeta {
+    readonly env: ImportMetaEnv;
+}
+
+const appName: string =
+    (import.meta.env as unknown as ImportMetaEnv).VITE_APP_NAME || "Laravel";
 
 createInertiaApp({
-    title: (title) => `${title} - ${appName}`,
-    resolve: (name) => resolvePageComponent(`./Pages/${name}.tsx`, import.meta.glob('./Pages/**/*.tsx')) as any,
+    title: (title: string): string => `${title} - ${appName}`,
+    resolve: async (name: string) => {
+        // Kita gunakan async-await agar proses pencarian komponen lebih stabil
+        const page = await resolvePageComponent<React.ComponentType>(
+            `./Pages/${name}.tsx`,
+            import.meta.glob<React.ComponentType>("./Pages/**/*.tsx"),
+        );
+
+        // Proteksi tambahan: jika gagal memuat, beri peringatan yang jelas di konsol
+        if (!page) {
+            console.error(
+                `Komponen halaman "${name}" tidak ditemukan di direktori ./Pages/`,
+            );
+        }
+
+        return page;
+    },
     setup({ el, App, props }) {
-        const root = createRoot(el);
+        const root: Root = createRoot(el);
+
         root.render(<App {...props} />);
-        
+
         // Menghapus loading screen bawaan HTML setelah React siap melakukan render
-        const loader = document.getElementById('initial-loader');
+        const loader: HTMLElement | null =
+            document.getElementById("initial-loader");
         if (loader) {
             loader.remove();
         }
     },
     progress: {
-        color: '#4B5563',
+        color: "#4B5563",
     },
 });
