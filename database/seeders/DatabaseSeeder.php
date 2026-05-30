@@ -21,11 +21,6 @@ class DatabaseSeeder extends Seeder
         $roleAdmin = Role::firstOrCreate(['name' => 'super-admin']);
         $roleOwner = Role::firstOrCreate(['name' => 'outlet-owner']);
         $roleStation = Role::firstOrCreate(['name' => 'station']);
-        /*
-        |--------------------------------------------------------------------------
-        | SEEDER KHUSUS KP
-        |--------------------------------------------------------------------------
-        */
         $admin = User::updateOrCreate(
             ['email' => 'admin@upa.printation'],
             [
@@ -48,11 +43,6 @@ class DatabaseSeeder extends Seeder
             ]
         );
 
-        /*
-        |--------------------------------------------------------------------------
-        | SEEDER KHUSUS P2MW   
-        |--------------------------------------------------------------------------
-        */
         /**
          * 3 Outlet contoh + Owner + 2 Station
          */

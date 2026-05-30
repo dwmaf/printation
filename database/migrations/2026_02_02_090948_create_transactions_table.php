@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('station_id')->nullable()->constrained('users')->onDelete('set null');
             $table->unsignedBigInteger('file_id');
             $table->unsignedBigInteger('printfile_id')->nullable();
-            $table->timestamp('paid_at')->nullable()->after('status');
+            $table->timestamp('paid_at')->nullable();
             $table->integer('amount'); // Total Harga
             $table->string('status')->default('pending'); // pending, completed, rejected
             $table->string('filename_snapshot')->nullable(); // Simpan nama file disini

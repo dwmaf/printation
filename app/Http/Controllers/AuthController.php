@@ -10,7 +10,7 @@ use App\Models\PrintRequest;
 use Carbon\Carbon;
 use Inertia\Inertia;
 
-class InertiaAuthController extends Controller
+class AuthController extends Controller
 {
     public function showLoginForm()
     {
