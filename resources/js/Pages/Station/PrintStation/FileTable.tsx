@@ -1,3 +1,67 @@
+import React from 'react';
+import { Link } from '@inertiajs/react';
+
+type FileItem = {
+  id: number;
+  original_name?: string;
+  type?: string;
+  created_at?: string;
+  latest_print_request?: any;
+  status?: string;
+};
+
+export default function FileTable({ files = [], onDelete }: { files?: FileItem[]; onDelete?: (id: number) => void }) {
+  if (!files || files.length === 0) return <div className="bg-white p-6 rounded">No files</div>;
+
+  const formatTime = (dateStr?: string) => {
+    if (!dateStr) return '-';
+    const date = new Date(dateStr);
+    return date.toLocaleString();
+  };
+
+  return (
+    <div className="bg-white w-full rounded-xl shadow-lg px-4 h-[calc(100vh-2rem)] md:h-[calc(100vh-4rem)] flex flex-col overflow-hidden">
+      <div className="flex items-center justify-between mb-4 p-4">
+        <div>
+          <h1 className="text-2xl font-bold">Print Station</h1>
+        </div>
+        <div className="text-gray-500 font-bold">{files.length} file terupload</div>
+      </div>
+
+      <div className="w-full flex-1 min-h-0 overflow-y-auto pb-4">
+        <table className="w-full border-collapse">
+          <thead className="bg-gray-100 sticky top-0 z-10">
+            <tr className="text-left text-sm font-semibold text-gray-700">
+              <th className="p-3">Nama File</th>
+              <th className="p-3">Diunggah</th>
+              <th className="p-3">Status</th>
+              <th className="p-3 text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {files.map((f) => (
+              <tr key={f.id} className="hover:bg-blue-50/50 transition-colors">
+                <td className="p-4 font-medium text-gray-900">{f.original_name}</td>
+                <td className="p-4 text-sm text-gray-500">{formatTime(f.created_at)}</td>
+                <td className="p-4">{f.status ?? (f.latest_print_request ? 'requested' : 'no-request')}</td>
+                <td className="p-4 text-right">
+                  <div className="flex justify-end gap-2">
+                    <Link href={route('station.print.show', f.id)} className="btn btn-sm">
+                      View
+                    </Link>
+                    <button onClick={() => onDelete?.(f.id)} className="btn btn-sm btn-danger">
+                      Delete
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
 <script setup>
 import { ref } from 'vue';
 import { Trash2, Printer, QrCode as QrIcon, Eye, EyeOff } from 'lucide-vue-next';

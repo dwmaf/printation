@@ -1,3 +1,40 @@
+import React, { useEffect, useState } from 'react';
+import { Head, usePage } from '@inertiajs/react';
+import FileTable from './FileTable';
+import PrintConfig from './PrintConfig';
+import EmptyQR from './EmptyQR';
+import DeleteModal from './Modals/DeleteModal';
+
+export default function PrintStationPage() {
+  const { props } = usePage();
+  const { filetoprints = [], qrCode = null } = props as any;
+
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [fileToDelete, setFileToDelete] = useState<number | null>(null);
+
+  function openDeleteModal(id: number) {
+    setFileToDelete(id);
+    setDeleteModalOpen(true);
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#FAFAFA] font-roboto text-gray-800 p-4 md:p-8">
+      <Head title="Print Station" />
+
+      <div className="flex gap-6">
+        <div className="w-2/3">
+          <FileTable files={filetoprints} onDelete={openDeleteModal} />
+        </div>
+        <div className="w-1/3 space-y-4">
+          <PrintConfig initialConfig={{}} />
+          <EmptyQR qrData={qrCode} />
+        </div>
+      </div>
+
+      <DeleteModal open={deleteModalOpen} id={fileToDelete} onClose={() => setDeleteModalOpen(false)} />
+    </div>
+  );
+}
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import { Head, useForm, router } from '@inertiajs/vue3';
@@ -7,8 +44,8 @@ import { PDFDocument } from 'pdf-lib';
 // COMPONENTS
 import EmptyQR from './EmptyQR.vue';
 import FileTable from './FileTable.vue';
-import PrintConfig from './PrintConfig.vue';
-import DeleteModal from './Modals/DeleteModal.vue';
+import PrintConfig from './PrintConfig.tsx/index.js';
+import DeleteModal from './Modals/DeleteModal.tsx/index.js';
 
 // PROPS
 const props = defineProps({

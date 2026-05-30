@@ -7,6 +7,7 @@ use App\Http\Controllers\SuperAdmin\DashboardAdminController;
 use App\Http\Controllers\Outlets\DashboardOutletController;
 use App\Http\Controllers\Outlets\StationController;
 use App\Http\Controllers\Outlets\VerifyPrintController;
+use App\Http\Controllers\Station\PrintController;
 
 
 Route::get('/', function () {
@@ -53,5 +54,12 @@ Route::group(['middleware' => ['auth', 'role:outlet-owner']], function () {
     Route::get('/outlet/verify-print', [VerifyPrintController::class, 'index'])->name('outlet.verify-print.index');
     Route::post('/outlet/verify-print/{id}/verify', [VerifyPrintController::class, 'verify'])->name('outlet.verify-print.verify');
     Route::post('/outlet/verify-print/{id}/reject', [VerifyPrintController::class, 'reject'])->name('outlet.verify-print.reject');
+});
+
+// ROUTE UNTUK STATION (PRINTER)
+Route::group(['middleware' => ['auth', 'role:station']], function () {
+    Route::get('/station', [PrintController::class, 'index'])->name('station.index');
+    Route::delete('/station/file/{id}', [PrintController::class, 'destroy'])->name('station.print.destroy');
+    Route::post('/station/config', [PrintController::class, 'updateConfig'])->name('station.print.config.update');
 });
 

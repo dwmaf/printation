@@ -1,3 +1,49 @@
+import React from 'react';
+import { useForm } from '@inertiajs/react';
+
+type Props = { initialConfig?: any };
+
+export default function PrintConfig({ initialConfig = {} }: Props) {
+  const { data, setData, post, processing } = useForm({
+    copies: initialConfig.copies ?? 1,
+    duplex: initialConfig.duplex ?? false,
+  });
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    post(route('station.print.config.update'));
+  }
+
+  return (
+    <form onSubmit={submit} className="bg-white p-4 rounded shadow">
+      <div>
+        <label className="block text-sm font-bold">Copies</label>
+        <input
+          type="number"
+          value={data.copies}
+          onChange={(e) => setData('copies', Number(e.target.value))}
+          className="input mt-1"
+        />
+      </div>
+      <div className="mt-2">
+        <label className="inline-flex items-center">
+          <input
+            type="checkbox"
+            checked={data.duplex}
+            onChange={(e) => setData('duplex', e.target.checked)}
+            className="mr-2"
+          />
+          Duplex
+        </label>
+      </div>
+      <div className="mt-3">
+        <button disabled={processing} className="btn btn-primary">
+          Save
+        </button>
+      </div>
+    </form>
+  );
+}
 <script setup>
 import { computed, ref, watch, nextTick } from 'vue';
 import { Printer, Clock, CheckCircle, X } from 'lucide-vue-next';
