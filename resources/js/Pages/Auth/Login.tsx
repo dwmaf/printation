@@ -1,42 +1,56 @@
-import { useForm, Head } from "@inertiajs/react";
-import React, { useState } from "react";
+import { useForm, Head, Link } from "@inertiajs/react";
+import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
+import { Icon } from "@iconify/react";
+import { Input } from "@/Components/ui/Input";
+
+interface LoginFormState extends Record<string, string | boolean> {
+    email: string;
+    password: string;
+    remember: boolean;
+}
 
 export default function Login() {
-    const { data, setData, post, processing, errors } = useForm({
-        email: "",
-        password: "",
-    });
+    const { data, setData, post, processing, errors } = useForm<LoginFormState>(
+        {
+            email: "",
+            password: "",
+            remember: false,
+        },
+    );
 
-    const [showPassword, setShowPassword] = useState(false);
+    const [showPassword, setShowPassword] = useState<boolean>(false);
 
-    const togglePassword = () => setShowPassword(!showPassword);
+    const togglePassword = (): void => setShowPassword((prev) => !prev);
 
     return (
-        <div className="min-h-screen bg-background">
+        <div className="bg-background min-h-screen">
             <Head title="Log in" />
 
-            <div className="flex h-dvh p-4 justify-center">
-                <div className="w-full md:w-1/2 flex flex-col items-center justify-center h-full gap-4">
+            <div className="flex h-dvh justify-center gap-4 p-4">
+                {/* Sisi Kiri: Panel Autentikasi */}
+                <div className="flex h-full w-full flex-col items-center justify-center gap-4">
+                    {/* Identitas Brand */}
                     <div className="flex items-center justify-center gap-1">
                         <img
                             src="/images/logo.svg"
                             alt="Logo Print App"
-                            className="w-8 h-8 object-contain"
+                            className="h-8 w-8 object-contain xl:h-12 xl:w-12"
                         />
 
-                        <span className="text-xl font-bold font-poppins">
-                            PRINTATION
+                        <span className="font-head text-4xl font-bold text-blue-700 xl:text-5xl">
+                            Printation
                         </span>
                     </div>
 
-                    <div className="font-poppins bg-white p-6 rounded-2xl flex flex-col gap-4">
+                    {/* Kotak Form Utama */}
+                    <div className="font-body flex flex-col gap-4 rounded-2xl bg-white p-6">
                         <div className="space-y-2">
-                            <h1 className="text-3xl font-bold text-center">
+                            <h1 className="text-center text-3xl font-bold">
                                 Sign In
                             </h1>
 
-                            <p className="text-gray-500 text-xs text-center">
+                            <p className="text-center text-xs text-gray-500 lg:text-sm">
                                 Selamat Datang! Silakan masuk untuk melanjutkan
                             </p>
                         </div>
@@ -46,165 +60,152 @@ export default function Login() {
                                 e.preventDefault();
                                 post("/login");
                             }}
+                            noValidate
                             className="space-y-4"
                         >
                             <div className="space-y-1.5">
-                                <label className="block text-sm font-medium">
-                                    Email
-                                </label>
-
-                                <input
+                                <Input
+                                    label="Email"
+                                    type="email"
+                                    name="email"
+                                    placeholder="Masukkan email"
                                     value={data.email}
                                     onChange={(e) =>
                                         setData("email", e.target.value)
                                     }
-                                    type="email"
-                                    name="email"
-                                    placeholder="Masukkan email"
-                                    className="w-full rounded-lg py-2 px-4 text-sm border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all"
+                                    error={errors.email}
                                     required
+                                    autoFocus
                                 />
-
-                                {errors.email && (
-                                    <div className="text-red-500 text-sm">
-                                        {errors.email}
-                                    </div>
-                                )}
                             </div>
 
-                            <div className="space-y-1.5">
-                                <label className="block text-sm font-medium">
-                                    Password
-                                </label>
-
-                                <div className="relative">
-                                    <input
-                                        value={data.password}
-                                        onChange={(e) =>
-                                            setData("password", e.target.value)
-                                        }
-                                        type={
-                                            showPassword ? "text" : "password"
-                                        }
-                                        name="password"
-                                        id="password"
-                                        placeholder="Masukkan password"
-                                        className="w-full rounded-lg py-2 px-4 border border-gray-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 focus:outline-none transition-all text-sm"
-                                        required
-                                    />
-
-                                    <button
-                                        type="button"
-                                        onClick={togglePassword}
-                                        className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none cursor-pointer"
-                                    >
-                                        {showPassword ? (
-                                            <EyeOff className="w-4 h-4" />
-                                        ) : (
-                                            <Eye className="w-4 h-4" />
-                                        )}
-                                    </button>
-                                </div>
-
-                                {errors.password && (
-                                    <div className="text-red-500 text-sm">
-                                        {errors.password}
-                                    </div>
-                                )}
+                            <div className="relative space-y-1.5">
+                                <Input
+                                    label="Password"
+                                    type={showPassword ? "text" : "password"}
+                                    name="password"
+                                    placeholder="Masukkan password"
+                                    value={data.password}
+                                    onChange={(e) =>
+                                        setData("password", e.target.value)
+                                    }
+                                    error={errors.password}
+                                    className="pr-12"
+                                    required
+                                    suffix={
+                                        <button
+                                            type="button"
+                                            onClick={togglePassword}
+                                            className="absolute top-1/2 right-1 -translate-y-1/2 transform cursor-pointer text-gray-400 hover:text-gray-600 focus:outline-none"
+                                            aria-label={
+                                                showPassword
+                                                    ? "Sembunyikan sandi"
+                                                    : "Tampilkan sandi"
+                                            }
+                                        >
+                                            {showPassword ? (
+                                                <EyeOff className="h-4 w-4" />
+                                            ) : (
+                                                <Eye className="h-4 w-4" />
+                                            )}
+                                        </button>
+                                    }
+                                />
                             </div>
 
+                            {/* Opsi Tambahan Form */}
                             <div className="flex justify-between text-sm">
                                 <div className="flex gap-1.5">
                                     <input
+                                        id="remember"
                                         type="checkbox"
-                                        className="accent-blue-600"
+                                        checked={data.remember}
+                                        onChange={(e) =>
+                                            setData((prevData) => ({
+                                                ...prevData,
+                                                remember: e.target.checked,
+                                            }))
+                                        }
+                                        className="cursor-pointer accent-blue-600"
                                     />
-                                    <p>Ingat saya</p>
+                                    <label
+                                        htmlFor="remember"
+                                        className="cursor-pointer text-gray-600 transition-colors hover:text-black"
+                                    >
+                                        Ingat saya
+                                    </label>
                                 </div>
 
-                                <a href="#" className="text-blue-700">
-                                    Lupa password
-                                </a>
+                                <Link
+                                    href="#" // ! ini nanti route page lupa password
+                                    className="text-blue-700"
+                                >
+                                    Lupa password?
+                                </Link>
                             </div>
 
+                            {/* Tombol Aksi Utama */}
                             <button
                                 type="submit"
-                                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 rounded-xl transition-all duration-300 cursor-pointer disabled:opacity-50 text-sm"
+                                className="w-full cursor-pointer rounded-xl bg-blue-600 py-2.5 text-sm font-medium text-white transition-all duration-300 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
                                 disabled={processing}
                             >
-                                Masuk
+                                {processing ? "Memverifikasi..." : "Masuk"}
                             </button>
 
+                            {/* Pembatas Alternatif */}
                             <div className="flex items-center gap-2">
-                                <hr className="w-full border-gray-200" />
-                                <p className="text-xs font-medium text-gray-200">
+                                <hr className="w-full border-gray-500" />
+                                <p className="text-xs font-medium text-gray-500">
                                     ATAU
                                 </p>
-                                <hr className="w-full border-gray-200" />
+                                <hr className="w-full border-gray-500" />
                             </div>
 
-                            <button className="border border-gray-200 py-2 w-full rounded-xl text-sm hover:bg-gray-50 transition-all duration-300 cursor-pointer flex items-center justify-center gap-2">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 16 16"
-                                    className="w-4 h-4"
-                                >
-                                    <path d="M0 0h16v16H0z" fill="none" />
-                                    <g
-                                        fill="none"
-                                        fillRule="evenodd"
-                                        clipRule="evenodd"
-                                    >
-                                        <path
-                                            fill="#f44336"
-                                            d="M7.209 1.061c.725-.081 1.154-.081 1.933 0a6.57 6.57 0 0 1 3.65 1.82a100 100 0 0 0-1.986 1.93q-1.876-1.59-4.188-.734q-1.696.78-2.362 2.528a78 78 0 0 1-2.148-1.658a.26.26 0 0 0-.16-.027q1.683-3.245 5.26-3.86"
-                                            opacity=".987"
-                                        />
-                                        <path
-                                            fill="#ffc107"
-                                            d="M1.946 4.92q.085-.013.161.027a78 78 0 0 0 2.148 1.658A7.6 7.6 0 0 0 4.04 7.99q.037.678.215 1.331L2 11.116Q.527 8.038 1.946 4.92"
-                                            opacity=".997"
-                                        />
-                                        <path
-                                            fill="#448aff"
-                                            d="M12.685 13.29a26 26 0 0 0-2.202-1.74q1.15-.812 1.396-2.228H8.122V6.713q3.25-.027 6.497.055q.616 3.345-1.423 6.032a7 7 0 0 1-.51.49"
-                                            opacity=".999"
-                                        />
-                                        <path
-                                            fill="#43a047"
-                                            d="M4.255 9.322q1.23 3.057 4.51 2.854a3.94 3.94 0 0 0 1.718-.626q1.148.812 2.202 1.74a6.62 6.62 0 0 1-4.027 1.684a6.4 6.4 0 0 1-1.02 0Q3.82 14.524 2 11.116z"
-                                            opacity=".993"
-                                        />
-                                    </g>
-                                </svg>
-                                Masuk dengan Google
-                            </button>
+                            {/* Tombol OAuth Google */}
+                            <Link
+                                href="/auth/google/redirect" // ! disini route ke google
+                                className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-gray-200 py-2.5 text-sm transition-all duration-300 hover:bg-gray-50"
+                            >
+                                <Icon
+                                    icon="material-icon-theme:google"
+                                    className="h-4 w-4"
+                                />
+                                <span>Masuk dengan Google</span>
+                            </Link>
                         </form>
                     </div>
                 </div>
 
-                <div className="hidden w-125 md:flex flex-col bg-blue-600 items-center justify-center p-10 rounded-xl font-poppins text-white gap-12 text-center">
+                {/* Sisi Kanan - Welcome Panel */}
+                <div className="font-body hidden flex-col items-center justify-center gap-12 rounded-xl bg-blue-600 p-10 text-center text-white md:flex">
                     <div className="space-y-4">
-                        <h1 className="text-4xl font-semibold ">
+                        <h1 className="text-4xl font-semibold">
                             Selamat Datang!
                         </h1>
 
-                        <h2 className="font-semibold text-3xl">
+                        <h2 className="text-3xl font-semibold">
                             Silakan masuk dengan akun <u>Printation</u> anda
                         </h2>
 
-                        <p className="text-xs text-gray-200">
+                        <p className="text-xs text-gray-100">
                             Kelola pesanan dengan mudah, pantau proses
                             pencetakan secara real-time, dan akses seluruh fitur
                             Printation dalam satu tempat.
                         </p>
                     </div>
 
-                    <img
-                        src="/images/login-image.png"
-                        alt="Login Illustration"
-                        className="relative z-10 w-full max-w-sm h-auto object-contain drop-shadow-2xl"
-                    />
+                    <div className="relative aspect-4/3 w-full max-w-sm overflow-hidden">
+                        <img
+                            src="/images/login-image.webp"
+                            alt="Login Illustration"
+                            width={384}
+                            height={288}
+                            loading="eager"
+                            decoding="async"
+                            className="relative z-10 h-auto w-full max-w-sm object-contain drop-shadow-2xl"
+                        />
+                    </div>
                 </div>
             </div>
         </div>
